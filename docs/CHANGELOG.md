@@ -1,5 +1,12 @@
 # Changelog
 
+
+## v2.1.3 — GitHub Publish Fix
+
+- Corrigidos os workflows `ci.yml` e `release.yml` para restaurar os assets específicos de `win-x64` durante o publish.
+- Eliminado o erro `NETSDK1047` provocado por `dotnet publish --no-restore --runtime win-x64`.
+- Nenhuma alteração no modelo de dados.
+
 ## [2.1.2] - 2026-08-02
 
 ### Corrigido
@@ -67,3 +74,11 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Adicionado adaptador administrativo na camada Data.
 - Adicionados testes unitários da camada Application.
 - Sem alteração do esquema da base de dados.
+
+## v2.2.0 — Administração UI
+
+- Interface de Utilizadores integrada à camada Application.
+- Interface de Perfis integrada à camada Application.
+- Interface de Permissões integrada à camada Application.
+- Mensagens e validações padronizadas com `Result` e `Result<T>`.
+- Navegação administrativa atualizada no shell principal.
