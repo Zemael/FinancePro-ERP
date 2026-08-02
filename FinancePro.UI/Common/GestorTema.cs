@@ -22,7 +22,7 @@ public static class GestorTema
 
     private static void AplicarTema(bool escuro)
     {
-        var dicionarios = Application.Current.Resources.MergedDictionaries;
+        var dicionarios = System.Windows.Application.Current.Resources.MergedDictionaries;
 
         var atual = dicionarios.FirstOrDefault(d =>
             d.Source is not null &&

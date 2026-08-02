@@ -1,28 +1,25 @@
-<<<<<<< HEAD
-# FinancePro-ERP
-Sistema Integrado de Gestão Empresarial desenvolvido em Excel VBA.
-=======
 # FinancePro ERP
 
 Aplicação desktop de gestão financeira em C# / .NET 8 (WPF), com acesso a
 dados via Entity Framework Core (Code First) sobre SQL Server.
 
-## Arquitetura (3 projetos)
+## Arquitetura (4 projetos)
 
 ```
 FinancePro
 │
-├── FinancePro.UI     → WPF (MVVM). Composition root da aplicação.
-├── FinancePro.Core   → Entidades, interfaces e DTOs. Sem dependências.
-└── FinancePro.Data   → DbContext, configurações EF Core, Services
-                         (regras de negócio) e scripts SQL de referência.
+├── FinancePro.UI          → WPF (MVVM) e composition root.
+├── FinancePro.Application → contratos e resultados dos casos de uso.
+├── FinancePro.Core        → entidades, interfaces e DTOs de negócio.
+└── FinancePro.Data        → EF Core, persistência e serviços existentes.
 ```
 
 Dependências entre projetos:
 
 ```
-FinancePro.UI  ──▶  FinancePro.Data  ──▶  FinancePro.Core
-     └────────────────────▶  FinancePro.Core
+FinancePro.UI ──▶ FinancePro.Application ──▶ FinancePro.Core
+     ├──────▶ FinancePro.Data ───────────────▶ FinancePro.Core
+     └───────────────────────────────────────▶ FinancePro.Core
 ```
 
 Dentro de `FinancePro.Data`:
@@ -71,6 +68,11 @@ Migrations/         → geradas pelo `dotnet ef migrations add`
       **Caixa** (gestão de caixas) e **Bancos** (catálogo de bancos + contas
       bancárias) — mantidos como estão; podem ser reagrupados dentro de
       Cadastros Gerais mais tarde, se preferir.
+
+
+## Integração contínua
+
+Pull Requests para `develop` ou `main` executam automaticamente restore, build, testes, validação do Entity Framework e publicação WPF no GitHub Actions. Consulte `docs/engineering/CI-CD.md`.
 
 ## Estilo visual
 
@@ -269,4 +271,3 @@ isso é preciso gerar **outra migração** antes de correr:
 dotnet ef migrations add DashboardESaldoMinimo --project FinancePro.Data --startup-project FinancePro.UI
 dotnet ef database update --project FinancePro.Data --startup-project FinancePro.UI
 ```
->>>>>>> 43abb58 (chore: initialize FinancePro Foundation v2.0)

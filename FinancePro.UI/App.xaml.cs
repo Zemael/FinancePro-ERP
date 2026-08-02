@@ -19,12 +19,12 @@ namespace FinancePro.UI;
 /// nenhum utilizador, mostra o assistente de Configuração Inicial (cria a
 /// primeira Empresa + Administrador); caso contrário, vai direto ao Login.
 /// </summary>
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private IServiceProvider? _serviceProvider;
 
     public static IServiceProvider Services =>
-        ((App)Current)._serviceProvider
+        ((App)System.Windows.Application.Current)._serviceProvider
         ?? throw new InvalidOperationException("O contentor de DI ainda não foi inicializado.");
 
     protected override async void OnStartup(StartupEventArgs e)
