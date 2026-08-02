@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using FinancePro.Application.Administration.Users;
 using FinancePro.Core.DTOs;
 using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
@@ -8,7 +9,7 @@ namespace FinancePro.UI.ViewModels;
 
 public sealed class UtilizadoresViewModel : ViewModelBase
 {
-    private readonly IUtilizadorService _service;
+    private readonly UserAdministrationService _service;
     private readonly IPerfilService _perfilService;
     private readonly IEmpresaService _empresaService;
     private string _pesquisa = string.Empty;
@@ -21,6 +22,7 @@ public sealed class UtilizadoresViewModel : ViewModelBase
     private int _empresaId;
     private string _mensagem = string.Empty;
     private bool _aGuardar;
+    private bool _aCarregar;
 
     public ObservableCollection<UtilizadorDto> Utilizadores { get; } = new();
     public ObservableCollection<PerfilDto> Perfis { get; } = new();
@@ -35,6 +37,7 @@ public sealed class UtilizadoresViewModel : ViewModelBase
     public int EmpresaId { get => _empresaId; set => SetProperty(ref _empresaId, value); }
     public string Mensagem { get => _mensagem; set => SetProperty(ref _mensagem, value); }
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
+    public bool ACarregar { get => _aCarregar; set => SetProperty(ref _aCarregar, value); }
 
     public ICommand PesquisarCommand { get; }
     public ICommand NovoCommand { get; }
@@ -42,7 +45,10 @@ public sealed class UtilizadoresViewModel : ViewModelBase
     public ICommand GuardarCommand { get; }
     public ICommand AlternarAtivoCommand { get; }
 
-    public UtilizadoresViewModel(IUtilizadorService service, IPerfilService perfilService, IEmpresaService empresaService)
+    public UtilizadoresViewModel(
+        UserAdministrationService service,
+        IPerfilService perfilService,
+        IEmpresaService empresaService)
     {
         _service = service;
         _perfilService = perfilService;
@@ -57,17 +63,45 @@ public sealed class UtilizadoresViewModel : ViewModelBase
 
     private async Task InicializarAsync()
     {
-        var perfis = await _perfilService.ListarAsync();
-        Perfis.Clear(); foreach (var item in perfis.Where(x => x.Ativo)) Perfis.Add(item);
-        var empresas = await _empresaService.ListarAsync();
-        Empresas.Clear(); foreach (var item in empresas.Where(x => x.Ativo)) Empresas.Add(item);
-        await CarregarAsync();
+        try
+        {
+            var perfis = await _perfilService.ListarAsync();
+            Perfis.Clear();
+            foreach (var item in perfis.Where(x => x.Ativo)) Perfis.Add(item);
+
+            var empresas = await _empresaService.ListarAsync();
+            Empresas.Clear();
+            foreach (var item in empresas.Where(x => x.Ativo)) Empresas.Add(item);
+
+            Limpar();
+            await CarregarAsync();
+        }
+        catch (Exception ex)
+        {
+            Mensagem = ex.Message;
+        }
     }
 
     private async Task CarregarAsync()
     {
-        var lista = await _service.ListarAsync(Pesquisa);
-        Utilizadores.Clear(); foreach (var item in lista) Utilizadores.Add(item);
+        ACarregar = true;
+        try
+        {
+            var resultado = await _service.ListAsync(Pesquisa);
+            if (resultado.IsFailure)
+            {
+                Mensagem = ObterErro(resultado.Errors, resultado.Message);
+                return;
+            }
+
+            Utilizadores.Clear();
+            foreach (var item in resultado.Value ?? Array.Empty<UtilizadorDto>()) Utilizadores.Add(item);
+            Mensagem = resultado.Message ?? $"{Utilizadores.Count} utilizador(es) carregado(s).";
+        }
+        finally
+        {
+            ACarregar = false;
+        }
     }
 
     private void Editar()
@@ -84,39 +118,57 @@ public sealed class UtilizadoresViewModel : ViewModelBase
 
     private async Task GuardarAsync()
     {
-        AGuardar = true; Mensagem = string.Empty;
+        AGuardar = true;
+        Mensagem = string.Empty;
         try
         {
-            await _service.GuardarAsync(new UtilizadorDto
+            var resultado = await _service.SaveAsync(new UserSaveRequest(
+                _idEdicao,
+                NomeCompleto,
+                Email,
+                PerfilId,
+                EmpresaId,
+                true,
+                NovaPassword));
+
+            if (resultado.IsFailure)
             {
-                Id = _idEdicao,
-                NomeCompleto = NomeCompleto,
-                Email = Email,
-                NovaPassword = NovaPassword,
-                PerfilId = PerfilId,
-                EmpresaId = EmpresaId,
-                Ativo = true
-            });
+                Mensagem = ObterErro(resultado.Errors, resultado.Message);
+                return;
+            }
+
+            var mensagemSucesso = resultado.Message ?? "Utilizador guardado com sucesso.";
             Limpar();
-            Mensagem = "Utilizador guardado com sucesso.";
+            Mensagem = mensagemSucesso;
             await CarregarAsync();
+            Mensagem = mensagemSucesso;
         }
-        catch (Exception ex) { Mensagem = ex.Message; }
-        finally { AGuardar = false; }
+        finally
+        {
+            AGuardar = false;
+        }
     }
 
     private async Task AlternarAtivoAsync(object? parametro)
     {
         if (parametro is not UtilizadorDto item) return;
-        await _service.AlternarAtivoAsync(item.Id, !item.Ativo);
-        await CarregarAsync();
+        var resultado = await _service.SetActiveAsync(item.Id, !item.Ativo);
+        Mensagem = resultado.IsSuccess
+            ? resultado.Message ?? "Estado atualizado."
+            : ObterErro(resultado.Errors, resultado.Message);
+
+        if (resultado.IsSuccess) await CarregarAsync();
     }
 
     private void Limpar()
     {
         _idEdicao = 0;
-        NomeCompleto = Email = NovaPassword = Mensagem = string.Empty;
+        NomeCompleto = Email = NovaPassword = string.Empty;
         PerfilId = Perfis.FirstOrDefault()?.Id ?? 0;
         EmpresaId = Empresas.FirstOrDefault()?.Id ?? 0;
+        Selecionado = null;
     }
+
+    private static string ObterErro(IEnumerable<string> erros, string? mensagem) =>
+        erros.FirstOrDefault() ?? mensagem ?? "Não foi possível concluir a operação.";
 }

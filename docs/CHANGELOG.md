@@ -1,5 +1,18 @@
 # Changelog
 
+
+## [2.4.1] - 2026-08-02
+
+### Alterado
+- Alinhamento superior do botão Atualizar e da data/hora no Dashboard.
+- Formato completo da última atualização.
+
+## v2.1.3 — GitHub Publish Fix
+
+- Corrigidos os workflows `ci.yml` e `release.yml` para restaurar os assets específicos de `win-x64` durante o publish.
+- Eliminado o erro `NETSDK1047` provocado por `dotnet publish --no-restore --runtime win-x64`.
+- Nenhuma alteração no modelo de dados.
+
 ## [2.1.2] - 2026-08-02
 
 ### Corrigido
@@ -67,3 +80,31 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Adicionado adaptador administrativo na camada Data.
 - Adicionados testes unitários da camada Application.
 - Sem alteração do esquema da base de dados.
+
+## v2.2.0 — Administração UI
+
+- Interface de Utilizadores integrada à camada Application.
+- Interface de Perfis integrada à camada Application.
+- Interface de Permissões integrada à camada Application.
+- Mensagens e validações padronizadas com `Result` e `Result<T>`.
+- Navegação administrativa atualizada no shell principal.
+
+## v2.3.0 — Dashboard Executivo
+- Saudação dinâmica, atualização manual e hora da última atualização.
+- Disponibilidade total de caixa e bancos.
+- Ações rápidas ligadas aos módulos existentes.
+- Melhor tratamento de erros e pequenos ajustes visuais.
+
+## v2.4.0 — Tesouraria Application
+
+- Adicionada camada Application para Tesouraria.
+- ViewModel de Tesouraria desacoplado do serviço de dados.
+- Adicionados gateway, validações e testes unitários iniciais.
+- Nenhuma migration nova.
+
+## v2.5.0 — Receitas
+
+- Introduzida a camada Application para Contas a Receber.
+- Interface de Receitas integrada ao serviço de aplicação.
+- Validações e mensagens padronizadas com Result.
+- Adicionados testes para datas e origem de recebimento.

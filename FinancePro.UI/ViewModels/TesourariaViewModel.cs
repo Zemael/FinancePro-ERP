@@ -3,14 +3,14 @@ using System.Linq;
 using System.Windows.Input;
 using FinancePro.Core.DTOs;
 using FinancePro.Core.Enums;
-using FinancePro.Services.Interfaces;
+using FinancePro.Application.Treasury;
 using FinancePro.UI.Common;
 
 namespace FinancePro.UI.ViewModels;
 
 public class TesourariaViewModel : ViewModelBase
 {
-    private readonly ITesourariaService _service;
+    private readonly TreasuryApplicationService _service;
     private readonly int _empresaId;
 
     private DateTime _data = DateTime.Today;
@@ -79,7 +79,7 @@ public class TesourariaViewModel : ViewModelBase
     public ICommand RegistarCommand { get; }
     public ICommand AlternarConciliadoCommand { get; }
 
-    public TesourariaViewModel(ITesourariaService service, int empresaId)
+    public TesourariaViewModel(TreasuryApplicationService service, int empresaId)
     {
         _service = service;
         _empresaId = empresaId;
@@ -90,7 +90,9 @@ public class TesourariaViewModel : ViewModelBase
 
     private async Task CarregarAsync()
     {
-        var origens = await _service.ListarOrigensAsync(_empresaId);
+        var resultadoOrigens = await _service.ListarOrigensAsync(_empresaId);
+        if (resultadoOrigens.IsFailure) { MensagemErro = string.Join(" ", resultadoOrigens.Errors); return; }
+        var origens = resultadoOrigens.Value ?? Array.Empty<OpcaoOrigemDto>();
         Origens.Clear();
         foreach (var origem in origens)
         {
@@ -106,7 +108,9 @@ public class TesourariaViewModel : ViewModelBase
     private async Task CarregarCategoriasAsync()
     {
         var tipo = TipoOperacaoSelecionado == TipoOperacao.Saida ? TipoCategoria.Despesa : TipoCategoria.Receita;
-        var categorias = await _service.ListarCategoriasAsync(_empresaId, tipo);
+        var resultadoCategorias = await _service.ListarCategoriasAsync(_empresaId, tipo);
+        if (resultadoCategorias.IsFailure) { MensagemErro = string.Join(" ", resultadoCategorias.Errors); return; }
+        var categorias = resultadoCategorias.Value ?? Array.Empty<CategoriaOpcaoDto>();
         Categorias.Clear();
         foreach (var categoria in categorias)
         {
@@ -117,7 +121,9 @@ public class TesourariaViewModel : ViewModelBase
 
     private async Task CarregarMovimentosAsync()
     {
-        var movimentos = await _service.ListarMovimentosAsync(_empresaId);
+        var resultadoMovimentos = await _service.ListarMovimentosAsync(_empresaId);
+        if (resultadoMovimentos.IsFailure) { MensagemErro = string.Join(" ", resultadoMovimentos.Errors); return; }
+        var movimentos = resultadoMovimentos.Value ?? Array.Empty<MovimentoListItemDto>();
         Movimentos.Clear();
         foreach (var movimento in movimentos)
         {
@@ -154,7 +160,7 @@ public class TesourariaViewModel : ViewModelBase
                     return;
                 }
 
-                await _service.RegistarTransferenciaAsync(new NovaTransferenciaDto
+                var resultado = await _service.RegistarTransferenciaAsync(new NovaTransferenciaDto
                 {
                     Data = Data,
                     Descricao = Descricao,
@@ -168,6 +174,7 @@ public class TesourariaViewModel : ViewModelBase
                     DestinoId = DestinoSelecionado.Id,
                     EmpresaId = _empresaId
                 });
+                if (resultado.IsFailure) { MensagemErro = string.Join(" ", resultado.Errors); return; }
             }
             else
             {
@@ -177,7 +184,7 @@ public class TesourariaViewModel : ViewModelBase
                     return;
                 }
 
-                await _service.RegistarMovimentoAsync(new NovoMovimentoDto
+                var resultado = await _service.RegistarMovimentoAsync(new NovoMovimentoDto
                 {
                     Data = Data,
                     Descricao = Descricao,
@@ -190,6 +197,7 @@ public class TesourariaViewModel : ViewModelBase
                     CaixaId = OrigemSelecionada.Tipo == "Caixa" ? OrigemSelecionada.Id : null,
                     ContaBancariaId = OrigemSelecionada.Tipo == "ContaBancaria" ? OrigemSelecionada.Id : null
                 });
+                if (resultado.IsFailure) { MensagemErro = string.Join(" ", resultado.Errors); return; }
             }
 
             Descricao = string.Empty;
@@ -214,7 +222,8 @@ public class TesourariaViewModel : ViewModelBase
             return;
         }
 
-        await _service.MarcarConciliadoAsync(movimento.Id, !movimento.Conciliado);
+        var resultado = await _service.MarcarConciliadoAsync(movimento.Id, !movimento.Conciliado);
+        if (resultado.IsFailure) { MensagemErro = string.Join(" ", resultado.Errors); return; }
         await CarregarMovimentosAsync();
     }
 }

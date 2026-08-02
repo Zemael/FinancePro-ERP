@@ -1,7 +1,12 @@
+using FinancePro.Application.Revenue;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using FinancePro.Core.DTOs;
+using FinancePro.Application.Administration.Users;
+using FinancePro.Application.Administration.Profiles;
+using FinancePro.Application.Administration.Permissions;
+using FinancePro.Application.Treasury;
 using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 using FinancePro.UI.ViewModels;
@@ -89,7 +94,7 @@ public partial class MainWindow : Window
         DestacarItemAtivo(BtnDashboard);
         TrocarScope();
         var dashboardService = _scopeAtual!.ServiceProvider.GetRequiredService<IDashboardService>();
-        var viewModel = new DashboardViewModel(dashboardService, _utilizador.EmpresaId);
+        var viewModel = new DashboardViewModel(dashboardService, _utilizador.EmpresaId, _utilizador.NomeCompleto);
         viewModel.NavegarPedido += modulo =>
         {
             switch (modulo)
@@ -98,6 +103,9 @@ public partial class MainWindow : Window
                 case "Receitas": MostrarReceitas(); break;
                 case "Caixa": MostrarCaixa(); break;
                 case "Configuracoes": MostrarConfiguracoes(); break;
+                case "Utilizadores": MostrarUtilizadores(); break;
+                case "Despesas": MostrarDespesas(); break;
+                case "Orcamento": MostrarOrcamento(); break;
             }
         };
         ConteudoHost.Content = new DashboardView { DataContext = viewModel };
@@ -132,7 +140,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnUtilizadores);
         TrocarScope();
-        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IUtilizadorService>();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<UserAdministrationService>();
         var perfilService = _scopeAtual.ServiceProvider.GetRequiredService<IPerfilService>();
         var empresaService = _scopeAtual.ServiceProvider.GetRequiredService<IEmpresaService>();
         ConteudoHost.Content = new UtilizadoresView { DataContext = new UtilizadoresViewModel(service, perfilService, empresaService) };
@@ -142,7 +150,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnPerfis);
         TrocarScope();
-        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IPerfilService>();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<ProfileAdministrationService>();
         ConteudoHost.Content = new PerfisView { DataContext = new PerfisViewModel(service) };
     }
 
@@ -151,7 +159,7 @@ public partial class MainWindow : Window
         if (!SessaoAtual.TemPermissao("Permissoes")) return;
         DestacarItemAtivo(BtnPermissoes);
         TrocarScope();
-        var permissaoService = _scopeAtual!.ServiceProvider.GetRequiredService<IPermissaoService>();
+        var permissaoService = _scopeAtual!.ServiceProvider.GetRequiredService<PermissionAdministrationService>();
         var perfilService = _scopeAtual.ServiceProvider.GetRequiredService<IPerfilService>();
         ConteudoHost.Content = new PermissoesView { DataContext = new PermissoesViewModel(permissaoService, perfilService) };
     }
@@ -183,7 +191,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnTesouraria);
         TrocarScope();
-        var tesourariaService = _scopeAtual!.ServiceProvider.GetRequiredService<ITesourariaService>();
+        var tesourariaService = _scopeAtual!.ServiceProvider.GetRequiredService<TreasuryApplicationService>();
         var viewModel = new TesourariaViewModel(tesourariaService, _utilizador.EmpresaId);
         ConteudoHost.Content = new TesourariaView { DataContext = viewModel };
     }
@@ -210,7 +218,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnReceitas);
         TrocarScope();
-        var receitasService = _scopeAtual!.ServiceProvider.GetRequiredService<IReceitasService>();
+        var receitasService = _scopeAtual!.ServiceProvider.GetRequiredService<RevenueApplicationService>();
         var viewModel = new ReceitasViewModel(receitasService, _utilizador.EmpresaId);
         ConteudoHost.Content = new ReceitasView { DataContext = viewModel };
     }
