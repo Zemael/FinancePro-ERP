@@ -9,9 +9,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: financepro-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
-    name: Build .NET 8 / WPF
+  build-test:
+    name: Build, Test and EF Validation
     runs-on: windows-latest
 
     steps:
@@ -30,6 +34,18 @@ jobs:
 
       - name: Build
         run: dotnet build .\FinancePro.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test .\FinancePro.sln --configuration Release --no-build --logger "trx;LogFileName=FinancePro.Tests.trx" --collect:"XPlat Code Coverage"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinancePro-test-results
+          path: '**/TestResults/**'
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Install EF Core CLI
         run: dotnet tool install --global dotnet-ef --version 8.*
@@ -52,7 +68,6 @@ jobs:
         run: >-
           dotnet publish .\FinancePro.UI\FinancePro.UI.csproj
           --configuration Release
-          --no-restore
           --runtime win-x64
           --self-contained false
           --output .\artifacts\FinancePro-win-x64

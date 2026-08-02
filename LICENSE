@@ -1,21 +1,11 @@
-MIT License
+FinancePro ERP — Licença proprietária
 
-Copyright (c) 2026 Zemael
+Copyright © 2026 Zemael Jacinto da Silva. Todos os direitos reservados.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Este código-fonte, documentação, identidade visual e demais artefactos do
+FinancePro ERP são propriedade exclusiva do autor. É proibida a reprodução,
+distribuição, sublicenciamento, comercialização, modificação ou utilização
+total ou parcial sem autorização prévia e expressa, por escrito, do titular.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+A disponibilização deste repositório no GitHub não concede licença de uso a
+terceiros, salvo autorização escrita específica.

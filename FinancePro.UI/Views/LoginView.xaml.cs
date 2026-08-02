@@ -61,5 +61,5 @@ public partial class LoginView : Window
             : WindowState.Maximized;
     }
 
-    private void Fechar_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
+    private void Fechar_Click(object sender, RoutedEventArgs e) => System.Windows.Application.Current.Shutdown();
 }

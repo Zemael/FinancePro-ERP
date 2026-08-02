@@ -2,6 +2,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using FinancePro.Core.DTOs;
+using FinancePro.Application.Administration.Users;
+using FinancePro.Application.Administration.Profiles;
+using FinancePro.Application.Administration.Permissions;
 using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 using FinancePro.UI.ViewModels;
@@ -132,7 +135,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnUtilizadores);
         TrocarScope();
-        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IUtilizadorService>();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<UserAdministrationService>();
         var perfilService = _scopeAtual.ServiceProvider.GetRequiredService<IPerfilService>();
         var empresaService = _scopeAtual.ServiceProvider.GetRequiredService<IEmpresaService>();
         ConteudoHost.Content = new UtilizadoresView { DataContext = new UtilizadoresViewModel(service, perfilService, empresaService) };
@@ -142,7 +145,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnPerfis);
         TrocarScope();
-        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IPerfilService>();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<ProfileAdministrationService>();
         ConteudoHost.Content = new PerfisView { DataContext = new PerfisViewModel(service) };
     }
 
@@ -151,7 +154,7 @@ public partial class MainWindow : Window
         if (!SessaoAtual.TemPermissao("Permissoes")) return;
         DestacarItemAtivo(BtnPermissoes);
         TrocarScope();
-        var permissaoService = _scopeAtual!.ServiceProvider.GetRequiredService<IPermissaoService>();
+        var permissaoService = _scopeAtual!.ServiceProvider.GetRequiredService<PermissionAdministrationService>();
         var perfilService = _scopeAtual.ServiceProvider.GetRequiredService<IPerfilService>();
         ConteudoHost.Content = new PermissoesView { DataContext = new PermissoesViewModel(permissaoService, perfilService) };
     }
