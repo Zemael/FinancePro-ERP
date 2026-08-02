@@ -1,16 +1,16 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using FinancePro.Application.Purchasing;
 using FinancePro.Core.DTOs;
 using FinancePro.Core.Enums;
-using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 
 namespace FinancePro.UI.ViewModels;
 
 public class CompraViewModel : ViewModelBase
 {
-    private readonly ICompraService _service;
+    private readonly PurchasingApplicationService _service;
     private readonly int _empresaId;
 
     private DateTime _data = DateTime.Today;
@@ -22,7 +22,10 @@ public class CompraViewModel : ViewModelBase
     private string _valorTotalTexto = string.Empty;
     private FornecedorOpcaoDto? _fornecedorSelecionado;
     private string _mensagemErro = string.Empty;
+    private string _mensagemSucesso = string.Empty;
     private bool _aGuardar;
+    private bool _aCarregar;
+    private bool _aProcessarAcao;
 
     public DateTime Data { get => _data; set => SetProperty(ref _data, value); }
     public string Departamento { get => _departamento; set => SetProperty(ref _departamento, value); }
@@ -33,7 +36,10 @@ public class CompraViewModel : ViewModelBase
     public string ValorTotalTexto { get => _valorTotalTexto; set => SetProperty(ref _valorTotalTexto, value); }
     public FornecedorOpcaoDto? FornecedorSelecionado { get => _fornecedorSelecionado; set => SetProperty(ref _fornecedorSelecionado, value); }
     public string MensagemErro { get => _mensagemErro; set => SetProperty(ref _mensagemErro, value); }
+    public string MensagemSucesso { get => _mensagemSucesso; set => SetProperty(ref _mensagemSucesso, value); }
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
+    public bool ACarregar { get => _aCarregar; set => SetProperty(ref _aCarregar, value); }
+    public bool AProcessarAcao { get => _aProcessarAcao; set => SetProperty(ref _aProcessarAcao, value); }
 
     public IReadOnlyList<PrioridadeCompra> PrioridadesDisponiveis { get; } = Enum.GetValues<PrioridadeCompra>().ToList();
 
@@ -44,41 +50,66 @@ public class CompraViewModel : ViewModelBase
     public ICommand AprovarCommand { get; }
     public ICommand RejeitarCommand { get; }
     public ICommand CancelarCommand { get; }
+    public ICommand AtualizarCommand { get; }
 
-    public CompraViewModel(ICompraService service, int empresaId)
+    public CompraViewModel(PurchasingApplicationService service, int empresaId)
     {
         _service = service;
         _empresaId = empresaId;
 
         CriarCommand = new AsyncRelayCommand(_ => CriarAsync(), _ => !AGuardar);
-        AprovarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.AprovarAsync));
-        RejeitarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.RejeitarAsync));
-        CancelarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.CancelarAsync));
+        AprovarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.AprovarAsync), _ => !AProcessarAcao);
+        RejeitarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.RejeitarAsync), _ => !AProcessarAcao);
+        CancelarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.CancelarAsync), _ => !AProcessarAcao);
+        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync(), _ => !ACarregar);
 
         _ = CarregarAsync();
     }
 
     private async Task CarregarAsync()
     {
-        var fornecedores = await _service.ListarFornecedoresAsync(_empresaId);
-        Fornecedores.Clear();
-        foreach (var f in fornecedores) Fornecedores.Add(f);
+        LimparMensagens();
+        ACarregar = true;
+        try
+        {
+            var fornecedores = await _service.ListarFornecedoresAsync(_empresaId);
+            if (fornecedores.IsFailure)
+            {
+                MensagemErro = string.Join(" ", fornecedores.Errors);
+                return;
+            }
 
-        await CarregarComprasAsync();
+            Fornecedores.Clear();
+            foreach (var fornecedor in fornecedores.Value ?? Array.Empty<FornecedorOpcaoDto>())
+                Fornecedores.Add(fornecedor);
+
+            await CarregarComprasAsync();
+        }
+        finally
+        {
+            ACarregar = false;
+        }
     }
 
     private async Task CarregarComprasAsync()
     {
         var compras = await _service.ListarAsync(_empresaId);
+        if (compras.IsFailure)
+        {
+            MensagemErro = string.Join(" ", compras.Errors);
+            return;
+        }
+
         Compras.Clear();
-        foreach (var c in compras) Compras.Add(c);
+        foreach (var compra in compras.Value ?? Array.Empty<CompraListItemDto>())
+            Compras.Add(compra);
     }
 
     private async Task CriarAsync()
     {
-        MensagemErro = string.Empty;
+        LimparMensagens();
 
-        if (!decimal.TryParse(ValorTotalTexto, out var valor) || valor < 0)
+        if (!decimal.TryParse(ValorTotalTexto, out var valor))
         {
             MensagemErro = "Indique um valor total válido.";
             return;
@@ -87,7 +118,7 @@ public class CompraViewModel : ViewModelBase
         AGuardar = true;
         try
         {
-            await _service.CriarAsync(new NovaCompraDto
+            var resultado = await _service.CriarAsync(new NovaCompraDto
             {
                 Data = Data,
                 Departamento = Departamento,
@@ -100,17 +131,15 @@ public class CompraViewModel : ViewModelBase
                 EmpresaId = _empresaId
             });
 
-            Departamento = string.Empty;
-            CentroCusto = string.Empty;
-            Projeto = string.Empty;
-            Comprador = string.Empty;
-            ValorTotalTexto = string.Empty;
+            if (resultado.IsFailure)
+            {
+                MensagemErro = string.Join(" ", resultado.Errors);
+                return;
+            }
 
+            MensagemSucesso = resultado.Message ?? "Pedido de compra criado com sucesso.";
+            LimparFormulario();
             await CarregarComprasAsync();
-        }
-        catch (Exception ex)
-        {
-            MensagemErro = ex.Message;
         }
         finally
         {
@@ -118,21 +147,48 @@ public class CompraViewModel : ViewModelBase
         }
     }
 
-    private async Task ExecutarAcaoAsync(object? parametro, Func<int, Task> acao)
+    private async Task ExecutarAcaoAsync(
+        object? parametro,
+        Func<int, Task<FinancePro.Application.Common.Results.Result>> acao)
     {
         if (parametro is not CompraListItemDto compra)
-        {
             return;
-        }
 
+        LimparMensagens();
+        AProcessarAcao = true;
         try
         {
-            await acao(compra.Id);
+            var resultado = await acao(compra.Id);
+            if (resultado.IsFailure)
+            {
+                MensagemErro = string.Join(" ", resultado.Errors);
+                return;
+            }
+
+            MensagemSucesso = resultado.Message ?? "Operação concluída.";
             await CarregarComprasAsync();
         }
-        catch (Exception ex)
+        finally
         {
-            MensagemErro = ex.Message;
+            AProcessarAcao = false;
         }
+    }
+
+    private void LimparFormulario()
+    {
+        Data = DateTime.Today;
+        Departamento = string.Empty;
+        CentroCusto = string.Empty;
+        Projeto = string.Empty;
+        Comprador = string.Empty;
+        Prioridade = PrioridadeCompra.Normal;
+        ValorTotalTexto = string.Empty;
+        FornecedorSelecionado = null;
+    }
+
+    private void LimparMensagens()
+    {
+        MensagemErro = string.Empty;
+        MensagemSucesso = string.Empty;
     }
 }

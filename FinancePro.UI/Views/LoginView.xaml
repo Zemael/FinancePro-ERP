@@ -39,7 +39,8 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="9">
                             <ScrollViewer x:Name="PART_ContentHost"
-                                          Margin="{TemplateBinding Padding}"/>
+                                          Margin="{TemplateBinding Padding}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
@@ -65,6 +66,8 @@
             <Setter Property="BorderBrush" Value="#D5DFEA"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush" Value="#0F4C81"/>
+            <Setter Property="SelectionBrush" Value="#B9D8F2"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="PasswordBox">
@@ -74,7 +77,8 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="9">
                             <ScrollViewer x:Name="PART_ContentHost"
-                                          Margin="{TemplateBinding Padding}"/>
+                                          Margin="{TemplateBinding Padding}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
@@ -297,6 +301,8 @@
                                        Foreground="#3A5066" Margin="0,0,0,7"/>
                             <TextBox x:Name="EmailBox"
                                      Style="{StaticResource InputTextBoxStyle}"
+                                     Foreground="#233247"
+                                     CaretBrush="#0F4C81"
                                      Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
                                      IsEnabled="{Binding AAutenticar, Converter={StaticResource InversorBool}}"/>
 
@@ -304,6 +310,9 @@
                                        Foreground="#3A5066" Margin="0,18,0,7"/>
                             <PasswordBox x:Name="SenhaBox"
                                          Style="{StaticResource InputPasswordStyle}"
+                                         Foreground="#233247"
+                                         CaretBrush="#0F4C81"
+                                         PasswordChar="●"
                                          KeyDown="SenhaBox_KeyDown"
                                          IsEnabled="{Binding AAutenticar, Converter={StaticResource InversorBool}}"/>
 
