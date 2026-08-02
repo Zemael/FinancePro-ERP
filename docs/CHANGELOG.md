@@ -1,3 +1,12 @@
+
+## [2.6.0] - 2026-08-02
+
+### Adicionado
+- Camada Application para Despesas.
+- Gateway de Despesas na camada Data.
+- Integração do ViewModel e testes unitários.
+- Atualização manual e mensagens de sucesso na interface.
+
 # Changelog
 
 
@@ -108,3 +117,6 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Interface de Receitas integrada ao serviço de aplicação.
 - Validações e mensagens padronizadas com Result.
 - Adicionados testes para datas e origem de recebimento.
+
+## v2.6.1 — Login Field Visibility
+- Corrigida a visibilidade do texto no email e dos caracteres mascarados na palavra-passe.

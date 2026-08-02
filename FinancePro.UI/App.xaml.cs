@@ -3,6 +3,8 @@ using FinancePro.Data.Treasury;
 using FinancePro.Application.Treasury;
 using FinancePro.Data.Revenue;
 using FinancePro.Application.Revenue;
+using FinancePro.Data.Expenses;
+using FinancePro.Application.Expenses;
 using FinancePro.Application.Administration.Users;
 using FinancePro.Application.Administration.Profiles;
 using FinancePro.Application.Administration.Permissions;
@@ -66,6 +68,9 @@ public partial class App : System.Windows.Application
         services.AddScoped<RevenueGateway>();
         services.AddScoped<IRevenueGateway>(sp => sp.GetRequiredService<RevenueGateway>());
         services.AddScoped<RevenueApplicationService>();
+        services.AddScoped<ExpenseGateway>();
+        services.AddScoped<IExpenseGateway>(sp => sp.GetRequiredService<ExpenseGateway>());
+        services.AddScoped<ExpenseApplicationService>();
         services.AddSingleton<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 

@@ -1,3 +1,4 @@
+using FinancePro.Application.Expenses;
 using FinancePro.Application.Revenue;
 using System.Windows;
 using System.Windows.Controls;
@@ -236,7 +237,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnDespesas);
         TrocarScope();
-        var despesasService = _scopeAtual!.ServiceProvider.GetRequiredService<IDespesasService>();
+        var despesasService = _scopeAtual!.ServiceProvider.GetRequiredService<ExpenseApplicationService>();
         var viewModel = new DespesasViewModel(despesasService, _utilizador.EmpresaId);
         ConteudoHost.Content = new DespesasView { DataContext = viewModel };
     }
