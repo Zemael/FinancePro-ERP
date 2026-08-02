@@ -1,3 +1,4 @@
+using FinancePro.Application.Budget;
 using FinancePro.Application.Expenses;
 using FinancePro.Application.Revenue;
 using System.Windows;
@@ -8,6 +9,7 @@ using FinancePro.Application.Administration.Users;
 using FinancePro.Application.Administration.Profiles;
 using FinancePro.Application.Administration.Permissions;
 using FinancePro.Application.Treasury;
+using FinancePro.Application.Purchasing;
 using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 using FinancePro.UI.ViewModels;
@@ -228,7 +230,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnOrcamento);
         TrocarScope();
-        var orcamentoService = _scopeAtual!.ServiceProvider.GetRequiredService<IOrcamentoService>();
+        var orcamentoService = _scopeAtual!.ServiceProvider.GetRequiredService<BudgetApplicationService>();
         var viewModel = new OrcamentoViewModel(orcamentoService, _utilizador.EmpresaId);
         ConteudoHost.Content = new OrcamentoView { DataContext = viewModel };
     }
@@ -246,7 +248,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnCompras);
         TrocarScope();
-        var compraService = _scopeAtual!.ServiceProvider.GetRequiredService<ICompraService>();
+        var compraService = _scopeAtual!.ServiceProvider.GetRequiredService<PurchasingApplicationService>();
         var viewModel = new CompraViewModel(compraService, _utilizador.EmpresaId);
         ConteudoHost.Content = new CompraView { DataContext = viewModel };
     }

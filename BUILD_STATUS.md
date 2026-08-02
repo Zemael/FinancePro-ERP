@@ -1,8 +1,11 @@
-# Build Status
+# FinancePro — Estado da versão v2.7.1
 
-- Version: 2.4.0
-- Package: Treasury Application
-- Local build: PENDING USER VALIDATION
-- Tests: PENDING USER VALIDATION
-- Migrations: NO NEW MIGRATION REQUIRED
-- GitHub Actions: PENDING PUSH
+- Alterações: estabilização da ligação ao SQL Server no arranque
+- Migration: não necessária
+- Build local neste ambiente: não executado (SDK .NET indisponível)
+- Validação requerida: `dotnet clean`, `restore`, `build` e `test` no Windows/.NET 8
+
+Version........: 2.8.0
+Build..........: PENDING LOCAL VALIDATION
+Tests..........: PENDING LOCAL VALIDATION
+Migrations.....: NOT REQUIRED

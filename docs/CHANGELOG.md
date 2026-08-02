@@ -1,3 +1,19 @@
+# Changelog
+
+## v2.8.0 — Compras
+
+- Adicionada camada Application para Compras.
+- Integrados pedidos, aprovações, rejeições e cancelamentos.
+- Adicionados testes unitários do módulo.
+- Nenhuma migration nova.
+
+
+## v2.7.1 — Estabilização SQL Server
+
+- Recuperação automática e orientada quando a ligação SQL falha no arranque.
+- Retry do EF Core, timeouts ampliados e pool de conexões limpo.
+- Nenhuma migration necessária.
+
 
 ## [2.6.0] - 2026-08-02
 
@@ -120,3 +136,10 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 
 ## v2.6.1 — Login Field Visibility
 - Corrigida a visibilidade do texto no email e dos caracteres mascarados na palavra-passe.
+
+## v2.7.0 — Orçamento
+
+- Introduzida a camada Application do módulo Orçamento.
+- Orçamento, execução mensal, linhas e revisões passam por `BudgetApplicationService`.
+- Adicionados gateway de dados e testes unitários.
+- Nenhuma migration necessária.
