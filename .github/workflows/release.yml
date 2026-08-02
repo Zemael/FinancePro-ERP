@@ -27,7 +27,7 @@ jobs:
         run: dotnet restore .\FinancePro.sln
 
       - name: Build
-        run: dotnet build .\FinancePro.sln --configuration Release
+        run: dotnet build .\FinancePro.sln --configuration Release --no-restore
 
       - name: Publish
         run: >-

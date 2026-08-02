@@ -75,7 +75,7 @@
             <!-- Greeting -->
             <Grid Grid.Row="0" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock Text="Bom dia, Zemael! 👋" FontSize="23" FontWeight="SemiBold" Foreground="#0F2747"/>
+                    <TextBlock FontSize="23" FontWeight="SemiBold" Foreground="#0F2747"><Run Text="Bem-vindo, "/><Run Text="{Binding NomeUtilizador}"/><Run Text="!"/></TextBlock>
                     <TextBlock Foreground="#64748B" FontSize="12" Margin="0,5,0,0">
                         <Run Text="Visão geral da situação financeira de "/><Run Text="{Binding EmpresaNome}" FontWeight="SemiBold"/><Run Text="."/>
                     </TextBlock>
@@ -87,9 +87,12 @@
                             <TextBlock Text="01/08/2026" Foreground="#334155" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
-                    <Button Height="40" Padding="18,0" Background="#2F6FED" Foreground="White" BorderThickness="0" Cursor="Hand">
-                        <StackPanel Orientation="Horizontal"><TextBlock Text="+" FontSize="18" Margin="0,-2,8,0"/><TextBlock Text="Novo" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
-                    </Button>
+                    <StackPanel>
+                        <Button Height="40" Padding="18,0" Background="#2F6FED" Foreground="White" BorderThickness="0" Cursor="Hand" Command="{Binding RecarregarCommand}">
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0"/><TextBlock Text="Atualizar" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
+                        </Button>
+                        <TextBlock Text="{Binding UltimaAtualizacao}" Style="{StaticResource Muted}" HorizontalAlignment="Right" Margin="0,4,0,0"/>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
 
@@ -100,7 +103,7 @@
                 <Border Style="{StaticResource Card}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#EAFBF3" CornerRadius="9"><TextBlock Text="&#xE74A;" FontFamily="Segoe MDL2 Assets" Foreground="#16A34A" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="RECEITAS (MÊS)" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding TotalReceitas, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock Text="0% em relação ao mês anterior" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
                 <Border Style="{StaticResource Card}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#FFF0F1" CornerRadius="9"><TextBlock Text="&#xE74B;" FontFamily="Segoe MDL2 Assets" Foreground="#EF4444" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="DESPESAS (MÊS)" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding TotalDespesas, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock Text="0% em relação ao mês anterior" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
                 <Border Style="{StaticResource Card}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#EEF4FF" CornerRadius="9"><TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" Foreground="#2563EB" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="RESULTADO (MÊS)" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding Resultado, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock Text="0% em relação ao mês anterior" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
-                <Border Style="{StaticResource Card}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#F4ECFF" CornerRadius="9"><TextBlock Text="%" Foreground="#7C3AED" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="MARGEM" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding MargemPercentual, StringFormat={}{0}%}" Style="{StaticResource KpiValue}"/><TextBlock Text="0% em relação ao mês anterior" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
+                <Border Style="{StaticResource Card}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#F4ECFF" CornerRadius="9"><TextBlock Text="%" Foreground="#7C3AED" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="TOTAL DISPONÍVEL" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding TotalDisponivel, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock Text="Caixa + contas bancárias" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
             </UniformGrid>
 
             <!-- Quick actions -->
@@ -110,10 +113,10 @@
                     <WrapPanel>
                         <Button Style="{StaticResource QuickAction}" Command="{Binding NovoMovimentoCommand}"><StackPanel><TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" Foreground="#2F6FED" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Novo movimento" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
                         <Button Style="{StaticResource QuickAction}" Command="{Binding NovaContaReceberCommand}"><StackPanel><TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" Foreground="#16A34A" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Conta a receber" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
-                        <Button Style="{StaticResource QuickAction}"><StackPanel><TextBlock Text="&#xE74B;" FontFamily="Segoe MDL2 Assets" Foreground="#EF4444" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Nova despesa" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
-                        <Button Style="{StaticResource QuickAction}"><StackPanel><TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" Foreground="#7C3AED" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Novo orçamento" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
+                        <Button Style="{StaticResource QuickAction}" Command="{Binding NovaDespesaCommand}"><StackPanel><TextBlock Text="&#xE74B;" FontFamily="Segoe MDL2 Assets" Foreground="#EF4444" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Nova despesa" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
+                        <Button Style="{StaticResource QuickAction}" Command="{Binding NovoOrcamentoCommand}"><StackPanel><TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" Foreground="#7C3AED" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Novo orçamento" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
                         <Button Style="{StaticResource QuickAction}" Command="{Binding NovaCaixaCommand}"><StackPanel><TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" Foreground="#2F6FED" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Nova caixa" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
-                        <Button Style="{StaticResource QuickAction}"><StackPanel><TextBlock Text="&#xE72A;" FontFamily="Segoe MDL2 Assets" Foreground="#0EA5A8" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Transferência" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
+                        <Button Style="{StaticResource QuickAction}" Command="{Binding NovaTransferenciaCommand}"><StackPanel><TextBlock Text="&#xE72A;" FontFamily="Segoe MDL2 Assets" Foreground="#0EA5A8" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Transferência" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
                         <Button Style="{StaticResource QuickAction}" Command="{Binding NovoUtilizadorCommand}"><StackPanel><TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" Foreground="#F59E0B" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Novo utilizador" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
                     </WrapPanel>
                 </StackPanel>
@@ -152,10 +155,10 @@
 
                 <StackPanel Grid.Column="4">
                     <Border Style="{StaticResource Card}" Margin="0,0,0,12">
-                        <StackPanel><Grid><TextBlock Text="Empresa" Style="{StaticResource SectionTitle}"/><TextBlock Text="Ativa" HorizontalAlignment="Right" Foreground="#16A34A" FontSize="10"/></Grid><Border Background="#F8FBFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,12,0,0"><StackPanel><TextBlock Text="{Binding EmpresaNome}" FontWeight="SemiBold" Foreground="#0F2747"/><TextBlock Text="Exercício {Binding Exercicio}" Style="{StaticResource Muted}" Margin="0,4,0,0"/></StackPanel></Border></StackPanel>
+                        <StackPanel><Grid><TextBlock Text="Empresa" Style="{StaticResource SectionTitle}"/><TextBlock Text="Ativa" HorizontalAlignment="Right" Foreground="#16A34A" FontSize="10"/></Grid><Border Background="#F8FBFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,12,0,0"><StackPanel><TextBlock Text="{Binding EmpresaNome}" FontWeight="SemiBold" Foreground="#0F2747"/><TextBlock Style="{StaticResource Muted}" Margin="0,4,0,0"><Run Text="Exercício "/><Run Text="{Binding Exercicio}"/></TextBlock></StackPanel></Border></StackPanel>
                     </Border>
                     <Border Style="{StaticResource Card}">
-                        <StackPanel><TextBlock Text="Alertas" Style="{StaticResource SectionTitle}" Margin="0,0,0,10"/><ItemsControl ItemsSource="{Binding Alertas}"><ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,5"><Grid.ColumnDefinitions><ColumnDefinition Width="22"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" Foreground="{Binding Severidade, Converter={StaticResource SeveridadeParaCor}}"/><TextBlock Grid.Column="1" Text="{Binding Mensagem}" TextWrapping="Wrap" FontSize="11" Foreground="#334155"/></Grid></DataTemplate></ItemsControl.ItemTemplate></ItemsControl><TextBlock Text="Backup da base de dados não configurado" FontSize="11" Foreground="#334155" Margin="0,8,0,0"/></StackPanel>
+                        <StackPanel><TextBlock Text="Alertas" Style="{StaticResource SectionTitle}" Margin="0,0,0,10"/><ItemsControl ItemsSource="{Binding Alertas}"><ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,5"><Grid.ColumnDefinitions><ColumnDefinition Width="22"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" Foreground="{Binding Severidade, Converter={StaticResource SeveridadeParaCor}}"/><TextBlock Grid.Column="1" Text="{Binding Mensagem}" TextWrapping="Wrap" FontSize="11" Foreground="#334155"/></Grid></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></StackPanel>
                     </Border>
                 </StackPanel>
             </Grid>

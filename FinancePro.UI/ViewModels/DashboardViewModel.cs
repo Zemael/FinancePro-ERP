@@ -20,6 +20,10 @@ public class DashboardViewModel : ViewModelBase
     private decimal _totalDespesas;
     private decimal _resultado;
     private decimal _margemPercentual;
+    private decimal _totalDisponivel;
+    private string _nomeUtilizador = string.Empty;
+    private string _ultimaAtualizacao = string.Empty;
+    private string _mensagemErro = string.Empty;
 
     private string _termoPesquisa = string.Empty;
     private bool _resultadosPesquisaVisiveis;
@@ -33,6 +37,10 @@ public class DashboardViewModel : ViewModelBase
     public decimal TotalDespesas { get => _totalDespesas; set => SetProperty(ref _totalDespesas, value); }
     public decimal Resultado { get => _resultado; set => SetProperty(ref _resultado, value); }
     public decimal MargemPercentual { get => _margemPercentual; set => SetProperty(ref _margemPercentual, value); }
+    public decimal TotalDisponivel { get => _totalDisponivel; set => SetProperty(ref _totalDisponivel, value); }
+    public string NomeUtilizador { get => _nomeUtilizador; set => SetProperty(ref _nomeUtilizador, value); }
+    public string UltimaAtualizacao { get => _ultimaAtualizacao; set => SetProperty(ref _ultimaAtualizacao, value); }
+    public string MensagemErro { get => _mensagemErro; set => SetProperty(ref _mensagemErro, value); }
 
     public string TermoPesquisa
     {
@@ -62,16 +70,25 @@ public class DashboardViewModel : ViewModelBase
     public ICommand NovaContaReceberCommand { get; }
     public ICommand NovaCaixaCommand { get; }
     public ICommand NovoUtilizadorCommand { get; }
+    public ICommand NovaDespesaCommand { get; }
+    public ICommand NovoOrcamentoCommand { get; }
+    public ICommand NovaTransferenciaCommand { get; }
+    public ICommand RecarregarCommand { get; }
 
-    public DashboardViewModel(IDashboardService dashboardService, int empresaId)
+    public DashboardViewModel(IDashboardService dashboardService, int empresaId, string nomeUtilizador)
     {
         _dashboardService = dashboardService;
         _empresaId = empresaId;
+        NomeUtilizador = string.IsNullOrWhiteSpace(nomeUtilizador) ? "Utilizador" : nomeUtilizador;
 
         NovoMovimentoCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Tesouraria"); return Task.CompletedTask; });
         NovaContaReceberCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Receitas"); return Task.CompletedTask; });
         NovaCaixaCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Caixa"); return Task.CompletedTask; });
-        NovoUtilizadorCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Configuracoes"); return Task.CompletedTask; });
+        NovoUtilizadorCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Utilizadores"); return Task.CompletedTask; });
+        NovaDespesaCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Despesas"); return Task.CompletedTask; });
+        NovoOrcamentoCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Orcamento"); return Task.CompletedTask; });
+        NovaTransferenciaCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Tesouraria"); return Task.CompletedTask; });
+        RecarregarCommand = new AsyncRelayCommand(_ => CarregarAsync());
 
         _ = CarregarAsync();
     }
@@ -79,6 +96,7 @@ public class DashboardViewModel : ViewModelBase
     private async Task CarregarAsync()
     {
         ACarregar = true;
+        MensagemErro = string.Empty;
         try
         {
             var resumo = await _dashboardService.ObterResumoAsync(_empresaId);
@@ -91,6 +109,8 @@ public class DashboardViewModel : ViewModelBase
             TotalDespesas = resumo.TotalDespesas;
             Resultado = resumo.Resultado;
             MargemPercentual = resumo.MargemPercentual;
+            TotalDisponivel = resumo.SaldoTesouraria;
+            UltimaAtualizacao = $"Atualizado às {DateTime.Now:HH:mm}";
 
             MovimentosRecentes.Clear();
             foreach (var m in resumo.MovimentosRecentes) MovimentosRecentes.Add(m);
@@ -103,6 +123,10 @@ public class DashboardViewModel : ViewModelBase
 
             Alertas.Clear();
             foreach (var a in resumo.Alertas) Alertas.Add(a);
+        }
+        catch (Exception ex)
+        {
+            MensagemErro = $"Não foi possível atualizar o dashboard: {ex.Message}";
         }
         finally
         {
