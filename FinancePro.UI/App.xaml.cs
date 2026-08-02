@@ -1,3 +1,7 @@
+using FinancePro.Data.Administration;
+using FinancePro.Application.Administration.Users;
+using FinancePro.Application.Administration.Profiles;
+using FinancePro.Application.Administration.Permissions;
 using System.Windows;
 using FinancePro.Application.Common.Interfaces;
 using FinancePro.Data.Context;
@@ -19,12 +23,12 @@ namespace FinancePro.UI;
 /// nenhum utilizador, mostra o assistente de Configuração Inicial (cria a
 /// primeira Empresa + Administrador); caso contrário, vai direto ao Login.
 /// </summary>
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private IServiceProvider? _serviceProvider;
 
     public static IServiceProvider Services =>
-        ((App)Current)._serviceProvider
+        ((App)System.Windows.Application.Current)._serviceProvider
         ?? throw new InvalidOperationException("O contentor de DI ainda não foi inicializado.");
 
     protected override async void OnStartup(StartupEventArgs e)
@@ -45,6 +49,13 @@ public partial class App : Application
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<INotificationService, NotificationService>();
+        services.AddScoped<AdministrationGateway>();
+        services.AddScoped<IUserAdministrationGateway>(sp => sp.GetRequiredService<AdministrationGateway>());
+        services.AddScoped<IProfileAdministrationGateway>(sp => sp.GetRequiredService<AdministrationGateway>());
+        services.AddScoped<IPermissionAdministrationGateway>(sp => sp.GetRequiredService<AdministrationGateway>());
+        services.AddScoped<UserAdministrationService>();
+        services.AddScoped<ProfileAdministrationService>();
+        services.AddScoped<PermissionAdministrationService>();
         services.AddSingleton<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
