@@ -1,3 +1,7 @@
+using FinancePro.Data.Administration;
+using FinancePro.Application.Administration.Users;
+using FinancePro.Application.Administration.Profiles;
+using FinancePro.Application.Administration.Permissions;
 using System.Windows;
 using FinancePro.Application.Common.Interfaces;
 using FinancePro.Data.Context;
@@ -45,6 +49,13 @@ public partial class App : System.Windows.Application
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<INotificationService, NotificationService>();
+        services.AddScoped<AdministrationGateway>();
+        services.AddScoped<IUserAdministrationGateway>(sp => sp.GetRequiredService<AdministrationGateway>());
+        services.AddScoped<IProfileAdministrationGateway>(sp => sp.GetRequiredService<AdministrationGateway>());
+        services.AddScoped<IPermissionAdministrationGateway>(sp => sp.GetRequiredService<AdministrationGateway>());
+        services.AddScoped<UserAdministrationService>();
+        services.AddScoped<ProfileAdministrationService>();
+        services.AddScoped<PermissionAdministrationService>();
         services.AddSingleton<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 

@@ -1,3 +1,18 @@
+# Changelog
+
+## [2.1.2] - 2026-08-02
+
+### Corrigido
+- Testes de Utilizadores e Perfis alinhados com a propriedade `IsSuccess` do Result Pattern.
+- Aviso de nulabilidade no serviço de utilizadores.
+
+
+## v2.1.1 — Administration Build Fix
+
+- Compatibilidade `Ok`/`Fail` no Result Pattern.
+- Correção de `IsSuccess` no serviço de utilizadores.
+- Revisão dos serviços de Administração.
+
 
 ## [2.0.4] - 2026-08-02
 
@@ -46,3 +61,9 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - CI passou a executar testes e publicar resultados/cobertura.
 - Adicionados padrões globais de build e seleção do SDK.
 - Adicionadas políticas de contribuição, segurança, conduta e branches.
+
+## v2.1.0 — Administração Application Layer
+- Adicionados casos de uso de Utilizadores, Perfis e Permissões.
+- Adicionado adaptador administrativo na camada Data.
+- Adicionados testes unitários da camada Application.
+- Sem alteração do esquema da base de dados.
