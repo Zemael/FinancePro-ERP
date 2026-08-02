@@ -27,13 +27,12 @@ jobs:
         run: dotnet restore .\FinancePro.sln
 
       - name: Build
-        run: dotnet build .\FinancePro.sln --configuration Release --no-restore
+        run: dotnet build .\FinancePro.sln --configuration Release
 
       - name: Publish
         run: >-
           dotnet publish .\FinancePro.UI\FinancePro.UI.csproj
           --configuration Release
-          --no-restore
           --runtime win-x64
           --self-contained false
           --output .\artifacts\FinancePro-win-x64
