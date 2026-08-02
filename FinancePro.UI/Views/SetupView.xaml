@@ -1,0 +1,68 @@
+<Window x:Class="FinancePro.UI.Views.SetupView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="FinancePro ERP — Configuração Inicial" Height="660" Width="460"
+        Icon="pack://application:,,,/Resources/Images/logo.png"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        Background="#0E4C5E">
+
+    <Window.Resources>
+        <Style x:Key="CampoTexto" TargetType="Control">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Background" Value="#F1F7F9"/>
+            <Setter Property="BorderBrush" Value="#DCEAF0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource CampoTexto}"/>
+        <Style TargetType="PasswordBox" BasedOn="{StaticResource CampoTexto}"/>
+        <Style x:Key="Rotulo" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#595959"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Border Background="White" CornerRadius="12" Margin="24" Padding="32,28">
+            <StackPanel>
+                <Image Source="pack://application:,,,/Resources/Images/logo-240.png" Width="56" Height="56"
+                       HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                <TextBlock Text="Bem-vindo ao FinancePro ERP" FontSize="18" FontWeight="Bold"
+                           Foreground="#0E4C5E" HorizontalAlignment="Center"/>
+                <TextBlock Text="Vamos criar a sua empresa e a conta de administrador" FontSize="12"
+                           Foreground="#595959" HorizontalAlignment="Center" Margin="0,4,0,24"/>
+
+                <TextBlock Text="Nome da empresa" Style="{StaticResource Rotulo}"/>
+                <TextBox Text="{Binding EmpresaNome, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Text="Moeda" Style="{StaticResource Rotulo}" Margin="0,14,0,4"/>
+                <TextBox Text="{Binding Moeda, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <Border BorderBrush="#DCEAF0" BorderThickness="0,1,0,0" Margin="0,20,0,16"/>
+
+                <TextBlock Text="Nome do administrador" Style="{StaticResource Rotulo}"/>
+                <TextBox Text="{Binding AdminNome, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Text="Email" Style="{StaticResource Rotulo}" Margin="0,14,0,4"/>
+                <TextBox Text="{Binding AdminEmail, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Text="Senha (mínimo 6 caracteres)" Style="{StaticResource Rotulo}" Margin="0,14,0,4"/>
+                <PasswordBox x:Name="SenhaBox"/>
+
+                <TextBlock Text="{Binding MensagemErro}" Foreground="#C00000" FontSize="12"
+                           Margin="0,14,0,0" TextWrapping="Wrap"
+                           Visibility="{Binding MensagemErro, Converter={StaticResource TextoParaVisibilidade}}"/>
+
+                <Button Content="{Binding AGuardar, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Concluir configuração}"
+                        Click="Concluir_Click"
+                        Height="42" Margin="0,20,0,0"
+                        Background="#156082" Foreground="White" BorderThickness="0" FontWeight="Bold" FontSize="14"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

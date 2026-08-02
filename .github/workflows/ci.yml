@@ -1,0 +1,66 @@
+name: FinancePro CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build .NET 8 / WPF
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      - name: Restore
+        run: dotnet restore .\FinancePro.sln
+
+      - name: Build
+        run: dotnet build .\FinancePro.sln --configuration Release --no-restore
+
+      - name: Install EF Core CLI
+        run: dotnet tool install --global dotnet-ef --version 8.*
+
+      - name: List EF Core migrations
+        run: >-
+          dotnet ef migrations list
+          --project .\FinancePro.Data\FinancePro.Data.csproj
+          --startup-project .\FinancePro.UI\FinancePro.UI.csproj
+          --configuration Release
+
+      - name: Check pending model changes
+        run: >-
+          dotnet ef migrations has-pending-model-changes
+          --project .\FinancePro.Data\FinancePro.Data.csproj
+          --startup-project .\FinancePro.UI\FinancePro.UI.csproj
+          --configuration Release
+
+      - name: Publish Windows application
+        run: >-
+          dotnet publish .\FinancePro.UI\FinancePro.UI.csproj
+          --configuration Release
+          --no-restore
+          --runtime win-x64
+          --self-contained false
+          --output .\artifacts\FinancePro-win-x64
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinancePro-win-x64
+          path: .\artifacts\FinancePro-win-x64
+          if-no-files-found: error
+          retention-days: 14

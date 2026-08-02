@@ -1,0 +1,161 @@
+<UserControl x:Class="FinancePro.UI.Views.ConfiguracoesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="Cartao" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="18,16"/>
+            <Setter Property="BorderBrush" Value="#DCEAF0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="Rotulo" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#595959"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style x:Key="BotaoPrimario" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Width" Value="160"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="0,16,0,0"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel>
+
+            <TextBlock Text="Configurações" FontSize="18" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
+            <TextBlock Text="Dados da empresa e utilizadores com acesso ao sistema"
+                       FontSize="12" Foreground="#595959" Margin="0,0,0,16"/>
+
+            <TextBlock Text="Empresa" FontSize="14" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,10"/>
+            <Border Style="{StaticResource Cartao}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="120"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Nome da empresa" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding EmpresaNome, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Moeda" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding Moeda, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="NIF" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding NIF, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Telefone" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding Telefone, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Morada" Style="{StaticResource Rotulo}" Margin="0,14,0,4"/>
+                    <TextBox Text="{Binding Morada, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <TextBlock Text="Email" Style="{StaticResource Rotulo}" Margin="0,14,0,4"/>
+                    <TextBox Text="{Binding EmailEmpresa, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <TextBlock Text="{Binding MensagemErroEmpresa}" Foreground="#C00000" FontSize="12"
+                               Margin="0,12,0,0" TextWrapping="Wrap"
+                               Visibility="{Binding MensagemErroEmpresa, Converter={StaticResource TextoParaVisibilidade}}"/>
+
+                    <Button Style="{StaticResource BotaoPrimario}" Command="{Binding GuardarEmpresaCommand}"
+                            Content="{Binding AGuardarEmpresa, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Guardar}"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Utilizadores" FontSize="14" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,24,0,10"/>
+            <Border Style="{StaticResource Cartao}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Nome completo" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding NovoNome, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Email" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding NovoEmail, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Senha provisória" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding NovaPassword, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Perfil" Style="{StaticResource Rotulo}"/>
+                            <ComboBox ItemsSource="{Binding Perfis}" SelectedItem="{Binding PerfilSelecionado}" DisplayMemberPath="Nome"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding MensagemErroUtilizador}" Foreground="#C00000" FontSize="12"
+                               Margin="0,12,0,0" TextWrapping="Wrap"
+                               Visibility="{Binding MensagemErroUtilizador, Converter={StaticResource TextoParaVisibilidade}}"/>
+
+                    <Button Style="{StaticResource BotaoPrimario}" Command="{Binding CriarUtilizadorCommand}"
+                            Content="{Binding AGuardarUtilizador, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Adicionar}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Cartao}" Padding="0" Margin="0,10,0,0">
+                <DataGrid ItemsSource="{Binding Utilizadores}" AutoGenerateColumns="False" IsReadOnly="True"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="36" BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Nome" Binding="{Binding NomeCompleto}" Width="*"/>
+                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="160"/>
+                        <DataGridTextColumn Header="Perfil" Binding="{Binding PerfilNome}" Width="110"/>
+                        <DataGridTemplateColumn Header="Estado" Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Ativo, Converter={StaticResource AtivoParaTexto}}"
+                                               Foreground="{Binding Ativo, Converter={StaticResource AtivoParaCor}}"
+                                               FontWeight="Bold" VerticalAlignment="Center" Margin="8,0"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="" Width="90">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Ativo, Converter={StaticResource AtivoParaAcaoTexto}}"
+                                            Command="{Binding DataContext.AlternarAtivoUtilizadorCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent" BorderThickness="0" Foreground="#156082" Cursor="Hand"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

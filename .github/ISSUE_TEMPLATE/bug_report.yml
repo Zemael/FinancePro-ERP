@@ -1,0 +1,29 @@
+name: Erro
+about: Reportar uma falha no FinancePro
+title: "[BUG] "
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Descrição
+      description: Explique o erro e o resultado esperado.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para reproduzir
+      placeholder: "1. Abrir...\n2. Clicar...\n3. Ocorre..."
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Erro ou log
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: Versão
+      placeholder: v2.0.0

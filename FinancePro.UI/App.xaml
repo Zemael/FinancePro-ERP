@@ -1,0 +1,31 @@
+<Application x:Class="FinancePro.UI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:FinancePro.UI.Common.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Theme.Light.xaml"/>
+                <ResourceDictionary Source="Resources/Styles.xaml"/>
+                <ResourceDictionary Source="Resources/FP.DesignSystem.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <conv:StringToVisibilityConverter x:Key="TextoParaVisibilidade"/>
+            <conv:BusyToTextConverter x:Key="OcupadoParaTexto"/>
+            <conv:InversorBoolConverter x:Key="InversorBool"/>
+            <conv:ColecaoVaziaParaVisibilidadeConverter x:Key="ColecaoVaziaParaVisibilidade"/>
+            <conv:ValorMoedaConverter x:Key="ValorMoeda"/>
+            <conv:AtivoParaTextoConverter x:Key="AtivoParaTexto"/>
+            <conv:AtivoParaTextoConverter x:Key="AtivoParaTextoConverter"/>
+            <conv:AtivoParaCorConverter x:Key="AtivoParaCor"/>
+            <conv:AtivoParaAcaoTextoConverter x:Key="AtivoParaAcaoTexto"/>
+            <conv:EstadoContaParaCorConverter x:Key="EstadoContaParaCor"/>
+            <conv:BoolParaVisibilidadeConverter x:Key="BoolParaVisibilidade"/>
+            <conv:SeveridadeParaCorConverter x:Key="SeveridadeParaCor"/>
+            <conv:ValorParaCorConverter x:Key="ValorParaCor"/>
+            <conv:ContagemParaVisibilidadeConverter x:Key="ContagemParaVisibilidade"/>
+            <conv:ObjetoParaVisibilidadeConverter x:Key="ObjetoParaVisibilidade"/>
+            <conv:ConciliadoParaTextoConverter x:Key="ConciliadoParaTexto"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

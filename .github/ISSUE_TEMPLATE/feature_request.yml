@@ -1,0 +1,23 @@
+name: Funcionalidade
+about: Propor uma melhoria ou novo processo
+title: "[FEATURE] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Necessidade de negócio
+      description: Qual problema esta funcionalidade resolve?
+    validations:
+      required: true
+  - type: textarea
+    id: flow
+    attributes:
+      label: Fluxo esperado
+      description: Descreva como o utilizador deverá concluir o processo.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critérios de aceitação

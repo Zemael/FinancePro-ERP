@@ -1,0 +1,319 @@
+using FinancePro.Core.DTOs;
+using FinancePro.Core.Entities;
+using FinancePro.Core.Enums;
+using FinancePro.Data.Context;
+using FinancePro.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace FinancePro.Services.Implementations;
+
+public class TesourariaService : ITesourariaService
+{
+    private readonly FinanceProDbContext _context;
+
+    public TesourariaService(FinanceProDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<IReadOnlyList<MovimentoListItemDto>> ListarMovimentosAsync(int empresaId, int maxRegistos = 100)
+    {
+        return await _context.Movimentos
+            .Where(m => m.EmpresaId == empresaId)
+            .Include(m => m.Categoria)
+            .Include(m => m.Caixa)
+            .Include(m => m.ContaBancaria)
+            .OrderByDescending(m => m.Data)
+            .ThenByDescending(m => m.Id)
+            .Take(maxRegistos)
+            .Select(m => new MovimentoListItemDto
+            {
+                Id = m.Id,
+                Data = m.Data,
+                Descricao = m.Descricao,
+                Tipo = m.Tipo.ToString(),
+                TipoOperacao = m.TipoOperacao.ToString(),
+                Estado = m.Estado.ToString(),
+                Conciliado = m.Conciliado,
+                Valor = m.Valor,
+                CategoriaNome = m.Categoria != null ? m.Categoria.Nome : null,
+                FormaPagamento = m.FormaPagamento,
+                CentroCusto = m.CentroCusto,
+                Origem = m.Caixa != null ? $"Caixa · {m.Caixa.Nome}" : $"Banco · {m.ContaBancaria!.NumeroConta}"
+            })
+            .ToListAsync();
+    }
+
+    public async Task<IReadOnlyList<OpcaoOrigemDto>> ListarOrigensAsync(int empresaId)
+    {
+        var caixas = await _context.Caixas
+            .Where(c => c.EmpresaId == empresaId && c.Ativo)
+            .Select(c => new OpcaoOrigemDto
+            {
+                Tipo = "Caixa",
+                Id = c.Id,
+                Nome = $"Caixa · {c.Nome}",
+                Disponivel = _context.SessoesCaixa.Any(s =>
+                    s.CaixaId == c.Id && s.Estado == EstadoSessaoCaixa.Aberta),
+                MotivoIndisponibilidade = _context.SessoesCaixa.Any(s =>
+                    s.CaixaId == c.Id && s.Estado == EstadoSessaoCaixa.Aberta)
+                    ? null
+                    : "Abra uma sessão de caixa antes de receber neste caixa."
+            })
+            .ToListAsync();
+
+        var contas = await _context.ContasBancarias
+            .Where(c => c.EmpresaId == empresaId && c.Ativo)
+            .Include(c => c.Banco)
+            .Select(c => new OpcaoOrigemDto { Tipo = "ContaBancaria", Id = c.Id, Nome = $"Banco · {c.Banco.Nome} ({c.NumeroConta})" })
+            .ToListAsync();
+
+        return caixas.Concat(contas).ToList();
+    }
+
+    public async Task<IReadOnlyList<CategoriaOpcaoDto>> ListarCategoriasAsync(int empresaId, TipoCategoria tipo)
+    {
+        return await _context.Categorias
+            .Where(c => c.EmpresaId == empresaId && c.Ativo && c.Tipo == tipo)
+            .OrderBy(c => c.Nome)
+            .Select(c => new CategoriaOpcaoDto { Id = c.Id, Nome = c.Nome })
+            .ToListAsync();
+    }
+
+    public async Task<int> RegistarMovimentoAsync(NovoMovimentoDto dto)
+    {
+        var temCaixa = dto.CaixaId.HasValue;
+        var temConta = dto.ContaBancariaId.HasValue;
+
+        if (temCaixa == temConta)
+        {
+            throw new InvalidOperationException("Escolha exatamente uma origem: caixa ou conta bancária.");
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.Descricao))
+        {
+            throw new InvalidOperationException("A descrição é obrigatória.");
+        }
+
+        if (dto.TipoOperacao is TipoOperacao.Transferencia or TipoOperacao.Sangria or TipoOperacao.Reforco)
+        {
+            throw new InvalidOperationException("Transferência/Sangria/Reforço têm de ter origem e destino — use RegistarTransferenciaAsync.");
+        }
+
+        var valorAbsoluto = Math.Abs(dto.Valor);
+        if (valorAbsoluto <= 0)
+        {
+            throw new InvalidOperationException("O valor tem de ser maior do que zero.");
+        }
+
+        // Ajuste pode ser positivo (soma) ou negativo (subtrai), consoante o
+        // sinal com que o valor foi introduzido; os outros tipos usam o sinal
+        // implícito na própria operação.
+        var tipoSinal = dto.TipoOperacao switch
+        {
+            TipoOperacao.Entrada => TipoCategoria.Receita,
+            TipoOperacao.Saida => TipoCategoria.Despesa,
+            TipoOperacao.Bloqueio => TipoCategoria.Despesa,
+            TipoOperacao.Ajuste => dto.Valor < 0 ? TipoCategoria.Despesa : TipoCategoria.Receita,
+            _ => dto.Tipo
+        };
+
+        if (tipoSinal == TipoCategoria.Despesa && dto.TipoOperacao != TipoOperacao.Bloqueio && dto.CaixaId.HasValue)
+        {
+            await GarantirSaldoSuficienteAsync(dto.CaixaId.Value, valorAbsoluto);
+        }
+
+        var movimento = new Movimento
+        {
+            Data = dto.Data,
+            Descricao = dto.Descricao.Trim(),
+            Valor = valorAbsoluto,
+            Tipo = tipoSinal,
+            TipoOperacao = dto.TipoOperacao,
+            FormaPagamento = dto.FormaPagamento,
+            CentroCusto = dto.CentroCusto,
+            Conciliado = dto.Conciliado,
+            CategoriaId = dto.CategoriaId,
+            CaixaId = dto.CaixaId,
+            ContaBancariaId = dto.ContaBancariaId,
+            ClienteId = dto.ClienteId,
+            EmpresaId = dto.EmpresaId
+        };
+
+        _context.Movimentos.Add(movimento);
+        await _context.SaveChangesAsync();
+        return movimento.Id;
+    }
+
+    public async Task RegistarTransferenciaAsync(NovaTransferenciaDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Descricao))
+        {
+            throw new InvalidOperationException("A descrição é obrigatória.");
+        }
+
+        if (dto.Valor <= 0)
+        {
+            throw new InvalidOperationException("O valor tem de ser maior do que zero.");
+        }
+
+        if (dto.Data == default)
+        {
+            throw new InvalidOperationException("A data da transferência é obrigatória.");
+        }
+
+        var tiposValidos = new[] { "Caixa", "ContaBancaria" };
+        if (!tiposValidos.Contains(dto.OrigemTipo) || !tiposValidos.Contains(dto.DestinoTipo))
+        {
+            throw new InvalidOperationException("A origem e o destino devem ser Caixa ou Conta Bancária.");
+        }
+
+        if (dto.OrigemTipo == dto.DestinoTipo && dto.OrigemId == dto.DestinoId)
+        {
+            throw new InvalidOperationException("A origem e o destino não podem ser os mesmos.");
+        }
+
+        await ValidarOrigemTransferenciaAsync(dto.EmpresaId, dto.OrigemTipo, dto.OrigemId, exigeSessaoAberta: true);
+        await ValidarOrigemTransferenciaAsync(dto.EmpresaId, dto.DestinoTipo, dto.DestinoId, exigeSessaoAberta: false);
+
+        if (dto.OrigemTipo == "Caixa")
+        {
+            await GarantirSaldoSuficienteAsync(dto.OrigemId, dto.Valor);
+        }
+
+        await using var transacao = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var grupo = Guid.NewGuid();
+            var descricao = dto.Descricao.Trim();
+
+            var origem = new Movimento
+            {
+                Data = dto.Data,
+                Descricao = $"{descricao} (saída)",
+                Valor = dto.Valor,
+                Tipo = TipoCategoria.Despesa,
+                TipoOperacao = dto.TipoOperacao,
+                FormaPagamento = dto.FormaPagamento?.Trim(),
+                CentroCusto = dto.CentroCusto?.Trim(),
+                GrupoTransferenciaId = grupo,
+                CaixaId = dto.OrigemTipo == "Caixa" ? dto.OrigemId : null,
+                ContaBancariaId = dto.OrigemTipo == "ContaBancaria" ? dto.OrigemId : null,
+                EmpresaId = dto.EmpresaId
+            };
+
+            var destino = new Movimento
+            {
+                Data = dto.Data,
+                Descricao = $"{descricao} (entrada)",
+                Valor = dto.Valor,
+                Tipo = TipoCategoria.Receita,
+                TipoOperacao = dto.TipoOperacao,
+                FormaPagamento = dto.FormaPagamento?.Trim(),
+                CentroCusto = dto.CentroCusto?.Trim(),
+                GrupoTransferenciaId = grupo,
+                CaixaId = dto.DestinoTipo == "Caixa" ? dto.DestinoId : null,
+                ContaBancariaId = dto.DestinoTipo == "ContaBancaria" ? dto.DestinoId : null,
+                EmpresaId = dto.EmpresaId
+            };
+
+            _context.Movimentos.AddRange(origem, destino);
+            await _context.SaveChangesAsync();
+            await transacao.CommitAsync();
+        }
+        catch
+        {
+            await transacao.RollbackAsync();
+            throw;
+        }
+    }
+
+    private async Task ValidarOrigemTransferenciaAsync(
+        int empresaId,
+        string tipo,
+        int id,
+        bool exigeSessaoAberta)
+    {
+        if (tipo == "Caixa")
+        {
+            var caixa = await _context.Caixas
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id && c.EmpresaId == empresaId);
+
+            if (caixa is null)
+            {
+                throw new InvalidOperationException("Caixa não encontrada para a empresa ativa.");
+            }
+
+            if (!caixa.Ativo)
+            {
+                throw new InvalidOperationException($"A caixa \"{caixa.Nome}\" está inativa.");
+            }
+
+            if (exigeSessaoAberta)
+            {
+                var sessaoAberta = await _context.SessoesCaixa.AnyAsync(s =>
+                    s.CaixaId == id &&
+                    s.EmpresaId == empresaId &&
+                    s.Estado == EstadoSessaoCaixa.Aberta);
+
+                if (!sessaoAberta)
+                {
+                    throw new InvalidOperationException(
+                        $"Abra uma sessão na caixa \"{caixa.Nome}\" antes de transferir valores a partir dela.");
+                }
+            }
+
+            return;
+        }
+
+        var conta = await _context.ContasBancarias
+            .AsNoTracking()
+            .Include(c => c.Banco)
+            .FirstOrDefaultAsync(c => c.Id == id && c.EmpresaId == empresaId);
+
+        if (conta is null)
+        {
+            throw new InvalidOperationException("Conta bancária não encontrada para a empresa ativa.");
+        }
+
+        if (!conta.Ativo)
+        {
+            throw new InvalidOperationException(
+                $"A conta bancária {conta.NumeroConta} está inativa.");
+        }
+    }
+
+    public async Task MarcarConciliadoAsync(int movimentoId, bool conciliado)
+    {
+        var movimento = await _context.Movimentos.FindAsync(movimentoId)
+            ?? throw new InvalidOperationException("Movimento não encontrado.");
+
+        movimento.Conciliado = conciliado;
+        movimento.DataAtualizacao = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>Se a caixa não permitir saldo negativo, bloqueia a operação
+    /// caso o saldo resultante ficasse abaixo de zero. Movimentos de Bloqueio
+    /// não entram nesta soma (não afetam saldo real).</summary>
+    private async Task GarantirSaldoSuficienteAsync(int caixaId, decimal valorASubtrair)
+    {
+        var caixa = await _context.Caixas.FindAsync(caixaId);
+        if (caixa is null || caixa.PermiteSaldoNegativo)
+        {
+            return;
+        }
+
+        var saldoAtual = caixa.SaldoInicial + await _context.Movimentos
+            .Where(m => m.CaixaId == caixaId && m.TipoOperacao != TipoOperacao.Bloqueio)
+            .SumAsync(m => (decimal?)(m.Tipo == TipoCategoria.Receita ? m.Valor : -m.Valor)) ?? caixa.SaldoInicial;
+
+        if (saldoAtual - valorASubtrair < 0)
+        {
+            throw new InvalidOperationException(
+                $"Operação bloqueada: a caixa \"{caixa.Nome}\" não permite saldo negativo " +
+                $"(saldo atual {saldoAtual:#,##0} FCFA, insuficiente para {valorASubtrair:#,##0} FCFA).");
+        }
+    }
+}

@@ -1,0 +1,173 @@
+<UserControl x:Class="FinancePro.UI.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F4F7FB"
+             FontFamily="Segoe UI">
+    <UserControl.Resources>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#DCE5EF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#0F2747"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style x:Key="Muted" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+        <Style x:Key="KpiLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#42526A"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style x:Key="KpiValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#0F2747"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,6,0,0"/>
+        </Style>
+        <Style x:Key="QuickAction" TargetType="Button">
+            <Setter Property="MinWidth" Value="122"/>
+            <Setter Property="Height" Value="58"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#DCE5EF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#0F2747"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="9">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="B" Property="Background" Value="#F2F7FF"/><Setter TargetName="B" Property="BorderBrush" Value="#8EB5F5"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#F4F7FB">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      HorizontalContentAlignment="Stretch"
+                      VerticalContentAlignment="Center">
+            <Grid Margin="22,20,22,20"
+                  MaxWidth="1500"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Greeting -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Bom dia, Zemael! 👋" FontSize="23" FontWeight="SemiBold" Foreground="#0F2747"/>
+                    <TextBlock Foreground="#64748B" FontSize="12" Margin="0,5,0,0">
+                        <Run Text="Visão geral da situação financeira de "/><Run Text="{Binding EmpresaNome}" FontWeight="SemiBold"/><Run Text="."/>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Border Background="White" BorderBrush="#DCE5EF" BorderThickness="1" CornerRadius="9" Height="40" Padding="14,0" Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE787;" FontFamily="Segoe MDL2 Assets" Foreground="#315E91" Margin="0,0,9,0"/>
+                            <TextBlock Text="01/08/2026" Foreground="#334155" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Button Height="40" Padding="18,0" Background="#2F6FED" Foreground="White" BorderThickness="0" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal"><TextBlock Text="+" FontSize="18" Margin="0,-2,8,0"/><TextBlock Text="Novo" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- KPI cards -->
+            <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,14">
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#EAF2FF" CornerRadius="9"><TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" Foreground="#2F6FED" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="SALDO EM CAIXA" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding SaldoCaixa, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock Text="0% em relação ao mês anterior" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#EAF2FF" CornerRadius="9"><TextBlock Text="&#xE825;" FontFamily="Segoe MDL2 Assets" Foreground="#2F6FED" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="SALDO BANCÁRIO" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding SaldoBancario, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock Text="0% em relação ao mês anterior" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#EAFBF3" CornerRadius="9"><TextBlock Text="&#xE74A;" FontFamily="Segoe MDL2 Assets" Foreground="#16A34A" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="RECEITAS (MÊS)" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding TotalReceitas, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock Text="0% em relação ao mês anterior" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#FFF0F1" CornerRadius="9"><TextBlock Text="&#xE74B;" FontFamily="Segoe MDL2 Assets" Foreground="#EF4444" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="DESPESAS (MÊS)" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding TotalDespesas, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock Text="0% em relação ao mês anterior" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#EEF4FF" CornerRadius="9"><TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" Foreground="#2563EB" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="RESULTADO (MÊS)" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding Resultado, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock Text="0% em relação ao mês anterior" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
+                <Border Style="{StaticResource Card}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#F4ECFF" CornerRadius="9"><TextBlock Text="%" Foreground="#7C3AED" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="MARGEM" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding MargemPercentual, StringFormat={}{0}%}" Style="{StaticResource KpiValue}"/><TextBlock Text="0% em relação ao mês anterior" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
+            </UniformGrid>
+
+            <!-- Quick actions -->
+            <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,0,0,14">
+                <StackPanel>
+                    <TextBlock Text="Ações rápidas" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/>
+                    <WrapPanel>
+                        <Button Style="{StaticResource QuickAction}" Command="{Binding NovoMovimentoCommand}"><StackPanel><TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" Foreground="#2F6FED" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Novo movimento" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
+                        <Button Style="{StaticResource QuickAction}" Command="{Binding NovaContaReceberCommand}"><StackPanel><TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" Foreground="#16A34A" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Conta a receber" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
+                        <Button Style="{StaticResource QuickAction}"><StackPanel><TextBlock Text="&#xE74B;" FontFamily="Segoe MDL2 Assets" Foreground="#EF4444" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Nova despesa" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
+                        <Button Style="{StaticResource QuickAction}"><StackPanel><TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" Foreground="#7C3AED" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Novo orçamento" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
+                        <Button Style="{StaticResource QuickAction}" Command="{Binding NovaCaixaCommand}"><StackPanel><TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" Foreground="#2F6FED" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Nova caixa" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
+                        <Button Style="{StaticResource QuickAction}"><StackPanel><TextBlock Text="&#xE72A;" FontFamily="Segoe MDL2 Assets" Foreground="#0EA5A8" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Transferência" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
+                        <Button Style="{StaticResource QuickAction}" Command="{Binding NovoUtilizadorCommand}"><StackPanel><TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" Foreground="#F59E0B" FontSize="19" HorizontalAlignment="Center"/><TextBlock Text="Novo utilizador" FontSize="11" Margin="0,6,0,0"/></StackPanel></Button>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Main panels -->
+            <Grid Grid.Row="3" Margin="0,0,0,14">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="1.45*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="0.8*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="0.72*"/></Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10"><TextBlock Text="Fluxo de caixa" Style="{StaticResource SectionTitle}"/><TextBlock Text="Últimos 6 meses" HorizontalAlignment="Right" Style="{StaticResource Muted}"/></Grid>
+                        <Grid Height="210" Background="#FBFDFF">
+                            <Grid.RowDefinitions><RowDefinition/><RowDefinition Height="26"/></Grid.RowDefinitions>
+                            <Canvas Margin="22,14,18,4">
+                                <Line X1="0" Y1="30" X2="520" Y2="30" Stroke="#E7EDF5"/><Line X1="0" Y1="70" X2="520" Y2="70" Stroke="#E7EDF5"/><Line X1="0" Y1="110" X2="520" Y2="110" Stroke="#E7EDF5"/><Line X1="0" Y1="150" X2="520" Y2="150" Stroke="#E7EDF5"/>
+                                <Polyline Points="0,108 100,108 200,108 300,108 400,108 520,108" Stroke="#2F6FED" StrokeThickness="2"/>
+                                <Polyline Points="0,108 100,108 200,108 300,108 400,108 520,108" Stroke="#16A34A" StrokeThickness="2"/>
+                                <Polyline Points="0,108 100,108 200,108 300,108 400,108 520,108" Stroke="#EF4444" StrokeThickness="2"/>
+                            </Canvas>
+                            <UniformGrid Grid.Row="1" Columns="6"><TextBlock Text="Mar/26" Style="{StaticResource Muted}" HorizontalAlignment="Center"/><TextBlock Text="Abr/26" Style="{StaticResource Muted}" HorizontalAlignment="Center"/><TextBlock Text="Mai/26" Style="{StaticResource Muted}" HorizontalAlignment="Center"/><TextBlock Text="Jun/26" Style="{StaticResource Muted}" HorizontalAlignment="Center"/><TextBlock Text="Jul/26" Style="{StaticResource Muted}" HorizontalAlignment="Center"/><TextBlock Text="Ago/26" Style="{StaticResource Muted}" HorizontalAlignment="Center"/></UniformGrid>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Execução orçamental" Style="{StaticResource SectionTitle}"/>
+                        <Grid Height="210">
+                            <Ellipse Width="132" Height="132" Stroke="#E2E8F0" StrokeThickness="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="0%" FontSize="25" FontWeight="Bold" Foreground="#0F2747" HorizontalAlignment="Center"/><TextBlock Text="Executado" Style="{StaticResource Muted}" HorizontalAlignment="Center"/></StackPanel>
+                        </Grid>
+                        <StackPanel><TextBlock Text="● Executado      0 FCFA (0%)" Foreground="#2563EB" FontSize="11"/><TextBlock Text="● Pendente       0 FCFA (0%)" Foreground="#F59E0B" FontSize="11" Margin="0,7,0,0"/><TextBlock Text="● Total orçamento 0 FCFA" Foreground="#94A3B8" FontSize="11" Margin="0,7,0,0"/></StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Grid.Column="4">
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel><Grid><TextBlock Text="Empresa" Style="{StaticResource SectionTitle}"/><TextBlock Text="Ativa" HorizontalAlignment="Right" Foreground="#16A34A" FontSize="10"/></Grid><Border Background="#F8FBFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,12,0,0"><StackPanel><TextBlock Text="{Binding EmpresaNome}" FontWeight="SemiBold" Foreground="#0F2747"/><TextBlock Text="Exercício {Binding Exercicio}" Style="{StaticResource Muted}" Margin="0,4,0,0"/></StackPanel></Border></StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel><TextBlock Text="Alertas" Style="{StaticResource SectionTitle}" Margin="0,0,0,10"/><ItemsControl ItemsSource="{Binding Alertas}"><ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,5"><Grid.ColumnDefinitions><ColumnDefinition Width="22"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" Foreground="{Binding Severidade, Converter={StaticResource SeveridadeParaCor}}"/><TextBlock Grid.Column="1" Text="{Binding Mensagem}" TextWrapping="Wrap" FontSize="11" Foreground="#334155"/></Grid></DataTemplate></ItemsControl.ItemTemplate></ItemsControl><TextBlock Text="Backup da base de dados não configurado" FontSize="11" Foreground="#334155" Margin="0,8,0,0"/></StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- Bottom panels -->
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="1*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="1*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="0.85*"/></Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource Card}"><StackPanel><Grid Margin="0,0,0,10"><TextBlock Text="Pendências (contas a receber)" Style="{StaticResource SectionTitle}"/><TextBlock Text="Ver todas" HorizontalAlignment="Right" Foreground="#2F6FED" FontSize="10"/></Grid><DataGrid ItemsSource="{Binding Pendencias}" AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal" MinHeight="105"><DataGrid.Columns><DataGridTextColumn Header="Descrição" Binding="{Binding Descricao}" Width="*"/><DataGridTextColumn Header="Vence" Binding="{Binding DataVencimento, StringFormat=dd/MM}" Width="65"/><DataGridTextColumn Header="Valor" Binding="{Binding Valor, Converter={StaticResource ValorMoeda}}" Width="100"/></DataGrid.Columns></DataGrid><TextBlock Text="Nenhuma pendência encontrada" Style="{StaticResource Muted}" Margin="8,12,0,0" Visibility="{Binding Pendencias, Converter={StaticResource ColecaoVaziaParaVisibilidade}}"/></StackPanel></Border>
+                <Border Grid.Column="2" Style="{StaticResource Card}"><StackPanel><Grid Margin="0,0,0,10"><TextBlock Text="Movimentos recentes" Style="{StaticResource SectionTitle}"/><TextBlock Text="Ver todos" HorizontalAlignment="Right" Foreground="#2F6FED" FontSize="10"/></Grid><ItemsControl ItemsSource="{Binding MovimentosRecentes}"><ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding Descricao}" FontSize="11"/><TextBlock Grid.Column="1" Text="{Binding Valor, Converter={StaticResource ValorMoeda}}" FontSize="11" FontWeight="SemiBold"/></Grid></DataTemplate></ItemsControl.ItemTemplate></ItemsControl><TextBlock Text="Sem movimentos registados" Style="{StaticResource Muted}" Margin="8,12,0,0" Visibility="{Binding MovimentosRecentes, Converter={StaticResource ColecaoVaziaParaVisibilidade}}"/></StackPanel></Border>
+                <Border Grid.Column="4" Style="{StaticResource Card}"><StackPanel><TextBlock Text="Saldos por origem" Style="{StaticResource SectionTitle}" Margin="0,0,0,10"/><DataGrid ItemsSource="{Binding SaldosPorOrigem}" AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal" MinHeight="105"><DataGrid.Columns><DataGridTextColumn Header="Origem" Binding="{Binding Nome}" Width="*"/><DataGridTextColumn Header="Saldo" Binding="{Binding Saldo, Converter={StaticResource ValorMoeda}}" Width="100"/></DataGrid.Columns></DataGrid></StackPanel></Border>
+            </Grid>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

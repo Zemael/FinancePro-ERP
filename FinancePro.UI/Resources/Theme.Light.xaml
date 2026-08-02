@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="TealDarkBrush" Color="#0E4C5E"/>
+    <SolidColorBrush x:Key="TealBrush" Color="#156082"/>
+    <SolidColorBrush x:Key="TealLightBrush" Color="#DCEAF0"/>
+    <SolidColorBrush x:Key="TealPaleBrush" Color="#F1F7F9"/>
+    <SolidColorBrush x:Key="GrayTextBrush" Color="#595959"/>
+    <SolidColorBrush x:Key="GraySubBrush" Color="#888780"/>
+
+    <SolidColorBrush x:Key="FundoPrincipalBrush" Color="#F1F7F9"/>
+    <SolidColorBrush x:Key="FundoCartaoBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TextoPrincipalBrush" Color="#1F2937"/>
+    <SolidColorBrush x:Key="BordaBrush" Color="#DCEAF0"/>
+
+</ResourceDictionary>

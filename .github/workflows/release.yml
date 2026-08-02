@@ -1,0 +1,49 @@
+name: FinancePro Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      - name: Restore
+        run: dotnet restore .\FinancePro.sln
+
+      - name: Build
+        run: dotnet build .\FinancePro.sln --configuration Release --no-restore
+
+      - name: Publish
+        run: >-
+          dotnet publish .\FinancePro.UI\FinancePro.UI.csproj
+          --configuration Release
+          --no-restore
+          --runtime win-x64
+          --self-contained false
+          --output .\artifacts\FinancePro-win-x64
+
+      - name: Package release
+        shell: pwsh
+        run: Compress-Archive -Path .\artifacts\FinancePro-win-x64\* -DestinationPath .\artifacts\FinancePro-${{ github.ref_name }}-win-x64.zip -Force
+
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" ".\artifacts\FinancePro-${{ github.ref_name }}-win-x64.zip" --generate-notes --title "FinancePro ${{ github.ref_name }}"

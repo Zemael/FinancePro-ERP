@@ -1,0 +1,21 @@
+-- FinancePro ERP — utilizador Administrador inicial
+--
+-- O hash da password é gerado em C# com BCrypt.Net (o mesmo mecanismo
+-- usado por FinancePro.Services.AuthService), por isso não é hardcoded
+-- aqui. Sugestão: adicionar um pequeno comando "seed" na app (ou um
+-- utilitário de consola) que corre uma vez:
+--
+--   var hash = BCrypt.Net.BCrypt.HashPassword("<senha-escolhida>");
+--
+-- e insere a empresa e o utilizador Administrador:
+--
+-- INSERT INTO Empresas (Nome, Moeda) VALUES (N'A sua empresa', N'FCFA');
+--
+-- INSERT INTO Utilizadores (NomeCompleto, Email, PasswordHash, PerfilId, EmpresaId)
+-- VALUES (
+--     N'Administrador',
+--     N'admin@empresa.com',
+--     N'<hash gerado com BCrypt.Net.BCrypt.HashPassword>',
+--     (SELECT Id FROM Perfis WHERE Nome = N'Administrador'),
+--     (SELECT Id FROM Empresas WHERE Nome = N'A sua empresa')
+-- );

@@ -1,0 +1,300 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- A paleta de cores (TealDarkBrush, TealBrush, etc.) vem de
+         Theme.Light.xaml ou Theme.Dark.xaml — fundida em App.xaml ANTES
+         deste ficheiro. Aqui usa-se sempre DynamicResource, para o
+         interruptor de tema claro/escuro atualizar tudo em tempo real. -->
+
+    <!-- ==================== Botão (base plana, sem relevo nativo) ==================== -->
+    <Style x:Key="BaseButton" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource TealBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Fundo" Background="{TemplateBinding Background}" CornerRadius="6"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Fundo" Property="Opacity" Value="0.88"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Fundo" Property="Opacity" Value="0.75"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Fundo" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Aplicado automaticamente a qualquer <Button> sem Style explícito -->
+    <Style TargetType="Button" BasedOn="{StaticResource BaseButton}"/>
+
+    <!-- ==================== TextBox / PasswordBox ==================== -->
+    <Style x:Key="BaseCampoTexto" TargetType="Control">
+        <Setter Property="Background" Value="{DynamicResource TealPaleBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TealLightBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="8,6"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+    </Style>
+
+    <Style TargetType="TextBox" BasedOn="{StaticResource BaseCampoTexto}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter Property="BorderBrush" Value="{DynamicResource TealBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="PasswordBox" BasedOn="{StaticResource BaseCampoTexto}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="PasswordBox">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter Property="BorderBrush" Value="{DynamicResource TealBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ==================== ComboBox ==================== -->
+    <Style x:Key="ComboBoxItemFlat" TargetType="ComboBoxItem">
+        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Fundo" Background="Transparent" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Fundo" Property="Background" Value="{DynamicResource TealLightBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource TealPaleBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TealLightBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="8,6"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource ComboBoxItemFlat}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="Alternador"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Focusable="False" ClickMode="Press" Background="Transparent" BorderThickness="0">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border Background="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}"
+                                            BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}"
+                                            BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource TemplatedParent}}"
+                                            CornerRadius="4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="20"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Path Grid.Column="1" Data="M0,0 L4,4 L8,0" Stroke="{DynamicResource GrayTextBrush}"
+                                                  StrokeThickness="1.4" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter x:Name="Conteudo" IsHitTestVisible="False"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <Popup x:Name="Popup" IsOpen="{TemplateBinding IsDropDownOpen}"
+                               Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="None">
+                            <Border Background="White" BorderBrush="{DynamicResource TealLightBrush}" BorderThickness="1"
+                                    CornerRadius="4" MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="220" Margin="0,2,0,0">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ==================== DatePicker ==================== -->
+    <!-- WPF não permite substituir facilmente o template inteiro do DatePicker
+         (tem partes internas nomeadas); aqui só uniformizamos cores/tamanho —
+         o botão do calendário mantém o aspeto nativo do Windows. -->
+    <Style TargetType="DatePicker">
+        <Setter Property="Background" Value="{DynamicResource TealPaleBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TealLightBrush}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Padding" Value="6,4"/>
+    </Style>
+
+    <!-- ==================== DataGrid ==================== -->
+    <Style TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="{DynamicResource TealBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="Padding" Value="10,7"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridColumnHeader">
+                    <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
+                            BorderBrush="#0E4C5E" BorderThickness="0,0,1,0" CornerRadius="4" Margin="0,0,1,0">
+                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="DataGridCell">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridCell">
+                    <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="DataGrid">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="RowBackground" Value="White"/>
+        <Setter Property="AlternatingRowBackground" Value="White"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="RowHeaderWidth" Value="0"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource TealPaleBrush}"/>
+        <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserResizeRows" Value="False"/>
+        <Setter Property="CanUserReorderColumns" Value="False"/>
+    </Style>
+
+    <Style TargetType="DataGridRow">
+        <Setter Property="Background" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource TealPaleBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ==================== TabControl / TabItem ==================== -->
+    <Style TargetType="TabItem">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="Foreground" Value="{DynamicResource GrayTextBrush}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Border x:Name="Fundo" Background="Transparent" BorderBrush="{DynamicResource TealBrush}"
+                            BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}" Margin="0,0,4,0">
+                        <ContentPresenter ContentSource="Header" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Fundo" Property="BorderThickness" Value="0,0,0,2"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TealDarkBrush}"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="False">
+                            <Setter TargetName="Fundo" Property="BorderThickness" Value="0"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="TabControl">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabControl">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource TealLightBrush}" BorderThickness="0,0,0,1">
+                            <TabPanel IsItemsHost="True"/>
+                        </Border>
+                        <ContentPresenter ContentSource="SelectedContent" Margin="0,12,0,0"/>
+                    </DockPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ==================== Toolbar de módulo (Novo/Editar/Guardar/Eliminar/Exportar) ==================== -->
+    <Style x:Key="BotaoToolbar" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Foreground" Value="{DynamicResource TealDarkBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TealLightBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+    <Style x:Key="BotaoToolbarPerigo" TargetType="Button" BasedOn="{StaticResource BotaoToolbar}">
+        <Setter Property="Foreground" Value="#C00000"/>
+    </Style>
+    <Style x:Key="CaixaFiltro" TargetType="TextBox">
+        <Setter Property="Width" Value="240"/>
+    </Style>
+    <Style x:Key="RotuloSeccaoModulo" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TealDarkBrush}"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+    </Style>
+
+</ResourceDictionary>
