@@ -28,9 +28,21 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
         <StackPanel>
 
-            <TextBlock Text="Compras" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
-            <TextBlock Text="Pedidos de compra a fornecedores, com fluxo de aprovação"
-                       FontSize="10.5" Foreground="#595959" Margin="0,0,0,16"/>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Compras" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
+                    <TextBlock Text="Pedidos de compra a fornecedores, com fluxo de aprovação"
+                               FontSize="10.5" Foreground="#595959"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Atualizar" Command="{Binding AtualizarCommand}"
+                        Height="32" Padding="14,0" VerticalAlignment="Top"
+                        Background="#EAF4F7" Foreground="#156082" BorderBrush="#BFD9E2"
+                        FontWeight="SemiBold"/>
+            </Grid>
 
             <Border Style="{StaticResource Cartao}">
                 <StackPanel>
@@ -97,6 +109,9 @@
                     <TextBlock Text="{Binding MensagemErro}" Foreground="#C00000" FontSize="10.5"
                                Margin="0,12,0,0" TextWrapping="Wrap"
                                Visibility="{Binding MensagemErro, Converter={StaticResource TextoParaVisibilidade}}"/>
+                    <TextBlock Text="{Binding MensagemSucesso}" Foreground="#0F6E56" FontSize="10.5"
+                               Margin="0,12,0,0" TextWrapping="Wrap"
+                               Visibility="{Binding MensagemSucesso, Converter={StaticResource TextoParaVisibilidade}}"/>
 
                     <Button Content="{Binding AGuardar, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Criar pedido}"
                             Command="{Binding CriarCommand}"

@@ -1,14 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using FinancePro.Application.MasterData.Companies;
 using FinancePro.Core.DTOs;
-using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 
 namespace FinancePro.UI.ViewModels;
 
 public sealed class EmpresasViewModel : ViewModelBase
 {
-    private readonly IEmpresaService _service;
+    private readonly CompanyApplicationService _service;
     private string _pesquisa = string.Empty;
     private EmpresaListItemDto? _selecionada;
     private int _idEdicao;
@@ -20,6 +20,7 @@ public sealed class EmpresasViewModel : ViewModelBase
     private string _moeda = "FCFA";
     private string _mensagem = string.Empty;
     private bool _aGuardar;
+    private bool _aCarregar;
 
     public ObservableCollection<EmpresaListItemDto> Empresas { get; } = new();
     public string Pesquisa { get => _pesquisa; set => SetProperty(ref _pesquisa, value); }
@@ -32,6 +33,7 @@ public sealed class EmpresasViewModel : ViewModelBase
     public string Moeda { get => _moeda; set => SetProperty(ref _moeda, value); }
     public string Mensagem { get => _mensagem; set => SetProperty(ref _mensagem, value); }
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
+    public bool ACarregar { get => _aCarregar; set => SetProperty(ref _aCarregar, value); }
 
     public ICommand PesquisarCommand { get; }
     public ICommand NovoCommand { get; }
@@ -39,7 +41,7 @@ public sealed class EmpresasViewModel : ViewModelBase
     public ICommand GuardarCommand { get; }
     public ICommand AlternarAtivoCommand { get; }
 
-    public EmpresasViewModel(IEmpresaService service)
+    public EmpresasViewModel(CompanyApplicationService service)
     {
         _service = service;
         PesquisarCommand = new AsyncRelayCommand(_ => CarregarAsync());
@@ -52,16 +54,39 @@ public sealed class EmpresasViewModel : ViewModelBase
 
     private async Task CarregarAsync()
     {
-        var lista = await _service.ListarAsync(Pesquisa);
-        Empresas.Clear();
-        foreach (var item in lista) Empresas.Add(item);
+        ACarregar = true;
+        Mensagem = string.Empty;
+        try
+        {
+            var result = await _service.ListAsync(Pesquisa);
+            if (result.IsFailure)
+            {
+                Mensagem = ObterErro(result.Errors, result.Message);
+                return;
+            }
+
+            Empresas.Clear();
+            foreach (var item in result.Value ?? Array.Empty<EmpresaListItemDto>())
+                Empresas.Add(item);
+        }
+        finally
+        {
+            ACarregar = false;
+        }
     }
 
     private async Task EditarAsync()
     {
         if (Selecionada is null) return;
-        var dto = await _service.ObterAsync(Selecionada.Id);
-        if (dto is null) return;
+
+        var result = await _service.GetAsync(Selecionada.Id);
+        if (result.IsFailure || result.Value is null)
+        {
+            Mensagem = ObterErro(result.Errors, result.Message);
+            return;
+        }
+
+        var dto = result.Value;
         _idEdicao = dto.Id;
         Nome = dto.Nome;
         NIF = dto.NIF ?? string.Empty;
@@ -78,29 +103,36 @@ public sealed class EmpresasViewModel : ViewModelBase
         AGuardar = true;
         try
         {
-            await _service.GuardarAsync(new EmpresaDto
+            var result = await _service.SaveAsync(new CompanySaveRequest(
+                _idEdicao, Nome, NIF, Morada, Telefone, Email, Moeda));
+
+            if (result.IsFailure)
             {
-                Id = _idEdicao,
-                Nome = Nome,
-                NIF = NIF,
-                Telefone = Telefone,
-                Email = Email,
-                Morada = Morada,
-                Moeda = Moeda
-            });
+                Mensagem = ObterErro(result.Errors, result.Message);
+                return;
+            }
+
             LimparFormulario();
-            Mensagem = "Empresa guardada com sucesso.";
+            Mensagem = result.Message ?? "Empresa guardada com sucesso.";
             await CarregarAsync();
         }
-        catch (Exception ex) { Mensagem = ex.Message; }
-        finally { AGuardar = false; }
+        finally
+        {
+            AGuardar = false;
+        }
     }
 
     private async Task AlternarAtivoAsync(object? parametro)
     {
         if (parametro is not EmpresaListItemDto empresa) return;
-        await _service.AlternarAtivoAsync(empresa.Id, !empresa.Ativo);
-        await CarregarAsync();
+
+        var result = await _service.SetActiveAsync(empresa.Id, !empresa.Ativo);
+        Mensagem = result.IsSuccess
+            ? result.Message ?? "Estado atualizado."
+            : ObterErro(result.Errors, result.Message);
+
+        if (result.IsSuccess)
+            await CarregarAsync();
     }
 
     private void LimparFormulario()
@@ -110,4 +142,7 @@ public sealed class EmpresasViewModel : ViewModelBase
         Moeda = "FCFA";
         Mensagem = string.Empty;
     }
+
+    private static string ObterErro(IReadOnlyCollection<string> errors, string? message) =>
+        errors.FirstOrDefault() ?? message ?? "Não foi possível concluir a operação.";
 }

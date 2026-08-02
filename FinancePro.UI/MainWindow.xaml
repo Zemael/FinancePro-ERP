@@ -128,6 +128,9 @@
                         <Button x:Name="BtnEmpresas" Style="{StaticResource ItemNav}" Click="Empresas_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE731;" Style="{StaticResource NavIcon}"/><TextBlock Text="Empresas" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
+                        <Button x:Name="BtnParceiros" Style="{StaticResource ItemNav}" Click="Parceiros_Click">
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE716;" Style="{StaticResource NavIcon}"/><TextBlock Text="Clientes e Fornecedores" Style="{StaticResource NavText}"/></StackPanel>
+                        </Button>
                         <Button x:Name="BtnExercicios" Style="{StaticResource ItemNav}" Click="Exercicios_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE787;" Style="{StaticResource NavIcon}"/><TextBlock Text="Exercícios Financeiros" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
