@@ -1,3 +1,5 @@
+using FinancePro.Application.MasterData.Currencies;
+using FinancePro.Application.MasterData.Banking;
 using FinancePro.Application.Budget;
 using FinancePro.Application.Expenses;
 using FinancePro.Application.Revenue;
@@ -12,6 +14,7 @@ using FinancePro.Application.Treasury;
 using FinancePro.Application.Purchasing;
 using FinancePro.Application.Assets;
 using FinancePro.Application.MasterData.Companies;
+using FinancePro.Application.MasterData.Partners;
 using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 using FinancePro.UI.ViewModels;
@@ -50,6 +53,8 @@ public partial class MainWindow : Window
     private void Dashboard_Click(object sender, RoutedEventArgs e) => MostrarDashboard();
 
     private void Empresas_Click(object sender, RoutedEventArgs e) => MostrarEmpresas();
+
+    private void Parceiros_Click(object sender, RoutedEventArgs e) => MostrarParceiros();
 
     private void Exercicios_Click(object sender, RoutedEventArgs e) => MostrarExercicios();
 
@@ -124,6 +129,15 @@ public partial class MainWindow : Window
         ConteudoHost.Content = new EmpresasView { DataContext = new EmpresasViewModel(service) };
     }
 
+
+    private void MostrarParceiros()
+    {
+        DestacarItemAtivo(BtnParceiros);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<BusinessPartnerApplicationService>();
+        ConteudoHost.Content = new ParceirosView { DataContext = new ParceirosViewModel(service, _utilizador.EmpresaId) };
+    }
+
     private void MostrarExercicios()
     {
         DestacarItemAtivo(BtnExercicios);
@@ -137,7 +151,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnMoedas);
         TrocarScope();
-        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IMoedaService>();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<CurrencyMasterDataService>();
         ConteudoHost.Content = new MoedasView { DataContext = new MoedasViewModel(service) };
     }
 
@@ -173,6 +187,7 @@ public partial class MainWindow : Window
     {
         BtnDashboard.Visibility = Visibilidade("Dashboard");
         BtnEmpresas.Visibility = Visibilidade("Empresas");
+        BtnParceiros.Visibility = Visibility.Visible;
         BtnExercicios.Visibility = Visibilidade("Exercicios");
         BtnMoedas.Visibility = Visibilidade("Moedas");
         BtnUtilizadores.Visibility = Visibilidade("Utilizadores");
@@ -214,7 +229,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnBancos);
         TrocarScope();
-        var bancoService = _scopeAtual!.ServiceProvider.GetRequiredService<IBancoService>();
+        var bancoService = _scopeAtual!.ServiceProvider.GetRequiredService<BankingMasterDataService>();
         var viewModel = new BancosViewModel(bancoService, _utilizador.EmpresaId);
         ConteudoHost.Content = new BancosView { DataContext = viewModel };
     }

@@ -1,14 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using FinancePro.Application.MasterData.Currencies;
 using FinancePro.Core.DTOs;
-using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 
 namespace FinancePro.UI.ViewModels;
 
 public sealed class MoedasViewModel : ViewModelBase
 {
-    private readonly IMoedaService _service;
+    private readonly CurrencyMasterDataService _service;
     private string _pesquisa = string.Empty;
     private MoedaDto? _selecionada;
     private int _idEdicao;
@@ -35,7 +35,7 @@ public sealed class MoedasViewModel : ViewModelBase
     public ICommand GuardarCommand { get; }
     public ICommand AlternarAtivoCommand { get; }
 
-    public MoedasViewModel(IMoedaService service)
+    public MoedasViewModel(CurrencyMasterDataService service)
     {
         _service = service;
         PesquisarCommand = new AsyncRelayCommand(_ => CarregarAsync());
@@ -48,9 +48,11 @@ public sealed class MoedasViewModel : ViewModelBase
 
     private async Task CarregarAsync()
     {
-        var lista = await _service.ListarAsync(Pesquisa);
+        Mensagem = string.Empty;
+        var result = await _service.ListAsync(Pesquisa);
+        if (result.IsFailure) { Mensagem = string.Join(Environment.NewLine, result.Errors); return; }
         Moedas.Clear();
-        foreach (var item in lista) Moedas.Add(item);
+        foreach (var item in result.Value ?? Array.Empty<MoedaDto>()) Moedas.Add(item);
     }
 
     private void Editar()
@@ -70,24 +72,25 @@ public sealed class MoedasViewModel : ViewModelBase
         Mensagem = string.Empty;
         try
         {
-            await _service.GuardarAsync(new MoedaDto
+            var result = await _service.SaveAsync(new MoedaDto
             {
                 Id = _idEdicao, CodigoIso = CodigoIso, Nome = Nome,
                 Simbolo = Simbolo, CasasDecimais = CasasDecimais, Ativo = true
             });
+            if (result.IsFailure) { Mensagem = string.Join(Environment.NewLine, result.Errors); return; }
             Limpar();
-            Mensagem = "Moeda guardada com sucesso.";
+            Mensagem = result.Message ?? "Moeda guardada com sucesso.";
             await CarregarAsync();
         }
-        catch (Exception ex) { Mensagem = ex.Message; }
         finally { AGuardar = false; }
     }
 
     private async Task AlternarAtivoAsync(object? parametro)
     {
         if (parametro is not MoedaDto item) return;
-        await _service.AlternarAtivoAsync(item.Id, !item.Ativo);
-        await CarregarAsync();
+        var result = await _service.SetActiveAsync(item.Id, !item.Ativo);
+        Mensagem = result.IsSuccess ? result.Message ?? string.Empty : string.Join(Environment.NewLine, result.Errors);
+        if (result.IsSuccess) await CarregarAsync();
     }
 
     private void Limpar()

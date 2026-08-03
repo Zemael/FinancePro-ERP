@@ -1,8 +1,9 @@
 # Build Status
 
-- Version: 3.1.0
-- Scope: Master Data — Empresas
-- Database migration: Not required
-- Local build: pending validation in Windows/.NET 8
-- Local tests: pending validation in Windows/.NET 8
-- GitHub Actions: pending
+- Version: 3.3.1
+- Scope: Consolidation through Business Partners and UI Framework Stability
+- Build: PENDING LOCAL VALIDATION
+- Tests: PENDING LOCAL VALIDATION
+- Migrations: NOT REQUIRED
+- Database model changed: NO
+- GitHub Actions: PENDING PUSH

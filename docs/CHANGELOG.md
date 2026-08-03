@@ -1,4 +1,19 @@
 
+## v3.3.0 — Parceiros de Negócio
+- Cadastro mestre unificado de clientes e fornecedores.
+- Novo serviço de aplicação, gateway EF Core, ViewModel e View WPF.
+- Pesquisa, edição e controlo de estado.
+- Sem nova migration.
+
+## v3.2.0 — Cadastros Mestres Financeiros
+
+- Adicionada camada Application para Bancos, Contas Bancárias e Moedas.
+- Validações centralizadas e normalização de dados bancários.
+- ViewModels migrados para os novos casos de uso.
+- Adicionados testes unitários.
+- Nenhuma migration necessária.
+
+
 ## [3.1.0] - 2026-08-02
 
 ### Adicionado
@@ -163,3 +178,7 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Padronizados cartões, toolbars, botões, campos, grelhas e mensagens.
 - Integrado o novo framework visual nos recursos globais da aplicação.
 - Nenhuma migration necessária.
+
+## v3.3.1 — UI Framework Stability
+- Corrigidos recursos WPF ausentes na ParceirosView.
+- Adicionados aliases FP.PageBackground, FP.PageTitle e FP.PageSubtitle.

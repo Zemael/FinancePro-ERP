@@ -1,5 +1,8 @@
+using FinancePro.Application.MasterData.Currencies;
+using FinancePro.Application.MasterData.Banking;
 using FinancePro.Data.Administration;
 using FinancePro.Application.MasterData.Companies;
+using FinancePro.Application.MasterData.Partners;
 using FinancePro.Data.MasterData;
 using FinancePro.Data.Treasury;
 using FinancePro.Application.Treasury;
@@ -73,6 +76,12 @@ public partial class App : System.Windows.Application
         services.AddScoped<PermissionAdministrationService>();
         services.AddScoped<ICompanyGateway, CompanyGateway>();
         services.AddScoped<CompanyApplicationService>();
+        services.AddScoped<IBusinessPartnerGateway, BusinessPartnerGateway>();
+        services.AddScoped<BusinessPartnerApplicationService>();
+        services.AddScoped<IBankingMasterDataGateway, BankingMasterDataGateway>();
+        services.AddScoped<BankingMasterDataService>();
+        services.AddScoped<ICurrencyMasterDataGateway, CurrencyMasterDataGateway>();
+        services.AddScoped<CurrencyMasterDataService>();
         services.AddScoped<TreasuryGateway>();
         services.AddScoped<ITreasuryGateway>(sp => sp.GetRequiredService<TreasuryGateway>());
         services.AddScoped<TreasuryApplicationService>();
