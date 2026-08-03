@@ -1,7 +1,6 @@
-# Build Status
+# FinancePro Build Status
 
-- Version: 2.2.0
-- Local build: PENDING USER VALIDATION
-- Automated tests: PENDING USER VALIDATION
-- Migrations: NOT REQUIRED
-- GitHub Actions: PENDING PUSH
+Version: 3.8.0
+Build: PENDING LOCAL VALIDATION
+Tests: PENDING LOCAL VALIDATION
+Migration: NOT REQUIRED

@@ -1,17 +1,16 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using FinancePro.Application.Receivables;
 using FinancePro.Core.DTOs;
-using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 
 namespace FinancePro.UI.ViewModels;
 
 public class ReceitasViewModel : ViewModelBase
 {
-    private readonly IReceitasService _service;
+    private readonly ReceivablesApplicationService _service;
     private readonly int _empresaId;
-
     private string _descricao = string.Empty;
     private string _valorTexto = string.Empty;
     private DateTime _dataEmissao = DateTime.Today;
@@ -25,6 +24,12 @@ public class ReceitasViewModel : ViewModelBase
     private bool _aGuardar;
     private DateTime _dataRecebimento = DateTime.Today;
     private OpcaoOrigemDto? _origemRecebimentoSelecionada;
+    private string _pesquisa = string.Empty;
+    private string _estadoSelecionado = "Todos";
+    private decimal _totalAberto;
+    private decimal _totalVencido;
+    private decimal _totalHoje;
+    private int _quantidadeAberta;
 
     public string Descricao { get => _descricao; set => SetProperty(ref _descricao, value); }
     public string ValorTexto { get => _valorTexto; set => SetProperty(ref _valorTexto, value); }
@@ -38,165 +43,102 @@ public class ReceitasViewModel : ViewModelBase
     public string MensagemSucesso { get => _mensagemSucesso; set => SetProperty(ref _mensagemSucesso, value); }
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
     public DateTime DataRecebimento { get => _dataRecebimento; set => SetProperty(ref _dataRecebimento, value); }
-
-    /// <summary>Origem partilhada usada sempre que se clica "Receber" numa linha.</summary>
     public OpcaoOrigemDto? OrigemRecebimentoSelecionada { get => _origemRecebimentoSelecionada; set => SetProperty(ref _origemRecebimentoSelecionada, value); }
+    public string Pesquisa { get => _pesquisa; set => SetProperty(ref _pesquisa, value); }
+    public string EstadoSelecionado { get => _estadoSelecionado; set => SetProperty(ref _estadoSelecionado, value); }
+    public decimal TotalAberto { get => _totalAberto; private set => SetProperty(ref _totalAberto, value); }
+    public decimal TotalVencido { get => _totalVencido; private set => SetProperty(ref _totalVencido, value); }
+    public decimal TotalHoje { get => _totalHoje; private set => SetProperty(ref _totalHoje, value); }
+    public int QuantidadeAberta { get => _quantidadeAberta; private set => SetProperty(ref _quantidadeAberta, value); }
 
     public ObservableCollection<ClienteOpcaoDto> Clientes { get; } = new();
     public ObservableCollection<CategoriaOpcaoDto> Categorias { get; } = new();
     public ObservableCollection<OpcaoOrigemDto> Origens { get; } = new();
     public ObservableCollection<ContaReceberListItemDto> Contas { get; } = new();
+    public ObservableCollection<string> Estados { get; } = new(new[] { "Todos", "Pendente", "Atrasado", "Recebido", "Cancelado" });
 
     public ICommand CriarCommand { get; }
     public ICommand ReceberCommand { get; }
     public ICommand CancelarCommand { get; }
+    public ICommand AtualizarCommand { get; }
+    public ICommand FiltrarCommand { get; }
 
-    public ReceitasViewModel(IReceitasService service, int empresaId)
+    public ReceitasViewModel(ReceivablesApplicationService service, int empresaId)
     {
         _service = service;
         _empresaId = empresaId;
-
         CriarCommand = new AsyncRelayCommand(_ => CriarAsync(), _ => !AGuardar);
         ReceberCommand = new AsyncRelayCommand(ReceberAsync);
         CancelarCommand = new AsyncRelayCommand(CancelarAsync);
-
+        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync());
+        FiltrarCommand = new AsyncRelayCommand(_ => CarregarAsync());
         _ = CarregarAsync();
     }
 
     private async Task CarregarAsync()
     {
-        var clientes = await _service.ListarClientesAsync(_empresaId);
-        Clientes.Clear();
-        foreach (var cliente in clientes) Clientes.Add(cliente);
+        MensagemErro = string.Empty;
+        var result = await _service.LoadAsync(new ReceivablesQuery(_empresaId, Pesquisa, EstadoSelecionado));
+        if (result.IsFailure || result.Value is null)
+        {
+            MensagemErro = result.Message ?? result.Errors.FirstOrDefault() ?? "Não foi possível carregar as contas a receber.";
+            return;
+        }
 
-        var categorias = await _service.ListarCategoriasAsync(_empresaId);
-        Categorias.Clear();
-        foreach (var categoria in categorias) Categorias.Add(categoria);
-        CategoriaSelecionada = Categorias.FirstOrDefault();
-
-        var origens = await _service.ListarOrigensAsync(_empresaId);
-        Origens.Clear();
-        foreach (var origem in origens) Origens.Add(origem);
-        OrigemRecebimentoSelecionada = Origens.FirstOrDefault(o => o.Disponivel);
-
-        await CarregarContasAsync();
-    }
-
-    private async Task CarregarContasAsync()
-    {
-        var contas = await _service.ListarAsync(_empresaId);
-        Contas.Clear();
-        foreach (var conta in contas) Contas.Add(conta);
+        Replace(Clientes, result.Value.Customers);
+        Replace(Categorias, result.Value.Categories);
+        Replace(Origens, result.Value.Origins);
+        Replace(Contas, result.Value.Items);
+        CategoriaSelecionada ??= Categorias.FirstOrDefault();
+        OrigemRecebimentoSelecionada ??= Origens.FirstOrDefault(x => x.Disponivel);
+        TotalAberto = result.Value.Summary.OpenAmount;
+        TotalVencido = result.Value.Summary.OverdueAmount;
+        TotalHoje = result.Value.Summary.DueTodayAmount;
+        QuantidadeAberta = result.Value.Summary.OpenCount;
     }
 
     private async Task CriarAsync()
     {
-        MensagemErro = string.Empty;
-        MensagemSucesso = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(Descricao))
-        {
-            MensagemErro = "Indique uma descrição.";
-            return;
-        }
-
-        if (!decimal.TryParse(ValorTexto, out var valor) || valor <= 0)
-        {
-            MensagemErro = "Indique um valor válido.";
-            return;
-        }
-
+        MensagemErro = MensagemSucesso = string.Empty;
+        if (!decimal.TryParse(ValorTexto, out var valor)) { MensagemErro = "Indique um valor válido."; return; }
         AGuardar = true;
         try
         {
-            await _service.CriarAsync(new NovaContaReceberDto
+            var result = await _service.CreateAsync(new NovaContaReceberDto
             {
-                Descricao = Descricao,
-                Valor = valor,
-                DataEmissao = DataEmissao,
-                DataVencimento = DataVencimento,
-                FormaPagamento = FormaPagamento,
-                CentroCusto = CentroCusto,
-                ClienteId = ClienteSelecionado?.Id,
-                CategoriaId = CategoriaSelecionada?.Id,
-                EmpresaId = _empresaId
+                Descricao = Descricao, Valor = valor, DataEmissao = DataEmissao, DataVencimento = DataVencimento,
+                FormaPagamento = FormaPagamento, CentroCusto = CentroCusto, ClienteId = ClienteSelecionado?.Id,
+                CategoriaId = CategoriaSelecionada?.Id, EmpresaId = _empresaId
             });
-
-            Descricao = string.Empty;
-            ValorTexto = string.Empty;
-
-            await CarregarContasAsync();
-            MensagemSucesso = "Conta a receber registada com sucesso.";
+            if (result.IsFailure) { MensagemErro = result.Message ?? string.Join("\n", result.Errors); return; }
+            Descricao = ValorTexto = string.Empty;
+            MensagemSucesso = result.Message ?? "Conta a receber registada.";
+            await CarregarAsync();
         }
-        catch (Exception ex)
-        {
-            MensagemErro = ex.Message;
-        }
-        finally
-        {
-            AGuardar = false;
-        }
+        finally { AGuardar = false; }
     }
 
-    private async Task ReceberAsync(object? parametro)
+    private async Task ReceberAsync(object? parameter)
     {
-        if (parametro is not ContaReceberListItemDto conta)
-        {
-            return;
-        }
-
-        MensagemErro = string.Empty;
-        MensagemSucesso = string.Empty;
-
-        if (OrigemRecebimentoSelecionada is null)
-        {
-            MensagemErro = "Selecione a origem do recebimento (caixa ou conta bancária) antes de continuar.";
-            return;
-        }
-
-        if (!OrigemRecebimentoSelecionada.Disponivel)
-        {
-            MensagemErro = OrigemRecebimentoSelecionada.MotivoIndisponibilidade
-                ?? "A origem selecionada não está disponível.";
-            return;
-        }
-
-        try
-        {
-            await _service.RegistarRecebimentoAsync(
-                conta.Id,
-                OrigemRecebimentoSelecionada.Tipo,
-                OrigemRecebimentoSelecionada.Id,
-                DataRecebimento);
-
-            await CarregarContasAsync();
-            MensagemSucesso = $"Recebimento {conta.Codigo} confirmado e lançado na Tesouraria.";
-        }
-        catch (Exception ex)
-        {
-            MensagemErro = ex.Message;
-        }
+        if (parameter is not ContaReceberListItemDto conta) return;
+        var result = await _service.ReceiveAsync(conta.Id, OrigemRecebimentoSelecionada, DataRecebimento);
+        if (result.IsFailure) { MensagemErro = result.Message ?? string.Join("\n", result.Errors); return; }
+        MensagemSucesso = result.Message ?? "Recebimento confirmado.";
+        await CarregarAsync();
     }
 
-    private async Task CancelarAsync(object? parametro)
+    private async Task CancelarAsync(object? parameter)
     {
-        MensagemErro = string.Empty;
-        MensagemSucesso = string.Empty;
+        if (parameter is not ContaReceberListItemDto conta) return;
+        var result = await _service.CancelAsync(conta.Id);
+        if (result.IsFailure) { MensagemErro = result.Message ?? string.Join("\n", result.Errors); return; }
+        MensagemSucesso = result.Message ?? "Conta cancelada.";
+        await CarregarAsync();
+    }
 
-        if (parametro is not ContaReceberListItemDto conta)
-        {
-            return;
-        }
-
-        try
-        {
-            await _service.CancelarAsync(conta.Id);
-            await CarregarContasAsync();
-            MensagemSucesso = $"Conta {conta.Codigo} cancelada.";
-        }
-        catch (Exception ex)
-        {
-            MensagemErro = ex.Message;
-        }
+    private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
+    {
+        target.Clear();
+        foreach (var item in source) target.Add(item);
     }
 }

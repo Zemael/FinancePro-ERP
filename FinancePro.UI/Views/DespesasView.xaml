@@ -34,8 +34,16 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
         <StackPanel>
 
-            <TextBlock Text="Despesas" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
-            <TextBlock Text="Contas a pagar a fornecedores — ao registar o pagamento, gera automaticamente um movimento de Tesouraria"
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Contas a Pagar" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Content="Atualizar" Command="{Binding AtualizarCommand}"
+                        Style="{StaticResource BotaoLink}" Foreground="#0E4C5E"/>
+            </Grid>
+            <TextBlock Text="Títulos de fornecedores — o pagamento confirmado gera automaticamente um movimento de Tesouraria"
                        FontSize="10.5" Foreground="#595959" Margin="0,0,0,16" TextWrapping="Wrap"/>
 
             <Border Style="{StaticResource Cartao}">

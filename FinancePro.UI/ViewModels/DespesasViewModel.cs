@@ -1,15 +1,15 @@
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.Globalization;
 using System.Windows.Input;
+using FinancePro.Application.Payables;
 using FinancePro.Core.DTOs;
-using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 
 namespace FinancePro.UI.ViewModels;
 
 public class DespesasViewModel : ViewModelBase
 {
-    private readonly IDespesasService _service;
+    private readonly PayablesApplicationService _service;
     private readonly int _empresaId;
 
     private string _descricao = string.Empty;
@@ -25,6 +25,7 @@ public class DespesasViewModel : ViewModelBase
     private OpcaoOrigemDto? _origemPagamentoSelecionada;
     private DateTime _dataPagamento = DateTime.Today;
     private bool _aProcessarPagamento;
+    private bool _aCarregar;
 
     public string Descricao { get => _descricao; set => SetProperty(ref _descricao, value); }
     public string ValorTexto { get => _valorTexto; set => SetProperty(ref _valorTexto, value); }
@@ -38,8 +39,7 @@ public class DespesasViewModel : ViewModelBase
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
     public DateTime DataPagamento { get => _dataPagamento; set => SetProperty(ref _dataPagamento, value); }
     public bool AProcessarPagamento { get => _aProcessarPagamento; set => SetProperty(ref _aProcessarPagamento, value); }
-
-    /// <summary>Origem partilhada usada sempre que se clica "Pagar" numa linha.</summary>
+    public bool ACarregar { get => _aCarregar; set => SetProperty(ref _aCarregar, value); }
     public OpcaoOrigemDto? OrigemPagamentoSelecionada { get => _origemPagamentoSelecionada; set => SetProperty(ref _origemPagamentoSelecionada, value); }
 
     public ObservableCollection<FornecedorOpcaoDto> Fornecedores { get; } = new();
@@ -50,8 +50,9 @@ public class DespesasViewModel : ViewModelBase
     public ICommand CriarCommand { get; }
     public ICommand PagarCommand { get; }
     public ICommand CancelarCommand { get; }
+    public ICommand AtualizarCommand { get; }
 
-    public DespesasViewModel(IDespesasService service, int empresaId)
+    public DespesasViewModel(PayablesApplicationService service, int empresaId)
     {
         _service = service;
         _empresaId = empresaId;
@@ -59,47 +60,42 @@ public class DespesasViewModel : ViewModelBase
         CriarCommand = new AsyncRelayCommand(_ => CriarAsync(), _ => !AGuardar);
         PagarCommand = new AsyncRelayCommand(PagarAsync);
         CancelarCommand = new AsyncRelayCommand(CancelarAsync);
+        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync(), _ => !ACarregar);
 
         _ = CarregarAsync();
     }
 
     private async Task CarregarAsync()
     {
-        var fornecedores = await _service.ListarFornecedoresAsync(_empresaId);
-        Fornecedores.Clear();
-        foreach (var f in fornecedores) Fornecedores.Add(f);
+        ACarregar = true;
+        MensagemErro = string.Empty;
+        try
+        {
+            var result = await _service.LoadAsync(new PayablesQuery(_empresaId));
+            if (result.IsFailure || result.Value is null)
+            {
+                MensagemErro = BuildMessage(result.Message, result.Errors);
+                return;
+            }
 
-        var categorias = await _service.ListarCategoriasAsync(_empresaId);
-        Categorias.Clear();
-        foreach (var c in categorias) Categorias.Add(c);
-        CategoriaSelecionada = Categorias.FirstOrDefault();
+            Replace(Fornecedores, result.Value.Suppliers);
+            Replace(Categorias, result.Value.Categories);
+            Replace(Origens, result.Value.Origins);
+            Replace(Contas, result.Value.Items);
 
-        var origens = await _service.ListarOrigensAsync(_empresaId);
-        Origens.Clear();
-        foreach (var o in origens) Origens.Add(o);
-        OrigemPagamentoSelecionada = Origens.FirstOrDefault();
-
-        await CarregarContasAsync();
-    }
-
-    private async Task CarregarContasAsync()
-    {
-        var contas = await _service.ListarAsync(_empresaId);
-        Contas.Clear();
-        foreach (var conta in contas) Contas.Add(conta);
+            CategoriaSelecionada ??= Categorias.FirstOrDefault();
+            OrigemPagamentoSelecionada ??= Origens.FirstOrDefault();
+        }
+        finally
+        {
+            ACarregar = false;
+        }
     }
 
     private async Task CriarAsync()
     {
         MensagemErro = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(Descricao))
-        {
-            MensagemErro = "Indique uma descrição.";
-            return;
-        }
-
-        if (!decimal.TryParse(ValorTexto, out var valor) || valor <= 0)
+        if (!decimal.TryParse(ValorTexto, NumberStyles.Number, CultureInfo.CurrentCulture, out var valor) || valor <= 0)
         {
             MensagemErro = "Indique um valor válido.";
             return;
@@ -108,7 +104,7 @@ public class DespesasViewModel : ViewModelBase
         AGuardar = true;
         try
         {
-            await _service.CriarAsync(new NovaContaPagarDto
+            var result = await _service.CreateAsync(new NovaContaPagarDto
             {
                 Descricao = Descricao,
                 Valor = valor,
@@ -121,14 +117,16 @@ public class DespesasViewModel : ViewModelBase
                 EmpresaId = _empresaId
             });
 
+            if (result.IsFailure)
+            {
+                MensagemErro = BuildMessage(result.Message, result.Errors);
+                return;
+            }
+
             Descricao = string.Empty;
             ValorTexto = string.Empty;
-
-            await CarregarContasAsync();
-        }
-        catch (Exception ex)
-        {
-            MensagemErro = ex.Message;
+            MensagemErro = result.Message ?? string.Empty;
+            await CarregarAsync();
         }
         finally
         {
@@ -138,32 +136,21 @@ public class DespesasViewModel : ViewModelBase
 
     private async Task PagarAsync(object? parametro)
     {
-        if (parametro is not ContaPagarListItemDto conta)
-        {
-            return;
-        }
-
-        if (OrigemPagamentoSelecionada is null)
-        {
-            MensagemErro = "Selecione a origem do pagamento (caixa ou conta bancária) antes de continuar.";
-            return;
-        }
+        if (parametro is not ContaPagarListItemDto conta) return;
 
         MensagemErro = string.Empty;
         AProcessarPagamento = true;
         try
         {
-            await _service.RegistarPagamentoAsync(
-                conta.Id,
-                OrigemPagamentoSelecionada.Tipo,
-                OrigemPagamentoSelecionada.Id,
-                DataPagamento);
+            var result = await _service.PayAsync(conta.Id, OrigemPagamentoSelecionada, DataPagamento);
+            if (result.IsFailure)
+            {
+                MensagemErro = BuildMessage(result.Message, result.Errors);
+                return;
+            }
 
-            await CarregarContasAsync();
-        }
-        catch (Exception ex)
-        {
-            MensagemErro = ex.Message;
+            MensagemErro = result.Message ?? string.Empty;
+            await CarregarAsync();
         }
         finally
         {
@@ -173,12 +160,26 @@ public class DespesasViewModel : ViewModelBase
 
     private async Task CancelarAsync(object? parametro)
     {
-        if (parametro is not ContaPagarListItemDto conta)
-        {
-            return;
-        }
+        if (parametro is not ContaPagarListItemDto conta) return;
 
-        await _service.CancelarAsync(conta.Id);
-        await CarregarContasAsync();
+        var result = await _service.CancelAsync(conta.Id);
+        MensagemErro = result.IsFailure
+            ? BuildMessage(result.Message, result.Errors)
+            : result.Message ?? string.Empty;
+
+        if (result.IsSuccess) await CarregarAsync();
+    }
+
+    private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
+    {
+        target.Clear();
+        foreach (var item in source) target.Add(item);
+    }
+
+    private static string BuildMessage(string? message, IEnumerable<string> errors)
+    {
+        var details = string.Join(Environment.NewLine, errors);
+        if (string.IsNullOrWhiteSpace(message)) return details;
+        return string.IsNullOrWhiteSpace(details) ? message : $"{message}{Environment.NewLine}{details}";
     }
 }

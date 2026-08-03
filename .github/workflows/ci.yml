@@ -33,7 +33,7 @@ jobs:
         run: dotnet restore .\FinancePro.sln
 
       - name: Build
-        run: dotnet build .\FinancePro.sln --configuration Release --no-restore
+        run: dotnet build .\FinancePro.sln --configuration Release
 
       - name: Test
         run: dotnet test .\FinancePro.sln --configuration Release --no-build --logger "trx;LogFileName=FinancePro.Tests.trx" --collect:"XPlat Code Coverage"

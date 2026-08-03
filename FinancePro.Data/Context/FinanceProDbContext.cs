@@ -32,6 +32,8 @@ public class FinanceProDbContext : DbContext
     public DbSet<Compra> Compras => Set<Compra>();
     public DbSet<LogAuditoria> LogsAuditoria => Set<LogAuditoria>();
     public DbSet<Bem> Bens => Set<Bem>();
+    public DbSet<LancamentoContabil> LancamentosContabeis => Set<LancamentoContabil>();
+    public DbSet<LancamentoContabilLinha> LancamentoContabilLinhas => Set<LancamentoContabilLinha>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

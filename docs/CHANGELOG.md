@@ -1,11 +1,20 @@
+
+## v3.8.0 — Tesouraria Avançada
+- Camada Application dedicada à Tesouraria.
+- Validações de movimentos, transferências, reforços, sangrias e conciliação.
+- ViewModel integrado ao novo serviço e testes unitários.
+
+# v3.5.0
+- Núcleo contabilístico: plano de contas, lançamentos e partidas dobradas.
+
+# v3.4.0 — Clientes e Fornecedores separados
+
+- Criados módulos independentes de Clientes e Fornecedores.
+- Adicionados serviços Application, gateways EF Core, ViewModels e Views separados.
+- Integrações existentes de Receitas com Clientes e de Compras/Despesas com Fornecedores foram preservadas.
+- Não é necessária nova migration: as tabelas Clientes e Fornecedores já existiam.
+
 # Changelog
-
-
-## v2.1.3 — GitHub Publish Fix
-
-- Corrigidos os workflows `ci.yml` e `release.yml` para restaurar os assets específicos de `win-x64` durante o publish.
-- Eliminado o erro `NETSDK1047` provocado por `dotnet publish --no-restore --runtime win-x64`.
-- Nenhuma alteração no modelo de dados.
 
 ## [2.1.2] - 2026-08-02
 
@@ -75,10 +84,16 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Adicionados testes unitários da camada Application.
 - Sem alteração do esquema da base de dados.
 
-## v2.2.0 — Administração UI
+## v3.6.0 — Contas a Receber
 
-- Interface de Utilizadores integrada à camada Application.
-- Interface de Perfis integrada à camada Application.
-- Interface de Permissões integrada à camada Application.
-- Mensagens e validações padronizadas com `Result` e `Result<T>`.
-- Navegação administrativa atualizada no shell principal.
+- Criada a camada Application dedicada a Contas a Receber.
+- Adicionados resumo operacional, pesquisa e filtro por estado.
+- Centralizadas validações de criação, recebimento e cancelamento.
+- Mantida a integração com Tesouraria e a estrutura atual da base de dados.
+
+## v3.7.0 — Contas a Pagar
+
+- Adicionada camada Application e gateway dedicado para Contas a Pagar.
+- Centralizadas validações de criação, pagamento e cancelamento.
+- Adicionados indicadores e testes unitários.
+- Integrada a interface de Despesas ao novo serviço de aplicação.

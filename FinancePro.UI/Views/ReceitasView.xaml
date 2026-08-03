@@ -38,6 +38,21 @@
             <TextBlock Text="Contas a receber de clientes — ao registar o recebimento, gera automaticamente um movimento de Tesouraria"
                        FontSize="12" Foreground="#595959" Margin="0,0,0,16" TextWrapping="Wrap"/>
 
+            <UniformGrid Columns="4" Margin="0,0,0,16">
+                <Border Style="{StaticResource Cartao}" Margin="0,0,8,0">
+                    <StackPanel><TextBlock Text="Em aberto" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding TotalAberto, Converter={StaticResource ValorMoeda}}" FontSize="20" FontWeight="Bold" Foreground="#0E4C5E"/><TextBlock Text="{Binding QuantidadeAberta, StringFormat={}{0} títulos}" FontSize="11" Foreground="#777"/></StackPanel>
+                </Border>
+                <Border Style="{StaticResource Cartao}" Margin="8,0">
+                    <StackPanel><TextBlock Text="Vencido" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding TotalVencido, Converter={StaticResource ValorMoeda}}" FontSize="20" FontWeight="Bold" Foreground="#C00000"/></StackPanel>
+                </Border>
+                <Border Style="{StaticResource Cartao}" Margin="8,0">
+                    <StackPanel><TextBlock Text="Vence hoje" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding TotalHoje, Converter={StaticResource ValorMoeda}}" FontSize="20" FontWeight="Bold" Foreground="#B26A00"/></StackPanel>
+                </Border>
+                <Border Style="{StaticResource Cartao}" Margin="8,0,0,0">
+                    <StackPanel><TextBlock Text="Atualização" Style="{StaticResource Rotulo}"/><Button Content="Atualizar dados" Command="{Binding AtualizarCommand}" Height="34"/></StackPanel>
+                </Border>
+            </UniformGrid>
+
             <Border Style="{StaticResource Cartao}">
                 <StackPanel>
                     <Grid>
@@ -109,10 +124,18 @@
             <Grid Margin="0,20,0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="90"/>
                     <ColumnDefinition Width="260"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Contas a Receber" FontSize="14" FontWeight="Bold" Foreground="#0E4C5E" VerticalAlignment="Center"/>
-                <Grid Grid.Column="1">
+                <StackPanel Grid.Column="0"><TextBlock Text="Contas a Receber" FontSize="14" FontWeight="Bold" Foreground="#0E4C5E"/><TextBlock Text="Pesquise e filtre os títulos" FontSize="11" Foreground="#777"/></StackPanel>
+                <TextBox Grid.Column="1" Text="{Binding Pesquisa, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" ToolTip="Código, descrição ou cliente"/>
+                <ComboBox Grid.Column="3" ItemsSource="{Binding Estados}" SelectedItem="{Binding EstadoSelecionado}"/>
+                <Button Grid.Column="5" Content="Filtrar" Command="{Binding FiltrarCommand}"/>
+                <Grid Grid.Column="6">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="10"/>
