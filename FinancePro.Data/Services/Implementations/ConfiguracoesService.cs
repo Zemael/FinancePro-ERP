@@ -15,9 +15,11 @@ public class ConfiguracoesService : IConfiguracoesService
         _context = context;
     }
 
-    public async Task<bool> ExisteAlgumUtilizadorAsync()
+    public async Task<bool> ExisteAlgumUtilizadorAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Utilizadores.AnyAsync();
+        return await _context.Utilizadores
+            .AsNoTracking()
+            .AnyAsync(cancellationToken);
     }
 
     public async Task<int> ConfigurarInicialAsync(ConfiguracaoInicialDto dto)

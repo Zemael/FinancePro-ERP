@@ -8,6 +8,7 @@
                 <ResourceDictionary Source="Resources/Theme.Light.xaml"/>
                 <ResourceDictionary Source="Resources/Styles.xaml"/>
                 <ResourceDictionary Source="Resources/FP.DesignSystem.xaml"/>
+                <ResourceDictionary Source="Resources/FP.Components.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <conv:StringToVisibilityConverter x:Key="TextoParaVisibilidade"/>
