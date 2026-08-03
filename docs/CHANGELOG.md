@@ -177,6 +177,7 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Adicionado `FP.Components.xaml` com componentes visuais reutilizáveis.
 - Padronizados cartões, toolbars, botões, campos, grelhas e mensagens.
 - Integrado o novo framework visual nos recursos globais da aplicação.
+- Nenhuma migration necessária.
 
 ## v3.3.1 — UI Framework Stability
 - Corrigidos recursos WPF ausentes na ParceirosView.
