@@ -34,20 +34,9 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
         <StackPanel>
 
-            <Grid Margin="0,0,0,16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="Receitas" FontSize="18" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
-                    <TextBlock Text="Contas a receber de clientes — ao registar o recebimento, gera automaticamente um movimento de Tesouraria"
-                               FontSize="12" Foreground="#595959" TextWrapping="Wrap"/>
-                </StackPanel>
-                <Button Grid.Column="1" Content="Atualizar" Command="{Binding AtualizarCommand}"
-                        MinWidth="100" Height="34" VerticalAlignment="Top" Margin="16,0,0,0"
-                        Style="{StaticResource BaseButton}"/>
-            </Grid>
+            <TextBlock Text="Receitas" FontSize="18" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
+            <TextBlock Text="Contas a receber de clientes — ao registar o recebimento, gera automaticamente um movimento de Tesouraria"
+                       FontSize="12" Foreground="#595959" Margin="0,0,0,16" TextWrapping="Wrap"/>
 
             <UniformGrid Columns="4" Margin="0,0,0,16">
                 <Border Style="{StaticResource Cartao}" Margin="0,0,8,0">

@@ -4,7 +4,7 @@ namespace FinancePro.Services.Interfaces;
 
 public interface IConfiguracoesService
 {
-    Task<bool> ExisteAlgumUtilizadorAsync(CancellationToken cancellationToken = default);
+    Task<bool> ExisteAlgumUtilizadorAsync();
     Task<int> ConfigurarInicialAsync(ConfiguracaoInicialDto dto);
 
     Task<EmpresaDto?> ObterEmpresaAsync(int empresaId);

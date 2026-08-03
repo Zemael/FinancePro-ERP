@@ -128,16 +128,11 @@
                         <Button x:Name="BtnEmpresas" Style="{StaticResource ItemNav}" Click="Empresas_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE731;" Style="{StaticResource NavIcon}"/><TextBlock Text="Empresas" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
-<<<<<<< HEAD
                         <Button x:Name="BtnClientes" Style="{StaticResource ItemNav}" Click="Clientes_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE77B;" Style="{StaticResource NavIcon}"/><TextBlock Text="Clientes" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
                         <Button x:Name="BtnFornecedores" Style="{StaticResource ItemNav}" Click="Fornecedores_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7BF;" Style="{StaticResource NavIcon}"/><TextBlock Text="Fornecedores" Style="{StaticResource NavText}"/></StackPanel>
-=======
-                        <Button x:Name="BtnParceiros" Style="{StaticResource ItemNav}" Click="Parceiros_Click">
-                            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE716;" Style="{StaticResource NavIcon}"/><TextBlock Text="Clientes e Fornecedores" Style="{StaticResource NavText}"/></StackPanel>
->>>>>>> origin/develop
                         </Button>
                         <Button x:Name="BtnExercicios" Style="{StaticResource ItemNav}" Click="Exercicios_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE787;" Style="{StaticResource NavIcon}"/><TextBlock Text="Exercícios Financeiros" Style="{StaticResource NavText}"/></StackPanel>
