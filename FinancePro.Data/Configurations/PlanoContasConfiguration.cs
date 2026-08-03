@@ -12,6 +12,7 @@ public class PlanoContasConfiguration : IEntityTypeConfiguration<PlanoContas>
         builder.Property(p => p.Codigo).IsRequired().HasMaxLength(20);
         builder.Property(p => p.Nome).IsRequired().HasMaxLength(150);
         builder.Property(p => p.Tipo).HasConversion<string>().HasMaxLength(30);
+        builder.Property(p => p.Natureza).HasConversion<string>().HasMaxLength(20);
 
         builder.HasOne(p => p.ContaPai)
             .WithMany(p => p.SubContas)

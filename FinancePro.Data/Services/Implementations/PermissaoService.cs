@@ -14,6 +14,8 @@ public sealed class PermissaoService : IPermissaoService
     {
         ("Dashboard", "Dashboard"),
         ("Empresas", "Empresas"),
+        ("Clientes", "Clientes"),
+        ("Fornecedores", "Fornecedores"),
         ("Exercicios", "Exercícios Financeiros"),
         ("Moedas", "Moedas"),
         ("Utilizadores", "Utilizadores"),

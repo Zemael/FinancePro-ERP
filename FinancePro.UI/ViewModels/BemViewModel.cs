@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Input;
 using FinancePro.Core.DTOs;
 using FinancePro.Core.Enums;
 using FinancePro.Services.Interfaces;
-using FinancePro.Application.Assets;
 using FinancePro.UI.Common;
 
 namespace FinancePro.UI.ViewModels;
@@ -20,7 +19,7 @@ public record CampoPropostoInfo(string Campo, string Tipo, string Obrigatorio);
 /// </summary>
 public partial class BemViewModel : ObservableObject
 {
-    private readonly AssetApplicationService _service;
+    private readonly IBemService _service;
     private readonly IAuditoriaService _auditoria;
     private readonly int _empresaId;
 
@@ -74,7 +73,7 @@ public partial class BemViewModel : ObservableObject
     public ObservableCollection<BemListItemDto> Bens { get; } = new();
     public ObservableCollection<LogAuditoriaDto> HistoricoAuditoria { get; } = new();
 
-    public BemViewModel(AssetApplicationService service, IAuditoriaService auditoria, int empresaId)
+    public BemViewModel(IBemService service, IAuditoriaService auditoria, int empresaId)
     {
         _service = service;
         _auditoria = auditoria;
@@ -99,17 +98,7 @@ public partial class BemViewModel : ObservableObject
 
     private async Task CarregarAsync()
     {
-        var resultado = await _service.ListarAsync(_empresaId);
-        if (resultado.IsFailure)
-        {
-            MensagemErro = string.Join(Environment.NewLine, resultado.Errors);
-            _todosOsBens = new List<BemListItemDto>();
-        }
-        else
-        {
-            _todosOsBens = resultado.Value?.ToList() ?? new List<BemListItemDto>();
-        }
-
+        _todosOsBens = (await _service.ListarAsync(_empresaId)).ToList();
         AplicarFiltro();
     }
 
@@ -226,19 +215,17 @@ public partial class BemViewModel : ObservableObject
         AGuardar = true;
         try
         {
-            var resultado = await _service.GuardarAsync(
-                _idEmEdicao,
-                dto,
-                SessaoAtual.UtilizadorId,
-                SessaoAtual.NomeCompleto);
-
-            if (resultado.IsFailure)
+            if (_idEmEdicao.HasValue)
             {
-                MensagemErro = string.Join(Environment.NewLine, resultado.Errors);
-                return;
+                await _service.AtualizarAsync(_idEmEdicao.Value, dto, SessaoAtual.UtilizadorId, SessaoAtual.NomeCompleto);
+                MensagemInfo = "Bem atualizado.";
+            }
+            else
+            {
+                await _service.CriarAsync(dto, SessaoAtual.UtilizadorId, SessaoAtual.NomeCompleto);
+                MensagemInfo = "Bem criado.";
             }
 
-            MensagemInfo = resultado.Message ?? "Bem guardado com sucesso.";
             EmEdicao = false;
             await CarregarAsync();
         }
@@ -271,18 +258,8 @@ public partial class BemViewModel : ObservableObject
             return;
         }
 
-        var resultado = await _service.AbaterAsync(
-            BemSelecionado.Id,
-            SessaoAtual.UtilizadorId,
-            SessaoAtual.NomeCompleto);
-
-        if (resultado.IsFailure)
-        {
-            MensagemErro = string.Join(Environment.NewLine, resultado.Errors);
-            return;
-        }
-
-        MensagemInfo = resultado.Message ?? "Bem abatido/desativado (histórico preservado).";
+        await _service.EliminarAsync(BemSelecionado.Id, SessaoAtual.UtilizadorId, SessaoAtual.NomeCompleto);
+        MensagemInfo = "Bem abatido/desativado (histórico preservado).";
         await CarregarAsync();
     }
 

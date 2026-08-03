@@ -10,7 +10,7 @@ namespace FinancePro.UI.ViewModels;
 
 public class TesourariaViewModel : ViewModelBase
 {
-    private readonly TreasuryApplicationService _service;
+    private readonly AdvancedTreasuryApplicationService _service;
     private readonly int _empresaId;
 
     private DateTime _data = DateTime.Today;
@@ -79,7 +79,7 @@ public class TesourariaViewModel : ViewModelBase
     public ICommand RegistarCommand { get; }
     public ICommand AlternarConciliadoCommand { get; }
 
-    public TesourariaViewModel(TreasuryApplicationService service, int empresaId)
+    public TesourariaViewModel(AdvancedTreasuryApplicationService service, int empresaId)
     {
         _service = service;
         _empresaId = empresaId;
@@ -90,45 +90,41 @@ public class TesourariaViewModel : ViewModelBase
 
     private async Task CarregarAsync()
     {
-        var resultadoOrigens = await _service.ListarOrigensAsync(_empresaId);
-        if (resultadoOrigens.IsFailure) { MensagemErro = string.Join(" ", resultadoOrigens.Errors); return; }
-        var origens = resultadoOrigens.Value ?? Array.Empty<OpcaoOrigemDto>();
-        Origens.Clear();
-        foreach (var origem in origens)
+        var result = await _service.LoadAsync(_empresaId, TipoOperacaoSelecionado);
+        if (result.IsFailure || result.Value is null)
         {
-            Origens.Add(origem);
+            MensagemErro = result.Message ?? string.Join(Environment.NewLine, result.Errors);
+            return;
         }
+
+        Origens.Clear();
+        foreach (var origem in result.Value.Origins) Origens.Add(origem);
         OrigemSelecionada = Origens.FirstOrDefault();
         DestinoSelecionado = Origens.Skip(1).FirstOrDefault() ?? Origens.FirstOrDefault();
 
-        await CarregarCategoriasAsync();
-        await CarregarMovimentosAsync();
+        Categorias.Clear();
+        foreach (var categoria in result.Value.Categories) Categorias.Add(categoria);
+        CategoriaSelecionada = Categorias.FirstOrDefault();
+
+        Movimentos.Clear();
+        foreach (var movimento in result.Value.Movements) Movimentos.Add(movimento);
     }
 
     private async Task CarregarCategoriasAsync()
     {
-        var tipo = TipoOperacaoSelecionado == TipoOperacao.Saida ? TipoCategoria.Despesa : TipoCategoria.Receita;
-        var resultadoCategorias = await _service.ListarCategoriasAsync(_empresaId, tipo);
-        if (resultadoCategorias.IsFailure) { MensagemErro = string.Join(" ", resultadoCategorias.Errors); return; }
-        var categorias = resultadoCategorias.Value ?? Array.Empty<CategoriaOpcaoDto>();
+        var result = await _service.LoadAsync(_empresaId, TipoOperacaoSelecionado);
+        if (result.IsFailure || result.Value is null) return;
         Categorias.Clear();
-        foreach (var categoria in categorias)
-        {
-            Categorias.Add(categoria);
-        }
+        foreach (var categoria in result.Value.Categories) Categorias.Add(categoria);
         CategoriaSelecionada = Categorias.FirstOrDefault();
     }
 
     private async Task CarregarMovimentosAsync()
     {
-        var resultadoMovimentos = await _service.ListarMovimentosAsync(_empresaId);
-        if (resultadoMovimentos.IsFailure) { MensagemErro = string.Join(" ", resultadoMovimentos.Errors); return; }
-        var movimentos = resultadoMovimentos.Value ?? Array.Empty<MovimentoListItemDto>();
+        var result = await _service.LoadAsync(_empresaId, TipoOperacaoSelecionado);
+        if (result.IsFailure || result.Value is null) return;
         Movimentos.Clear();
-        foreach (var movimento in movimentos)
-        {
-            Movimentos.Add(movimento);
-        }
+        foreach (var movimento in result.Value.Movements) Movimentos.Add(movimento);
     }
 
     private async Task RegistarAsync()
@@ -160,7 +156,7 @@ public class TesourariaViewModel : ViewModelBase
                     return;
                 }
 
-                var resultado = await _service.RegistarTransferenciaAsync(new NovaTransferenciaDto
+                var result = await _service.RegisterTransferAsync(new NovaTransferenciaDto
                 {
                     Data = Data,
                     Descricao = Descricao,
@@ -174,7 +170,7 @@ public class TesourariaViewModel : ViewModelBase
                     DestinoId = DestinoSelecionado.Id,
                     EmpresaId = _empresaId
                 });
-                if (resultado.IsFailure) { MensagemErro = string.Join(" ", resultado.Errors); return; }
+                if (result.IsFailure) { MensagemErro = result.Message ?? string.Join(Environment.NewLine, result.Errors); return; }
             }
             else
             {
@@ -184,7 +180,7 @@ public class TesourariaViewModel : ViewModelBase
                     return;
                 }
 
-                var resultado = await _service.RegistarMovimentoAsync(new NovoMovimentoDto
+                var result = await _service.RegisterMovementAsync(new NovoMovimentoDto
                 {
                     Data = Data,
                     Descricao = Descricao,
@@ -197,7 +193,7 @@ public class TesourariaViewModel : ViewModelBase
                     CaixaId = OrigemSelecionada.Tipo == "Caixa" ? OrigemSelecionada.Id : null,
                     ContaBancariaId = OrigemSelecionada.Tipo == "ContaBancaria" ? OrigemSelecionada.Id : null
                 });
-                if (resultado.IsFailure) { MensagemErro = string.Join(" ", resultado.Errors); return; }
+                if (result.IsFailure) { MensagemErro = result.Message ?? string.Join(Environment.NewLine, result.Errors); return; }
             }
 
             Descricao = string.Empty;
@@ -222,8 +218,8 @@ public class TesourariaViewModel : ViewModelBase
             return;
         }
 
-        var resultado = await _service.MarcarConciliadoAsync(movimento.Id, !movimento.Conciliado);
-        if (resultado.IsFailure) { MensagemErro = string.Join(" ", resultado.Errors); return; }
+        var result = await _service.SetReconciledAsync(movimento.Id, !movimento.Conciliado);
+        if (result.IsFailure) MensagemErro = result.Message ?? string.Join(Environment.NewLine, result.Errors);
         await CarregarMovimentosAsync();
     }
 }

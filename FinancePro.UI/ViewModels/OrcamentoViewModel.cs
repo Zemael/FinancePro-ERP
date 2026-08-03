@@ -3,14 +3,14 @@ using System.Linq;
 using System.Windows.Input;
 using FinancePro.Core.DTOs;
 using FinancePro.Core.Enums;
-using FinancePro.Application.Budget;
+using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 
 namespace FinancePro.UI.ViewModels;
 
 public class OrcamentoViewModel : ViewModelBase
 {
-    private readonly BudgetApplicationService _service;
+    private readonly IOrcamentoService _service;
     private readonly int _empresaId;
 
     // --- Criar orçamento ---
@@ -113,7 +113,7 @@ public class OrcamentoViewModel : ViewModelBase
     public decimal ResultadoPrevisto { get => _resultadoPrevisto; set => SetProperty(ref _resultadoPrevisto, value); }
     public decimal ResultadoRealizado { get => _resultadoRealizado; set => SetProperty(ref _resultadoRealizado, value); }
 
-    public OrcamentoViewModel(BudgetApplicationService service, int empresaId)
+    public OrcamentoViewModel(IOrcamentoService service, int empresaId)
     {
         _service = service;
         _empresaId = empresaId;
@@ -129,113 +129,166 @@ public class OrcamentoViewModel : ViewModelBase
 
     private async Task CarregarAsync()
     {
-        MensagemErroOrcamento = string.Empty;
         var orcamentos = await _service.ListarAsync(_empresaId);
-        if (orcamentos.IsFailure) { MensagemErroOrcamento = string.Join(" ", orcamentos.Errors); return; }
         Orcamentos.Clear();
-        foreach (var o in orcamentos.Value ?? Array.Empty<OrcamentoListItemDto>()) Orcamentos.Add(o);
+        foreach (var o in orcamentos) Orcamentos.Add(o);
 
         var contas = await _service.ListarPlanoContasAsync(_empresaId);
-        if (contas.IsFailure) { MensagemErroOrcamento = string.Join(" ", contas.Errors); return; }
         Contas.Clear();
-        foreach (var c in contas.Value ?? Array.Empty<PlanoContasOpcaoDto>()) Contas.Add(c);
+        foreach (var c in contas) Contas.Add(c);
         ContaSelecionadaReceita = Contas.FirstOrDefault();
         ContaSelecionadaDespesa = Contas.FirstOrDefault();
+
         OrcamentoSelecionado = Orcamentos.FirstOrDefault();
     }
 
     private async Task CriarOrcamentoAsync()
     {
         MensagemErroOrcamento = string.Empty;
-        if (!int.TryParse(NovoAno, out var ano)) { MensagemErroOrcamento = "Indique um ano válido."; return; }
+
+        if (!int.TryParse(NovoAno, out var ano))
+        {
+            MensagemErroOrcamento = "Indique um ano válido.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(NovoNome))
+        {
+            MensagemErroOrcamento = "Indique o nome do orçamento.";
+            return;
+        }
 
         AGuardarOrcamento = true;
         try
         {
-            var result = await _service.CriarAsync(new NovoOrcamentoDto
+            var id = await _service.CriarAsync(new NovoOrcamentoDto
             {
-                Ano = ano, Nome = NovoNome, DataInicio = NovaDataInicio, DataFim = NovaDataFim,
-                Moeda = NovaMoeda, EmpresaId = _empresaId
+                Ano = ano,
+                Nome = NovoNome,
+                DataInicio = NovaDataInicio,
+                DataFim = NovaDataFim,
+                Moeda = NovaMoeda,
+                EmpresaId = _empresaId
             });
-            if (result.IsFailure) { MensagemErroOrcamento = string.Join(" ", result.Errors); return; }
+
             NovoNome = string.Empty;
             await CarregarAsync();
-            OrcamentoSelecionado = Orcamentos.FirstOrDefault(o => o.Id == result.Value);
+            OrcamentoSelecionado = Orcamentos.FirstOrDefault(o => o.Id == id);
         }
-        finally { AGuardarOrcamento = false; }
+        catch (Exception ex)
+        {
+            MensagemErroOrcamento = ex.Message;
+        }
+        finally
+        {
+            AGuardarOrcamento = false;
+        }
     }
 
     private async Task CarregarDetalheOrcamentoAsync()
     {
         if (OrcamentoSelecionado is null) return;
-        MensagemErroOrcamento = string.Empty;
         var id = OrcamentoSelecionado.Id;
 
         var receitas = await _service.ListarDetalhesAsync(id, TipoCategoria.Receita);
-        if (receitas.IsFailure) { MensagemErroOrcamento = string.Join(" ", receitas.Errors); return; }
         ReceitasPrevistas.Clear();
-        foreach (var r in receitas.Value ?? Array.Empty<OrcamentoDetalheDto>()) ReceitasPrevistas.Add(r);
+        foreach (var r in receitas) ReceitasPrevistas.Add(r);
 
         var despesas = await _service.ListarDetalhesAsync(id, TipoCategoria.Despesa);
-        if (despesas.IsFailure) { MensagemErroOrcamento = string.Join(" ", despesas.Errors); return; }
         DespesasPrevistas.Clear();
-        foreach (var d in despesas.Value ?? Array.Empty<OrcamentoDetalheDto>()) DespesasPrevistas.Add(d);
+        foreach (var d in despesas) DespesasPrevistas.Add(d);
 
         var execucao = await _service.ObterExecucaoMensalAsync(id);
-        if (execucao.IsFailure) { MensagemErroOrcamento = string.Join(" ", execucao.Errors); return; }
         Execucao.Clear();
-        foreach (var e in execucao.Value ?? Array.Empty<ExecucaoMensalDto>()) Execucao.Add(e);
+        foreach (var e in execucao) Execucao.Add(e);
 
         var revisoes = await _service.ListarRevisoesAsync(id);
-        if (revisoes.IsFailure) { MensagemErroOrcamento = string.Join(" ", revisoes.Errors); return; }
         Revisoes.Clear();
-        foreach (var r in revisoes.Value ?? Array.Empty<RevisaoOrcamentalDto>()) Revisoes.Add(r);
+        foreach (var r in revisoes) Revisoes.Add(r);
 
         var relatorio = await _service.ObterRelatorioAsync(id);
-        if (relatorio.IsFailure || relatorio.Value is null) { MensagemErroOrcamento = string.Join(" ", relatorio.Errors); return; }
-        TotalPrevistoReceitas = relatorio.Value.TotalPrevistoReceitas;
-        TotalRealizadoReceitas = relatorio.Value.TotalRealizadoReceitas;
-        TotalPrevistoDespesas = relatorio.Value.TotalPrevistoDespesas;
-        TotalRealizadoDespesas = relatorio.Value.TotalRealizadoDespesas;
-        ResultadoPrevisto = relatorio.Value.ResultadoPrevisto;
-        ResultadoRealizado = relatorio.Value.ResultadoRealizado;
+        TotalPrevistoReceitas = relatorio.TotalPrevistoReceitas;
+        TotalRealizadoReceitas = relatorio.TotalRealizadoReceitas;
+        TotalPrevistoDespesas = relatorio.TotalPrevistoDespesas;
+        TotalRealizadoDespesas = relatorio.TotalRealizadoDespesas;
+        ResultadoPrevisto = relatorio.ResultadoPrevisto;
+        ResultadoRealizado = relatorio.ResultadoRealizado;
     }
 
     private async Task AdicionarLinhaAsync(TipoCategoria tipo)
     {
         if (OrcamentoSelecionado is null) return;
+
         var conta = tipo == TipoCategoria.Receita ? ContaSelecionadaReceita : ContaSelecionadaDespesa;
         var valorTexto = tipo == TipoCategoria.Receita ? ValorPrevistoReceitaTexto : ValorPrevistoDespesaTexto;
         var mes = tipo == TipoCategoria.Receita ? MesReceita : MesDespesa;
         var centroCusto = tipo == TipoCategoria.Receita ? CentroCustoReceita : CentroCustoDespesa;
         var departamento = tipo == TipoCategoria.Receita ? DepartamentoReceita : DepartamentoDespesa;
-        void DefinirErro(string msg) { if (tipo == TipoCategoria.Receita) MensagemErroReceita = msg; else MensagemErroDespesa = msg; }
-        DefinirErro(string.Empty);
-        if (conta is null) { DefinirErro("Selecione a conta do plano de contas."); return; }
-        if (!decimal.TryParse(valorTexto, out var valor)) { DefinirErro("Indique um valor previsto válido."); return; }
 
-        var result = await _service.AdicionarDetalheAsync(new NovoOrcamentoDetalheDto
+        void DefinirErro(string msg)
         {
-            OrcamentoId = OrcamentoSelecionado.Id, PlanoContasId = conta.Id, CentroCusto = centroCusto,
-            Departamento = departamento, Tipo = tipo, Mes = mes, ValorPrevisto = valor
-        });
-        if (result.IsFailure) { DefinirErro(string.Join(" ", result.Errors)); return; }
-        if (tipo == TipoCategoria.Receita) ValorPrevistoReceitaTexto = string.Empty; else ValorPrevistoDespesaTexto = string.Empty;
-        await CarregarDetalheOrcamentoAsync();
+            if (tipo == TipoCategoria.Receita) MensagemErroReceita = msg; else MensagemErroDespesa = msg;
+        }
+
+        DefinirErro(string.Empty);
+
+        if (conta is null)
+        {
+            DefinirErro("Selecione a conta do plano de contas.");
+            return;
+        }
+
+        if (!decimal.TryParse(valorTexto, out var valor) || valor < 0)
+        {
+            DefinirErro("Indique um valor previsto válido.");
+            return;
+        }
+
+        try
+        {
+            await _service.AdicionarDetalheAsync(new NovoOrcamentoDetalheDto
+            {
+                OrcamentoId = OrcamentoSelecionado.Id,
+                PlanoContasId = conta.Id,
+                CentroCusto = centroCusto,
+                Departamento = departamento,
+                Tipo = tipo,
+                Mes = mes,
+                ValorPrevisto = valor
+            });
+
+            if (tipo == TipoCategoria.Receita) { ValorPrevistoReceitaTexto = string.Empty; }
+            else { ValorPrevistoDespesaTexto = string.Empty; }
+
+            await CarregarDetalheOrcamentoAsync();
+        }
+        catch (Exception ex)
+        {
+            DefinirErro(ex.Message);
+        }
     }
 
     private async Task AdicionarRevisaoAsync()
     {
         if (OrcamentoSelecionado is null) return;
-        MensagemErroRevisao = string.Empty;
-        var result = await _service.AdicionarRevisaoAsync(new NovaRevisaoOrcamentalDto
-        {
-            OrcamentoId = OrcamentoSelecionado.Id, Motivo = MotivoRevisao, Responsavel = ResponsavelRevisao
-        });
-        if (result.IsFailure) { MensagemErroRevisao = string.Join(" ", result.Errors); return; }
-        MotivoRevisao = string.Empty;
-        ResponsavelRevisao = string.Empty;
-        await CarregarDetalheOrcamentoAsync();
-    }
 
+        MensagemErroRevisao = string.Empty;
+        try
+        {
+            await _service.AdicionarRevisaoAsync(new NovaRevisaoOrcamentalDto
+            {
+                OrcamentoId = OrcamentoSelecionado.Id,
+                Motivo = MotivoRevisao,
+                Responsavel = ResponsavelRevisao
+            });
+
+            MotivoRevisao = string.Empty;
+            ResponsavelRevisao = string.Empty;
+            await CarregarDetalheOrcamentoAsync();
+        }
+        catch (Exception ex)
+        {
+            MensagemErroRevisao = ex.Message;
+        }
+    }
 }

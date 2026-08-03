@@ -128,8 +128,11 @@
                         <Button x:Name="BtnEmpresas" Style="{StaticResource ItemNav}" Click="Empresas_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE731;" Style="{StaticResource NavIcon}"/><TextBlock Text="Empresas" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
-                        <Button x:Name="BtnParceiros" Style="{StaticResource ItemNav}" Click="Parceiros_Click">
-                            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE716;" Style="{StaticResource NavIcon}"/><TextBlock Text="Clientes e Fornecedores" Style="{StaticResource NavText}"/></StackPanel>
+                        <Button x:Name="BtnClientes" Style="{StaticResource ItemNav}" Click="Clientes_Click">
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE77B;" Style="{StaticResource NavIcon}"/><TextBlock Text="Clientes" Style="{StaticResource NavText}"/></StackPanel>
+                        </Button>
+                        <Button x:Name="BtnFornecedores" Style="{StaticResource ItemNav}" Click="Fornecedores_Click">
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7BF;" Style="{StaticResource NavIcon}"/><TextBlock Text="Fornecedores" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
                         <Button x:Name="BtnExercicios" Style="{StaticResource ItemNav}" Click="Exercicios_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE787;" Style="{StaticResource NavIcon}"/><TextBlock Text="Exercícios Financeiros" Style="{StaticResource NavText}"/></StackPanel>
@@ -183,6 +186,9 @@
                         <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" Style="{StaticResource NavIcon}"/><TextBlock Text="Auditoria" Style="{StaticResource NavText}"/></StackPanel></Border>
 
                         <Border Height="1" Background="#2B6091" Margin="18,8"/>
+                        <Button x:Name="BtnContabilidade" Style="{StaticResource ItemNav}" Click="Contabilidade_Click">
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8A5;" Style="{StaticResource NavIcon}"/><TextBlock Text="Contabilidade" Style="{StaticResource NavText}"/></StackPanel>
+                        </Button>
                         <Button x:Name="BtnConfiguracoes" Style="{StaticResource ItemNav}" Click="Configuracoes_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" Style="{StaticResource NavIcon}"/><TextBlock Text="Configurações" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>

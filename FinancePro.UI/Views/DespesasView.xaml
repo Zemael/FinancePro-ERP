@@ -35,11 +35,15 @@
         <StackPanel>
 
             <Grid Margin="0,0,0,4">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Despesas" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Content="Atualizar" Command="{Binding AtualizarCommand}" Padding="12,6" MinWidth="90"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Contas a Pagar" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Content="Atualizar" Command="{Binding AtualizarCommand}"
+                        Style="{StaticResource BotaoLink}" Foreground="#0E4C5E"/>
             </Grid>
-            <TextBlock Text="Contas a pagar a fornecedores — ao registar o pagamento, gera automaticamente um movimento de Tesouraria"
+            <TextBlock Text="Títulos de fornecedores — o pagamento confirmado gera automaticamente um movimento de Tesouraria"
                        FontSize="10.5" Foreground="#595959" Margin="0,0,0,16" TextWrapping="Wrap"/>
 
             <Border Style="{StaticResource Cartao}">
@@ -101,9 +105,6 @@
                     <TextBlock Text="{Binding MensagemErro}" Foreground="#C00000" FontSize="10.5"
                                Margin="0,12,0,0" TextWrapping="Wrap"
                                Visibility="{Binding MensagemErro, Converter={StaticResource TextoParaVisibilidade}}"/>
-                    <TextBlock Text="{Binding MensagemSucesso}" Foreground="#0F6E56" FontSize="10.5"
-                               Margin="0,8,0,0" TextWrapping="Wrap"
-                               Visibility="{Binding MensagemSucesso, Converter={StaticResource TextoParaVisibilidade}}"/>
 
                     <Button Style="{StaticResource BotaoPrimario}" Command="{Binding CriarCommand}"
                             Content="{Binding AGuardar, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Adicionar}"/>
