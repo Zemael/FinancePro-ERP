@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 ## v3.8.0 — Tesouraria Avançada
 - Camada Application dedicada à Tesouraria.
 - Validações de movimentos, transferências, reforços, sangrias e conciliação.
@@ -16,6 +17,71 @@
 
 # Changelog
 
+=======
+## v3.3.0 — Parceiros de Negócio
+- Cadastro mestre unificado de clientes e fornecedores.
+- Novo serviço de aplicação, gateway EF Core, ViewModel e View WPF.
+- Pesquisa, edição e controlo de estado.
+- Sem nova migration.
+
+## v3.2.0 — Cadastros Mestres Financeiros
+
+- Adicionada camada Application para Bancos, Contas Bancárias e Moedas.
+- Validações centralizadas e normalização de dados bancários.
+- ViewModels migrados para os novos casos de uso.
+- Adicionados testes unitários.
+- Nenhuma migration necessária.
+
+
+## [3.1.0] - 2026-08-02
+
+### Adicionado
+- Application Service, gateway e testes do cadastro mestre de Empresas.
+
+### Alterado
+- `EmpresasViewModel` passa a utilizar a camada Application e o padrão `Result`.
+
+# Changelog
+
+## v2.8.0 — Compras
+
+- Adicionada camada Application para Compras.
+- Integrados pedidos, aprovações, rejeições e cancelamentos.
+- Adicionados testes unitários do módulo.
+- Nenhuma migration nova.
+
+
+## v2.7.1 — Estabilização SQL Server
+
+- Recuperação automática e orientada quando a ligação SQL falha no arranque.
+- Retry do EF Core, timeouts ampliados e pool de conexões limpo.
+- Nenhuma migration necessária.
+
+
+## [2.6.0] - 2026-08-02
+
+### Adicionado
+- Camada Application para Despesas.
+- Gateway de Despesas na camada Data.
+- Integração do ViewModel e testes unitários.
+- Atualização manual e mensagens de sucesso na interface.
+
+# Changelog
+
+
+## [2.4.1] - 2026-08-02
+
+### Alterado
+- Alinhamento superior do botão Atualizar e da data/hora no Dashboard.
+- Formato completo da última atualização.
+
+## v2.1.3 — GitHub Publish Fix
+
+- Corrigidos os workflows `ci.yml` e `release.yml` para restaurar os assets específicos de `win-x64` durante o publish.
+- Eliminado o erro `NETSDK1047` provocado por `dotnet publish --no-restore --runtime win-x64`.
+- Nenhuma alteração no modelo de dados.
+
+>>>>>>> origin/develop
 ## [2.1.2] - 2026-08-02
 
 ### Corrigido
@@ -86,6 +152,7 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 
 ## v3.6.0 — Contas a Receber
 
+<<<<<<< HEAD
 - Criada a camada Application dedicada a Contas a Receber.
 - Adicionados resumo operacional, pesquisa e filtro por estado.
 - Centralizadas validações de criação, recebimento e cancelamento.
@@ -97,3 +164,55 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Centralizadas validações de criação, pagamento e cancelamento.
 - Adicionados indicadores e testes unitários.
 - Integrada a interface de Despesas ao novo serviço de aplicação.
+=======
+- Interface de Utilizadores integrada à camada Application.
+- Interface de Perfis integrada à camada Application.
+- Interface de Permissões integrada à camada Application.
+- Mensagens e validações padronizadas com `Result` e `Result<T>`.
+- Navegação administrativa atualizada no shell principal.
+
+## v2.3.0 — Dashboard Executivo
+- Saudação dinâmica, atualização manual e hora da última atualização.
+- Disponibilidade total de caixa e bancos.
+- Ações rápidas ligadas aos módulos existentes.
+- Melhor tratamento de erros e pequenos ajustes visuais.
+
+## v2.4.0 — Tesouraria Application
+
+- Adicionada camada Application para Tesouraria.
+- ViewModel de Tesouraria desacoplado do serviço de dados.
+- Adicionados gateway, validações e testes unitários iniciais.
+- Nenhuma migration nova.
+
+## v2.5.0 — Receitas
+
+- Introduzida a camada Application para Contas a Receber.
+- Interface de Receitas integrada ao serviço de aplicação.
+- Validações e mensagens padronizadas com Result.
+- Adicionados testes para datas e origem de recebimento.
+
+## v2.6.1 — Login Field Visibility
+- Corrigida a visibilidade do texto no email e dos caracteres mascarados na palavra-passe.
+
+## v2.7.0 — Orçamento
+
+- Introduzida a camada Application do módulo Orçamento.
+- Orçamento, execução mensal, linhas e revisões passam por `BudgetApplicationService`.
+- Adicionados gateway de dados e testes unitários.
+- Nenhuma migration necessária.
+
+## v2.9.0 — Património
+- Adicionada camada Application para bens patrimoniais.
+- Integração do ViewModel com Result/Result<T>.
+- Adicionados testes unitários do módulo.
+
+## v3.0.0 — UI Framework
+- Adicionado `FP.Components.xaml` com componentes visuais reutilizáveis.
+- Padronizados cartões, toolbars, botões, campos, grelhas e mensagens.
+- Integrado o novo framework visual nos recursos globais da aplicação.
+- Nenhuma migration necessária.
+
+## v3.3.1 — UI Framework Stability
+- Corrigidos recursos WPF ausentes na ParceirosView.
+- Adicionados aliases FP.PageBackground, FP.PageTitle e FP.PageSubtitle.
+>>>>>>> origin/develop

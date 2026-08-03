@@ -1,13 +1,32 @@
+<<<<<<< HEAD
 using FinancePro.Application.Treasury;
 using FinancePro.Application.Payables;
 using FinancePro.Application.Receivables;
 using FinancePro.Application.Accounting;
 using FinancePro.Application.Customers;
 using FinancePro.Application.Suppliers;
+=======
+using FinancePro.Application.MasterData.Currencies;
+using FinancePro.Application.MasterData.Banking;
+using FinancePro.Application.Budget;
+using FinancePro.Application.Expenses;
+using FinancePro.Application.Revenue;
+>>>>>>> origin/develop
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using FinancePro.Core.DTOs;
+<<<<<<< HEAD
+=======
+using FinancePro.Application.Administration.Users;
+using FinancePro.Application.Administration.Profiles;
+using FinancePro.Application.Administration.Permissions;
+using FinancePro.Application.Treasury;
+using FinancePro.Application.Purchasing;
+using FinancePro.Application.Assets;
+using FinancePro.Application.MasterData.Companies;
+using FinancePro.Application.MasterData.Partners;
+>>>>>>> origin/develop
 using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 using FinancePro.UI.ViewModels;
@@ -47,9 +66,13 @@ public partial class MainWindow : Window
 
     private void Empresas_Click(object sender, RoutedEventArgs e) => MostrarEmpresas();
 
+<<<<<<< HEAD
     private void Clientes_Click(object sender, RoutedEventArgs e) => MostrarClientes();
 
     private void Fornecedores_Click(object sender, RoutedEventArgs e) => MostrarFornecedores();
+=======
+    private void Parceiros_Click(object sender, RoutedEventArgs e) => MostrarParceiros();
+>>>>>>> origin/develop
 
     private void Exercicios_Click(object sender, RoutedEventArgs e) => MostrarExercicios();
 
@@ -101,7 +124,7 @@ public partial class MainWindow : Window
         DestacarItemAtivo(BtnDashboard);
         TrocarScope();
         var dashboardService = _scopeAtual!.ServiceProvider.GetRequiredService<IDashboardService>();
-        var viewModel = new DashboardViewModel(dashboardService, _utilizador.EmpresaId);
+        var viewModel = new DashboardViewModel(dashboardService, _utilizador.EmpresaId, _utilizador.NomeCompleto);
         viewModel.NavegarPedido += modulo =>
         {
             switch (modulo)
@@ -110,6 +133,9 @@ public partial class MainWindow : Window
                 case "Receitas": MostrarReceitas(); break;
                 case "Caixa": MostrarCaixa(); break;
                 case "Configuracoes": MostrarConfiguracoes(); break;
+                case "Utilizadores": MostrarUtilizadores(); break;
+                case "Despesas": MostrarDespesas(); break;
+                case "Orcamento": MostrarOrcamento(); break;
             }
         };
         ConteudoHost.Content = new DashboardView { DataContext = viewModel };
@@ -119,10 +145,11 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnEmpresas);
         TrocarScope();
-        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IEmpresaService>();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<CompanyApplicationService>();
         ConteudoHost.Content = new EmpresasView { DataContext = new EmpresasViewModel(service) };
     }
 
+<<<<<<< HEAD
     private void MostrarClientes()
     {
         DestacarItemAtivo(BtnClientes);
@@ -137,6 +164,15 @@ public partial class MainWindow : Window
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<SupplierApplicationService>();
         ConteudoHost.Content = new FornecedoresView { DataContext = new FornecedoresViewModel(service, _utilizador.EmpresaId) };
+=======
+
+    private void MostrarParceiros()
+    {
+        DestacarItemAtivo(BtnParceiros);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<BusinessPartnerApplicationService>();
+        ConteudoHost.Content = new ParceirosView { DataContext = new ParceirosViewModel(service, _utilizador.EmpresaId) };
+>>>>>>> origin/develop
     }
 
     private void MostrarExercicios()
@@ -152,7 +188,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnMoedas);
         TrocarScope();
-        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IMoedaService>();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<CurrencyMasterDataService>();
         ConteudoHost.Content = new MoedasView { DataContext = new MoedasViewModel(service) };
     }
 
@@ -188,8 +224,12 @@ public partial class MainWindow : Window
     {
         BtnDashboard.Visibility = Visibilidade("Dashboard");
         BtnEmpresas.Visibility = Visibilidade("Empresas");
+<<<<<<< HEAD
         BtnClientes.Visibility = Visibilidade("Clientes");
         BtnFornecedores.Visibility = Visibilidade("Fornecedores");
+=======
+        BtnParceiros.Visibility = Visibility.Visible;
+>>>>>>> origin/develop
         BtnExercicios.Visibility = Visibilidade("Exercicios");
         BtnMoedas.Visibility = Visibilidade("Moedas");
         BtnUtilizadores.Visibility = Visibilidade("Utilizadores");
@@ -214,7 +254,11 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnTesouraria);
         TrocarScope();
+<<<<<<< HEAD
         var tesourariaService = _scopeAtual!.ServiceProvider.GetRequiredService<AdvancedTreasuryApplicationService>();
+=======
+        var tesourariaService = _scopeAtual!.ServiceProvider.GetRequiredService<TreasuryApplicationService>();
+>>>>>>> origin/develop
         var viewModel = new TesourariaViewModel(tesourariaService, _utilizador.EmpresaId);
         ConteudoHost.Content = new TesourariaView { DataContext = viewModel };
     }
@@ -232,7 +276,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnBancos);
         TrocarScope();
-        var bancoService = _scopeAtual!.ServiceProvider.GetRequiredService<IBancoService>();
+        var bancoService = _scopeAtual!.ServiceProvider.GetRequiredService<BankingMasterDataService>();
         var viewModel = new BancosViewModel(bancoService, _utilizador.EmpresaId);
         ConteudoHost.Content = new BancosView { DataContext = viewModel };
     }
@@ -241,7 +285,11 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnReceitas);
         TrocarScope();
+<<<<<<< HEAD
         var receitasService = _scopeAtual!.ServiceProvider.GetRequiredService<ReceivablesApplicationService>();
+=======
+        var receitasService = _scopeAtual!.ServiceProvider.GetRequiredService<RevenueApplicationService>();
+>>>>>>> origin/develop
         var viewModel = new ReceitasViewModel(receitasService, _utilizador.EmpresaId);
         ConteudoHost.Content = new ReceitasView { DataContext = viewModel };
     }
@@ -250,7 +298,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnOrcamento);
         TrocarScope();
-        var orcamentoService = _scopeAtual!.ServiceProvider.GetRequiredService<IOrcamentoService>();
+        var orcamentoService = _scopeAtual!.ServiceProvider.GetRequiredService<BudgetApplicationService>();
         var viewModel = new OrcamentoViewModel(orcamentoService, _utilizador.EmpresaId);
         ConteudoHost.Content = new OrcamentoView { DataContext = viewModel };
     }
@@ -259,7 +307,11 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnDespesas);
         TrocarScope();
+<<<<<<< HEAD
         var despesasService = _scopeAtual!.ServiceProvider.GetRequiredService<PayablesApplicationService>();
+=======
+        var despesasService = _scopeAtual!.ServiceProvider.GetRequiredService<ExpenseApplicationService>();
+>>>>>>> origin/develop
         var viewModel = new DespesasViewModel(despesasService, _utilizador.EmpresaId);
         ConteudoHost.Content = new DespesasView { DataContext = viewModel };
     }
@@ -268,7 +320,7 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnCompras);
         TrocarScope();
-        var compraService = _scopeAtual!.ServiceProvider.GetRequiredService<ICompraService>();
+        var compraService = _scopeAtual!.ServiceProvider.GetRequiredService<PurchasingApplicationService>();
         var viewModel = new CompraViewModel(compraService, _utilizador.EmpresaId);
         ConteudoHost.Content = new CompraView { DataContext = viewModel };
     }
@@ -277,8 +329,8 @@ public partial class MainWindow : Window
     {
         DestacarItemAtivo(BtnBens);
         TrocarScope();
-        var bemService = _scopeAtual!.ServiceProvider.GetRequiredService<IBemService>();
-        var auditoriaService = _scopeAtual!.ServiceProvider.GetRequiredService<IAuditoriaService>();
+        var bemService = _scopeAtual!.ServiceProvider.GetRequiredService<AssetApplicationService>();
+        var auditoriaService = _scopeAtual.ServiceProvider.GetRequiredService<IAuditoriaService>();
         var viewModel = new BemViewModel(bemService, auditoriaService, _utilizador.EmpresaId);
         ConteudoHost.Content = new BemView { DataContext = viewModel };
     }
