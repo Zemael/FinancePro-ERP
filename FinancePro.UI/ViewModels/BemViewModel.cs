@@ -46,6 +46,7 @@ public partial class BemViewModel : ObservableObject
     [ObservableProperty] private string mensagemErro = string.Empty;
     [ObservableProperty] private string mensagemInfo = string.Empty;
     [ObservableProperty] private bool aGuardar;
+    [ObservableProperty] private string ultimaAtualizacao = "--";
 
     public IReadOnlyList<MetodoDepreciacao> MetodosDisponiveis { get; } = Enum.GetValues<MetodoDepreciacao>().ToList();
 
@@ -72,6 +73,10 @@ public partial class BemViewModel : ObservableObject
 
     public ObservableCollection<BemListItemDto> Bens { get; } = new();
     public ObservableCollection<LogAuditoriaDto> HistoricoAuditoria { get; } = new();
+    public int TotalBens => _todosOsBens.Count;
+    public int BensAtivos => _todosOsBens.Count(b => !b.Estado.Contains("Abat", StringComparison.OrdinalIgnoreCase));
+    public decimal ValorPatrimonio => _todosOsBens.Sum(b => b.ValorAquisicao);
+    public decimal ValorLiquido => _todosOsBens.Sum(b => b.ValorLiquidoAtual);
 
     public BemViewModel(IBemService service, IAuditoriaService auditoria, int empresaId)
     {
@@ -99,6 +104,7 @@ public partial class BemViewModel : ObservableObject
     private async Task CarregarAsync()
     {
         _todosOsBens = (await _service.ListarAsync(_empresaId)).ToList();
+        UltimaAtualizacao = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
         AplicarFiltro();
     }
 
@@ -116,6 +122,10 @@ public partial class BemViewModel : ObservableObject
         {
             Bens.Add(bem);
         }
+        OnPropertyChanged(nameof(TotalBens));
+        OnPropertyChanged(nameof(ValorPatrimonio));
+        OnPropertyChanged(nameof(ValorLiquido));
+        OnPropertyChanged(nameof(BensAtivos));
     }
 
     private async Task CarregarHistoricoAsync(int bemId)
@@ -127,6 +137,9 @@ public partial class BemViewModel : ObservableObject
             HistoricoAuditoria.Add(entrada);
         }
     }
+
+    [RelayCommand]
+    private Task AtualizarAsync() => CarregarAsync();
 
     [RelayCommand]
     private void Novo()

@@ -23,6 +23,7 @@ public class CompraViewModel : ViewModelBase
     private FornecedorOpcaoDto? _fornecedorSelecionado;
     private string _mensagemErro = string.Empty;
     private bool _aGuardar;
+    private string _ultimaAtualizacao = "--";
 
     public DateTime Data { get => _data; set => SetProperty(ref _data, value); }
     public string Departamento { get => _departamento; set => SetProperty(ref _departamento, value); }
@@ -34,6 +35,11 @@ public class CompraViewModel : ViewModelBase
     public FornecedorOpcaoDto? FornecedorSelecionado { get => _fornecedorSelecionado; set => SetProperty(ref _fornecedorSelecionado, value); }
     public string MensagemErro { get => _mensagemErro; set => SetProperty(ref _mensagemErro, value); }
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
+    public string UltimaAtualizacao { get => _ultimaAtualizacao; set => SetProperty(ref _ultimaAtualizacao, value); }
+    public int TotalPedidos => Compras.Count;
+    public int PedidosPendentes => Compras.Count(c => c.Estado.Contains("Pendente", StringComparison.OrdinalIgnoreCase) || c.Estado.Contains("Criado", StringComparison.OrdinalIgnoreCase));
+    public int PedidosAprovados => Compras.Count(c => c.Estado.Contains("Aprov", StringComparison.OrdinalIgnoreCase));
+    public decimal ValorPedidos => Compras.Sum(c => c.ValorTotal);
 
     public IReadOnlyList<PrioridadeCompra> PrioridadesDisponiveis { get; } = Enum.GetValues<PrioridadeCompra>().ToList();
 
@@ -44,6 +50,7 @@ public class CompraViewModel : ViewModelBase
     public ICommand AprovarCommand { get; }
     public ICommand RejeitarCommand { get; }
     public ICommand CancelarCommand { get; }
+    public ICommand AtualizarCommand { get; }
 
     public CompraViewModel(ICompraService service, int empresaId)
     {
@@ -54,6 +61,7 @@ public class CompraViewModel : ViewModelBase
         AprovarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.AprovarAsync));
         RejeitarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.RejeitarAsync));
         CancelarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.CancelarAsync));
+        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync());
 
         _ = CarregarAsync();
     }
@@ -72,6 +80,11 @@ public class CompraViewModel : ViewModelBase
         var compras = await _service.ListarAsync(_empresaId);
         Compras.Clear();
         foreach (var c in compras) Compras.Add(c);
+        UltimaAtualizacao = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        OnPropertyChanged(nameof(TotalPedidos));
+        OnPropertyChanged(nameof(PedidosPendentes));
+        OnPropertyChanged(nameof(PedidosAprovados));
+        OnPropertyChanged(nameof(ValorPedidos));
     }
 
     private async Task CriarAsync()

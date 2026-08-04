@@ -1,3 +1,9 @@
+## v4.0.3 — 2026-08-04
+
+- Modernização visual de Compras, Património e Orçamento segundo o Dashboard Design System.
+- Inclusão de KPIs e comandos de atualização.
+- Padronização de DataGrids, formulários e cartões.
+
 ## v4.0.2 — Dashboard Design: Receitas, Despesas e Contabilidade
 
 - Modernização visual dos três módulos no padrão do Dashboard.

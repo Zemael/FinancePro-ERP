@@ -21,6 +21,7 @@ public class OrcamentoViewModel : ViewModelBase
     private string _novaMoeda = "FCFA";
     private string _mensagemErroOrcamento = string.Empty;
     private bool _aGuardarOrcamento;
+    private string _ultimaAtualizacao = "--";
 
     public string NovoAno { get => _novoAno; set => SetProperty(ref _novoAno, value); }
     public string NovoNome { get => _novoNome; set => SetProperty(ref _novoNome, value); }
@@ -29,9 +30,11 @@ public class OrcamentoViewModel : ViewModelBase
     public string NovaMoeda { get => _novaMoeda; set => SetProperty(ref _novaMoeda, value); }
     public string MensagemErroOrcamento { get => _mensagemErroOrcamento; set => SetProperty(ref _mensagemErroOrcamento, value); }
     public bool AGuardarOrcamento { get => _aGuardarOrcamento; set => SetProperty(ref _aGuardarOrcamento, value); }
+    public string UltimaAtualizacao { get => _ultimaAtualizacao; set => SetProperty(ref _ultimaAtualizacao, value); }
     public ObservableCollection<OrcamentoListItemDto> Orcamentos { get; } = new();
     public ICommand CriarOrcamentoCommand { get; }
     public ICommand SelecionarOrcamentoCommand { get; }
+    public ICommand AtualizarCommand { get; }
 
     // --- Orçamento selecionado ---
     private OrcamentoListItemDto? _orcamentoSelecionado;
@@ -123,6 +126,7 @@ public class OrcamentoViewModel : ViewModelBase
         AdicionarReceitaCommand = new AsyncRelayCommand(_ => AdicionarLinhaAsync(TipoCategoria.Receita));
         AdicionarDespesaCommand = new AsyncRelayCommand(_ => AdicionarLinhaAsync(TipoCategoria.Despesa));
         AdicionarRevisaoCommand = new AsyncRelayCommand(_ => AdicionarRevisaoAsync());
+        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync());
 
         _ = CarregarAsync();
     }
@@ -140,6 +144,7 @@ public class OrcamentoViewModel : ViewModelBase
         ContaSelecionadaDespesa = Contas.FirstOrDefault();
 
         OrcamentoSelecionado = Orcamentos.FirstOrDefault();
+        UltimaAtualizacao = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
     }
 
     private async Task CriarOrcamentoAsync()
