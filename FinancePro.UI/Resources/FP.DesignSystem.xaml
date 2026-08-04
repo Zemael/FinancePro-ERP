@@ -16,6 +16,7 @@
     <SolidColorBrush x:Key="FP.Danger" Color="#DC3C4B"/>
     <SolidColorBrush x:Key="FP.DangerSoft" Color="#FDECEF"/>
     <SolidColorBrush x:Key="FP.Warning" Color="#F59E0B"/>
+    <SolidColorBrush x:Key="FP.WarningSoft" Color="#FFF5DD"/>
 
     <Style x:Key="FP.Card" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource FP.Surface}"/>
@@ -158,6 +159,15 @@
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Foreground" Value="{StaticResource FP.Text}"/>
         <Setter Property="CaretBrush" Value="{StaticResource FP.Accent}"/>
+    </Style>
+
+    <Style x:Key="FP.LinkButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="5,3"/>
+        <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
 </ResourceDictionary>

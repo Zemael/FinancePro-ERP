@@ -26,6 +26,12 @@ public class DespesasViewModel : ViewModelBase
     private DateTime _dataPagamento = DateTime.Today;
     private bool _aProcessarPagamento;
     private bool _aCarregar;
+    private decimal _totalAberto;
+    private decimal _totalVencido;
+    private decimal _totalHoje;
+    private decimal _totalPago;
+    private int _quantidadeAberta;
+    private string _ultimaAtualizacao = "--";
 
     public string Descricao { get => _descricao; set => SetProperty(ref _descricao, value); }
     public string ValorTexto { get => _valorTexto; set => SetProperty(ref _valorTexto, value); }
@@ -41,6 +47,12 @@ public class DespesasViewModel : ViewModelBase
     public bool AProcessarPagamento { get => _aProcessarPagamento; set => SetProperty(ref _aProcessarPagamento, value); }
     public bool ACarregar { get => _aCarregar; set => SetProperty(ref _aCarregar, value); }
     public OpcaoOrigemDto? OrigemPagamentoSelecionada { get => _origemPagamentoSelecionada; set => SetProperty(ref _origemPagamentoSelecionada, value); }
+    public decimal TotalAberto { get => _totalAberto; private set => SetProperty(ref _totalAberto, value); }
+    public decimal TotalVencido { get => _totalVencido; private set => SetProperty(ref _totalVencido, value); }
+    public decimal TotalHoje { get => _totalHoje; private set => SetProperty(ref _totalHoje, value); }
+    public decimal TotalPago { get => _totalPago; private set => SetProperty(ref _totalPago, value); }
+    public int QuantidadeAberta { get => _quantidadeAberta; private set => SetProperty(ref _quantidadeAberta, value); }
+    public string UltimaAtualizacao { get => _ultimaAtualizacao; private set => SetProperty(ref _ultimaAtualizacao, value); }
 
     public ObservableCollection<FornecedorOpcaoDto> Fornecedores { get; } = new();
     public ObservableCollection<CategoriaOpcaoDto> Categorias { get; } = new();
@@ -85,6 +97,12 @@ public class DespesasViewModel : ViewModelBase
 
             CategoriaSelecionada ??= Categorias.FirstOrDefault();
             OrigemPagamentoSelecionada ??= Origens.FirstOrDefault();
+            TotalAberto = result.Value.Summary.OpenAmount;
+            TotalVencido = result.Value.Summary.OverdueAmount;
+            TotalHoje = result.Value.Summary.DueTodayAmount;
+            TotalPago = result.Value.Summary.PaidAmount;
+            QuantidadeAberta = result.Value.Summary.OpenCount;
+            UltimaAtualizacao = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
         }
         finally
         {

@@ -30,6 +30,7 @@ public class ReceitasViewModel : ViewModelBase
     private decimal _totalVencido;
     private decimal _totalHoje;
     private int _quantidadeAberta;
+    private string _ultimaAtualizacao = "--";
 
     public string Descricao { get => _descricao; set => SetProperty(ref _descricao, value); }
     public string ValorTexto { get => _valorTexto; set => SetProperty(ref _valorTexto, value); }
@@ -50,6 +51,7 @@ public class ReceitasViewModel : ViewModelBase
     public decimal TotalVencido { get => _totalVencido; private set => SetProperty(ref _totalVencido, value); }
     public decimal TotalHoje { get => _totalHoje; private set => SetProperty(ref _totalHoje, value); }
     public int QuantidadeAberta { get => _quantidadeAberta; private set => SetProperty(ref _quantidadeAberta, value); }
+    public string UltimaAtualizacao { get => _ultimaAtualizacao; private set => SetProperty(ref _ultimaAtualizacao, value); }
 
     public ObservableCollection<ClienteOpcaoDto> Clientes { get; } = new();
     public ObservableCollection<CategoriaOpcaoDto> Categorias { get; } = new();
@@ -95,6 +97,7 @@ public class ReceitasViewModel : ViewModelBase
         TotalVencido = result.Value.Summary.OverdueAmount;
         TotalHoje = result.Value.Summary.DueTodayAmount;
         QuantidadeAberta = result.Value.Summary.OpenCount;
+        UltimaAtualizacao = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
     }
 
     private async Task CriarAsync()

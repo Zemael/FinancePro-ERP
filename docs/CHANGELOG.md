@@ -1,3 +1,8 @@
+## v4.0.2 — Dashboard Design: Receitas, Despesas e Contabilidade
+
+- Modernização visual dos três módulos no padrão do Dashboard.
+- KPIs, cabeçalhos, grelhas e painéis de formulário padronizados.
+
 
 ## v4.0.1 — Dashboard Design System: Bancos, Caixa e Tesouraria
 
