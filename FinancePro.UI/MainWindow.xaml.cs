@@ -8,6 +8,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Input;
+using System.Collections.ObjectModel;
+using System.Windows.Threading;
 using FinancePro.Core.DTOs;
 using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
@@ -32,6 +34,9 @@ public partial class MainWindow : Window
     private IServiceScope? _scopeAtual;
     private Button? _itemNavAtivo;
     private bool _sidebarCollapsed;
+    private readonly DispatcherTimer _searchTimer = new() { Interval = TimeSpan.FromMilliseconds(350) };
+    private readonly ObservableCollection<PesquisaResultadoDto> _searchResults = new();
+    private readonly ObservableCollection<ShellNotificationItem> _notifications = new();
 
     public MainWindow(LoginResultDto utilizador)
     {
@@ -40,7 +45,12 @@ public partial class MainWindow : Window
         UsuarioTexto.Text = $"{utilizador.NomeCompleto} · {utilizador.PerfilNome}";
 
         AplicarPermissoesMenu();
+        GlobalSearchResults.ItemsSource = _searchResults;
+        NotificationsList.ItemsSource = _notifications;
+        _searchTimer.Tick += SearchTimer_Tick;
+        PreviewKeyDown += MainWindow_PreviewKeyDown;
         MostrarDashboard();
+        _ = CarregarNotificacoesAsync();
 
         Closed += (_, _) => _scopeAtual?.Dispose();
     }
@@ -60,35 +70,150 @@ public partial class MainWindow : Window
         }
     }
 
-    private void Notifications_Click(object sender, RoutedEventArgs e) =>
-        NotificationsPopup.IsOpen = !NotificationsPopup.IsOpen;
-
-    private void GlobalSearchBox_KeyDown(object sender, KeyEventArgs e)
+    private async void Notifications_Click(object sender, RoutedEventArgs e)
     {
+        if (!NotificationsPopup.IsOpen)
+            await CarregarNotificacoesAsync();
+        NotificationsPopup.IsOpen = !NotificationsPopup.IsOpen;
+    }
+
+    private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.K && Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+        {
+            GlobalSearchBox.Focus();
+            GlobalSearchBox.SelectAll();
+            e.Handled = true;
+        }
+    }
+
+    private void GlobalSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        _searchTimer.Stop();
+        if (GlobalSearchBox.Text.Trim().Length < 2)
+        {
+            GlobalSearchPopup.IsOpen = false;
+            _searchResults.Clear();
+            return;
+        }
+        SearchStatusText.Text = "A pesquisar...";
+        GlobalSearchPopup.IsOpen = true;
+        _searchTimer.Start();
+    }
+
+    private async void SearchTimer_Tick(object? sender, EventArgs e)
+    {
+        _searchTimer.Stop();
+        await PesquisarGlobalmenteAsync();
+    }
+
+    private async Task PesquisarGlobalmenteAsync()
+    {
+        var termo = GlobalSearchBox.Text.Trim();
+        if (termo.Length < 2) return;
+
+        try
+        {
+            TrocarScope();
+            var service = _scopeAtual!.ServiceProvider.GetRequiredService<IDashboardService>();
+            var resultados = await service.PesquisarAsync(_utilizador.EmpresaId, termo);
+            _searchResults.Clear();
+            foreach (var item in resultados) _searchResults.Add(item);
+            SearchStatusText.Text = $"{_searchResults.Count} resultado(s)";
+            GlobalSearchPopup.IsOpen = true;
+            if (_searchResults.Count > 0) GlobalSearchResults.SelectedIndex = 0;
+        }
+        catch (Exception ex)
+        {
+            SearchStatusText.Text = "Pesquisa indisponível";
+            _searchResults.Clear();
+            _searchResults.Add(new PesquisaResultadoDto { Tipo = "Erro", Descricao = "Não foi possível pesquisar.", Info = ex.Message });
+        }
+    }
+
+    private async void GlobalSearchBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Down && GlobalSearchPopup.IsOpen)
+        {
+            GlobalSearchResults.Focus();
+            if (GlobalSearchResults.SelectedIndex < 0) GlobalSearchResults.SelectedIndex = 0;
+            e.Handled = true;
+            return;
+        }
         if (e.Key != Key.Enter) return;
+        if (GlobalSearchPopup.IsOpen && GlobalSearchResults.SelectedItem is PesquisaResultadoDto resultado)
+            AbrirResultadoPesquisa(resultado);
+        else
+            await PesquisarGlobalmenteAsync();
+    }
 
-        var query = GlobalSearchBox.Text.Trim().ToLowerInvariant();
-        if (string.IsNullOrWhiteSpace(query)) return;
+    private void GlobalSearchResults_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && GlobalSearchResults.SelectedItem is PesquisaResultadoDto resultado)
+            AbrirResultadoPesquisa(resultado);
+    }
 
-        if (query.Contains("dashboard")) MostrarDashboard();
-        else if (query.Contains("cliente")) MostrarClientes();
-        else if (query.Contains("fornecedor")) MostrarFornecedores();
-        else if (query.Contains("empresa")) MostrarEmpresas();
-        else if (query.Contains("banco")) MostrarBancos();
-        else if (query.Contains("caixa")) MostrarCaixa();
-        else if (query.Contains("tesour")) MostrarTesouraria();
-        else if (query.Contains("receita") || query.Contains("receber")) MostrarReceitas();
-        else if (query.Contains("despesa") || query.Contains("pagar")) MostrarDespesas();
-        else if (query.Contains("compra")) MostrarCompras();
-        else if (query.Contains("patrim") || query.Contains("bem")) MostrarBens();
-        else if (query.Contains("orçamento") || query.Contains("orcamento")) MostrarOrcamento();
-        else if (query.Contains("contab")) MostrarContabilidade();
-        else if (query.Contains("utilizador")) MostrarUtilizadores();
-        else if (query.Contains("perfil")) MostrarPerfis();
-        else if (query.Contains("permiss")) MostrarPermissoes();
-        else if (query.Contains("config")) MostrarConfiguracoes();
+    private void GlobalSearchResults_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (GlobalSearchResults.SelectedItem is PesquisaResultadoDto resultado)
+            AbrirResultadoPesquisa(resultado);
+    }
 
+    private void AbrirResultadoPesquisa(PesquisaResultadoDto resultado)
+    {
+        GlobalSearchPopup.IsOpen = false;
+        switch (resultado.Tipo)
+        {
+            case "Cliente": MostrarClientes(); break;
+            case "Fornecedor": MostrarFornecedores(); break;
+            case "Conta a Receber": MostrarReceitas(); break;
+            case "Conta a Pagar": MostrarDespesas(); break;
+            case "Movimento": MostrarTesouraria(); break;
+            case "Bem": MostrarBens(); break;
+        }
+        GlobalSearchBox.Text = resultado.Descricao;
         GlobalSearchBox.SelectAll();
+    }
+
+    private async Task CarregarNotificacoesAsync()
+    {
+        try
+        {
+            TrocarScope();
+            var service = _scopeAtual!.ServiceProvider.GetRequiredService<IDashboardService>();
+            var resumo = await service.ObterResumoAsync(_utilizador.EmpresaId);
+            _notifications.Clear();
+            foreach (var alerta in resumo.Alertas)
+                _notifications.Add(ShellNotificationItem.FromAlert(alerta));
+            NotificationCountText.Text = $"{_notifications.Count(n => !n.IsRead)} novas";
+        }
+        catch
+        {
+            _notifications.Clear();
+            _notifications.Add(new ShellNotificationItem("Sistema", "Não foi possível carregar as notificações.", "Aviso", "#FFF7ED", "#9A3412", DateTime.Now.ToString("HH:mm")));
+            NotificationCountText.Text = "1 nova";
+        }
+    }
+
+    private async void RefreshNotifications_Click(object sender, RoutedEventArgs e) => await CarregarNotificacoesAsync();
+
+    private void MarkAllNotificationsRead_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var item in _notifications) item.IsRead = true;
+        NotificationCountText.Text = "0 novas";
+        NotificationsList.Items.Refresh();
+    }
+
+    private void NotificationsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (NotificationsList.SelectedItem is not ShellNotificationItem item) return;
+        item.IsRead = true;
+        if (item.Mensagem.Contains("pagar", StringComparison.OrdinalIgnoreCase)) MostrarDespesas();
+        else if (item.Mensagem.Contains("receber", StringComparison.OrdinalIgnoreCase)) MostrarReceitas();
+        else if (item.Mensagem.Contains("compra", StringComparison.OrdinalIgnoreCase)) MostrarCompras();
+        else if (item.Mensagem.Contains("caixa", StringComparison.OrdinalIgnoreCase) || item.Mensagem.Contains("banc", StringComparison.OrdinalIgnoreCase)) MostrarTesouraria();
+        NotificationCountText.Text = $"{_notifications.Count(n => !n.IsRead)} novas";
+        NotificationsPopup.IsOpen = false;
     }
 
     private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
@@ -387,5 +512,38 @@ public partial class MainWindow : Window
         _scopeAtual?.Dispose();
         _scopeAtual = App.Services.CreateScope();
     }
+
+    private sealed class ShellNotificationItem
+    {
+        public ShellNotificationItem(string categoria, string mensagem, string severidade, string background, string foreground, string horario)
+        {
+            Categoria = categoria;
+            Mensagem = mensagem;
+            Severidade = severidade;
+            Background = background;
+            Foreground = foreground;
+            Horario = horario;
+        }
+
+        public string Categoria { get; }
+        public string Mensagem { get; }
+        public string Severidade { get; }
+        public string Background { get; }
+        public string Foreground { get; }
+        public string Horario { get; }
+        public bool IsRead { get; set; }
+
+        public static ShellNotificationItem FromAlert(AlertaDto alerta)
+        {
+            var (categoria, background, foreground) = alerta.Severidade switch
+            {
+                "Critico" => ("Crítica", "#FEF2F2", "#B91C1C"),
+                "Aviso" => ("Aviso", "#FFF7ED", "#9A3412"),
+                _ => ("Informação", "#EFF6FF", "#1D4ED8")
+            };
+            return new ShellNotificationItem(categoria, alerta.Mensagem, alerta.Severidade, background, foreground, DateTime.Now.ToString("HH:mm"));
+        }
+    }
+
 }
 

@@ -1,3 +1,12 @@
+
+## [4.2.0] - 2026-08-04
+
+### Adicionado
+- Pesquisa global assíncrona no shell com atalho Ctrl+K.
+- Painel de resultados com navegação direta para o módulo correspondente.
+- Centro de notificações carregado a partir dos alertas operacionais do Dashboard.
+- Ações de atualizar, marcar como lida e abrir módulo relacionado.
+
 ## v4.0.3 — 2026-08-04
 
 - Modernização visual de Compras, Património e Orçamento segundo o Dashboard Design System.

@@ -218,7 +218,7 @@
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="&#xE721;" FontFamily="Segoe MDL2 Assets" Foreground="#BFD3EA" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox x:Name="GlobalSearchBox" Grid.Column="1" Background="Transparent" BorderThickness="0" Foreground="White" CaretBrush="White" VerticalContentAlignment="Center" FontSize="12" ToolTip="Pesquisar módulo e pressionar Enter" KeyDown="GlobalSearchBox_KeyDown"/>
+                        <TextBox x:Name="GlobalSearchBox" Grid.Column="1" Background="Transparent" BorderThickness="0" Foreground="White" CaretBrush="White" VerticalContentAlignment="Center" FontSize="12" ToolTip="Pesquisar clientes, fornecedores, documentos e módulos (Ctrl+K)" KeyDown="GlobalSearchBox_KeyDown" TextChanged="GlobalSearchBox_TextChanged"/>
                         <TextBlock Grid.Column="2" Text="Ctrl + K" Foreground="#9EB9D7" FontSize="10" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     </Grid>
                 </Border>
@@ -254,22 +254,77 @@
             <ContentControl Grid.Row="1" x:Name="ConteudoHost"/>
         </Grid>
 
+        <Popup x:Name="GlobalSearchPopup"
+               Placement="Bottom"
+               PlacementTarget="{Binding ElementName=GlobalSearchBox}"
+               StaysOpen="False"
+               AllowsTransparency="True">
+            <Border Width="520" MaxHeight="440" Margin="0,8,0,0" Background="White" BorderBrush="#DCE5EF" BorderThickness="1" CornerRadius="12" Padding="10">
+                <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.18"/></Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Margin="6,4,6,10">
+                        <TextBlock Text="Resultados da pesquisa" FontSize="14" FontWeight="SemiBold" Foreground="#0F2747"/>
+                        <TextBlock x:Name="SearchStatusText" HorizontalAlignment="Right" FontSize="10" Foreground="#64748B" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ListBox x:Name="GlobalSearchResults" Grid.Row="1" BorderThickness="0" Background="Transparent" MouseDoubleClick="GlobalSearchResults_MouseDoubleClick" KeyDown="GlobalSearchResults_KeyDown">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="10,8" Margin="0,1" CornerRadius="8" Background="#F8FAFD">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="92"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <Border Background="#E8F1FF" CornerRadius="10" Padding="7,3" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                            <TextBlock Text="{Binding Tipo}" FontSize="9.5" Foreground="#2F6FED" FontWeight="SemiBold"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding Descricao}" FontSize="12" Foreground="#0F2747" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding Info}" FontSize="10" Foreground="#64748B" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+        </Popup>
+
         <Popup x:Name="NotificationsPopup"
                Placement="Bottom"
                PlacementTarget="{Binding ElementName=BtnNotifications}"
                StaysOpen="False"
                AllowsTransparency="True">
-            <Border Width="330" Margin="0,8,0,0" Background="White" BorderBrush="#DCE5EF" BorderThickness="1" CornerRadius="12" Padding="16">
+            <Border Width="380" MaxHeight="520" Margin="0,8,0,0" Background="White" BorderBrush="#DCE5EF" BorderThickness="1" CornerRadius="12" Padding="16">
                 <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.18"/></Border.Effect>
-                <StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                     <Grid Margin="0,0,0,12">
-                        <TextBlock Text="Notificações" FontSize="15" FontWeight="SemiBold" Foreground="#0F2747"/>
-                        <Border HorizontalAlignment="Right" Background="#E8F1FF" CornerRadius="10" Padding="8,3"><TextBlock Text="3 novas" FontSize="10" Foreground="#2F6FED"/></Border>
+                        <TextBlock Text="Centro de Notificações" FontSize="15" FontWeight="SemiBold" Foreground="#0F2747"/>
+                        <Border HorizontalAlignment="Right" Background="#E8F1FF" CornerRadius="10" Padding="8,3"><TextBlock x:Name="NotificationCountText" Text="0 novas" FontSize="10" Foreground="#2F6FED"/></Border>
                     </Grid>
-                    <Border Background="#FFF7ED" CornerRadius="8" Padding="10" Margin="0,0,0,8"><TextBlock Text="Contas a pagar próximas do vencimento" TextWrapping="Wrap" FontSize="11" Foreground="#9A3412"/></Border>
-                    <Border Background="#EFF6FF" CornerRadius="8" Padding="10" Margin="0,0,0,8"><TextBlock Text="Existem operações pendentes de conciliação" TextWrapping="Wrap" FontSize="11" Foreground="#1D4ED8"/></Border>
-                    <Border Background="#F0FDF4" CornerRadius="8" Padding="10"><TextBlock Text="A última sincronização foi concluída" TextWrapping="Wrap" FontSize="11" Foreground="#166534"/></Border>
-                </StackPanel>
+                    <ListBox x:Name="NotificationsList" Grid.Row="1" BorderThickness="0" Background="Transparent" MouseDoubleClick="NotificationsList_MouseDoubleClick">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="10" Margin="0,0,0,8" CornerRadius="8" Background="{Binding Background}">
+                                    <StackPanel>
+                                        <Grid>
+                                            <TextBlock Text="{Binding Categoria}" FontSize="9.5" FontWeight="SemiBold" Foreground="{Binding Foreground}"/>
+                                            <TextBlock Text="{Binding Horario}" HorizontalAlignment="Right" FontSize="9" Foreground="#64748B"/>
+                                        </Grid>
+                                        <TextBlock Text="{Binding Mensagem}" TextWrapping="Wrap" FontSize="11" Foreground="#334155" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
+                        <Button Content="Atualizar" HorizontalAlignment="Left" Padding="12,6" Click="RefreshNotifications_Click"/>
+                        <Button Content="Marcar todas como lidas" HorizontalAlignment="Right" Padding="12,6" Click="MarkAllNotificationsRead_Click"/>
+                    </Grid>
+                </Grid>
             </Border>
         </Popup>
 

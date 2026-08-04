@@ -1,3 +1,11 @@
+
+## v4.2.0 — Pesquisa Global e Notificações
+
+- Pesquisa global navegável: implementada.
+- Centro de notificações dinâmico: implementado.
+- XAML: validado estruturalmente.
+- Migration: não necessária.
+- Build .NET: requer validação local/CI.
 Version........: 3.9.0
 Package........: Source ZIP
 Static checks..: PASS
