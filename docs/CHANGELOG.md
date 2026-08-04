@@ -135,3 +135,10 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Adicionado serviço central de numeração transacional.
 - Adicionados auditoria transversal e eventos de domínio.
 - Adicionado script 012_PlatformServices.sql.
+
+## v4.0.4 — Administração e Configurações
+
+- Interface de Configurações alinhada ao Dashboard Design System.
+- Indicadores institucionais e de segurança adicionados.
+- Gestão de utilizadores reorganizada em grelha e painel lateral.
+- Módulos administrativos consolidados no padrão visual v4.
