@@ -20,6 +20,7 @@ using FinancePro.UI.Common;
 using FinancePro.UI.ViewModels;
 using FinancePro.UI.Views;
 using FinancePro.Platform.Settings;
+using FinancePro.Platform.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinancePro.UI;
@@ -84,6 +85,8 @@ public partial class MainWindow : Window
     private void Bens_Click(object sender, RoutedEventArgs e) => MostrarBens();
 
     private void Configuracoes_Click(object sender, RoutedEventArgs e) => MostrarConfiguracoes();
+
+    private void Workflow_Click(object sender, RoutedEventArgs e) => MostrarWorkflow();
 
     private void Tema_Click(object sender, RoutedEventArgs e) => GestorTema.Alternar();
 
@@ -203,6 +206,7 @@ public partial class MainWindow : Window
         BtnCompras.Visibility = Visibilidade("Compras");
         BtnBens.Visibility = Visibilidade("Patrimonio");
         BtnConfiguracoes.Visibility = Visibilidade("Configuracoes");
+        BtnWorkflow.Visibility = Visibility.Visible;
     }
 
     private static Visibility Visibilidade(string modulo) =>
@@ -279,6 +283,16 @@ public partial class MainWindow : Window
         var auditoriaService = _scopeAtual.ServiceProvider.GetRequiredService<IAuditoriaService>();
         var viewModel = new BemViewModel(bemService, auditoriaService, _utilizador.EmpresaId);
         ConteudoHost.Content = new BemView { DataContext = viewModel };
+    }
+
+
+    private void MostrarWorkflow()
+    {
+        DestacarItemAtivo(BtnWorkflow);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IWorkflowService>();
+        var viewModel = new WorkflowTasksViewModel(service, _utilizador.EmpresaId, _utilizador.UtilizadorId, _utilizador.NomeCompleto);
+        ConteudoHost.Content = new WorkflowTasksView { DataContext = viewModel };
     }
 
     private void MostrarConfiguracoes()

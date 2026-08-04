@@ -183,6 +183,9 @@
                         <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" Style="{StaticResource NavIcon}"/><TextBlock Text="Auditoria" Style="{StaticResource NavText}"/></StackPanel></Border>
 
                         <Border Height="1" Background="#2B6091" Margin="18,8"/>
+                        <Button x:Name="BtnWorkflow" Style="{StaticResource ItemNav}" Click="Workflow_Click">
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8D7;" Style="{StaticResource NavIcon}"/><TextBlock Text="Centro de Tarefas" Style="{StaticResource NavText}"/></StackPanel>
+                        </Button>
                         <Button x:Name="BtnConfiguracoes" Style="{StaticResource ItemNav}" Click="Configuracoes_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" Style="{StaticResource NavIcon}"/><TextBlock Text="Configurações" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>

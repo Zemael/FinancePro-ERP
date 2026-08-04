@@ -1,0 +1,51 @@
+<UserControl x:Class="FinancePro.UI.Views.WorkflowTasksView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Centro de Tarefas" FontSize="22" FontWeight="SemiBold" Foreground="#0E4C5E"/>
+                    <TextBlock Text="Aprovações e decisões pendentes do seu perfil" Foreground="#667085" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Atualizar" Command="{Binding RefreshCommand}" Style="{StaticResource BaseButton}" Padding="18,8"/>
+            </Grid>
+
+            <UniformGrid Columns="4" Margin="0,0,0,18">
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Pendentes" Foreground="#667085"/><TextBlock Text="{Binding Pending}" FontSize="26" FontWeight="Bold" Foreground="#0E4C5E"/></StackPanel></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Em atraso" Foreground="#667085"/><TextBlock Text="{Binding Overdue}" FontSize="26" FontWeight="Bold" Foreground="#B42318"/></StackPanel></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Urgentes" Foreground="#667085"/><TextBlock Text="{Binding Urgent}" FontSize="26" FontWeight="Bold" Foreground="#B54708"/></StackPanel></Border>
+                <Border Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Concluídas hoje" Foreground="#667085"/><TextBlock Text="{Binding CompletedToday}" FontSize="26" FontWeight="Bold" Foreground="#067647"/></StackPanel></Border>
+            </UniformGrid>
+
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource FP.Card}">
+                    <DataGrid ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="430">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Documento" Binding="{Binding DocumentReference}" Width="140"/>
+                            <DataGridTextColumn Header="Tarefa" Binding="{Binding Title}" Width="*"/>
+                            <DataGridTextColumn Header="Módulo" Binding="{Binding Module}" Width="120"/>
+                            <DataGridTextColumn Header="Valor" Binding="{Binding Amount, StringFormat=N0}" Width="110"/>
+                            <DataGridTextColumn Header="Prazo" Binding="{Binding DueAt, StringFormat=dd/MM/yyyy HH:mm}" Width="145"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource FP.Card}">
+                    <StackPanel>
+                        <TextBlock Text="Decisão" FontSize="16" FontWeight="SemiBold" Foreground="#0E4C5E"/>
+                        <TextBlock Text="{Binding SelectedTask.Title}" FontWeight="SemiBold" Margin="0,14,0,4" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding SelectedTask.Description}" Foreground="#667085" TextWrapping="Wrap"/>
+                        <TextBlock Text="Observação" FontWeight="SemiBold" Margin="0,18,0,6"/>
+                        <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="95" TextWrapping="Wrap"/>
+                        <Button Content="Aprovar" Command="{Binding ApproveCommand}" Style="{StaticResource BaseButton}" Margin="0,16,0,0"/>
+                        <Button Content="Devolver para correção" Command="{Binding ReturnCommand}" Margin="0,8,0,0"/>
+                        <Button Content="Rejeitar" Command="{Binding RejectCommand}" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding Message}" Margin="0,14,0,0" Foreground="#0E6B4F" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

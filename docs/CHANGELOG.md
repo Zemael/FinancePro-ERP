@@ -182,3 +182,8 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 ## v3.3.1 — UI Framework Stability
 - Corrigidos recursos WPF ausentes na ParceirosView.
 - Adicionados aliases FP.PageBackground, FP.PageTitle e FP.PageSubtitle.
+
+## v5.2.0 — Workflow Foundation
+- Adicionado motor base de workflow e Centro de Tarefas.
+- Incluídas decisões de aprovação, rejeição e devolução.
+- Adicionadas tabelas WorkflowTasks e WorkflowHistory.

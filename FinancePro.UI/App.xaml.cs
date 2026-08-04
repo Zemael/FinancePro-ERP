@@ -7,6 +7,8 @@ using FinancePro.Data.MasterData;
 using FinancePro.Data.Treasury;
 using FinancePro.Data.Platform;
 using FinancePro.Platform.Settings;
+using FinancePro.Platform.Workflow;
+using FinancePro.Data.Workflow;
 using FinancePro.Application.Treasury;
 using FinancePro.Data.Revenue;
 using FinancePro.Application.Revenue;
@@ -104,6 +106,8 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<ISettingsStore, SqlSettingsStore>();
         services.AddScoped<ISettingsService, SettingsService>();
+        services.AddScoped<IWorkflowStore, SqlWorkflowStore>();
+        services.AddScoped<IWorkflowService, WorkflowService>();
 
         var connectionString = configuration.GetConnectionString("FinanceProDb")
             ?? throw new InvalidOperationException("A connection string 'FinanceProDb' não foi configurada.");
