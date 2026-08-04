@@ -142,3 +142,11 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Indicadores institucionais e de segurança adicionados.
 - Gestão de utilizadores reorganizada em grelha e painel lateral.
 - Módulos administrativos consolidados no padrão visual v4.
+
+## v4.1.0 — Executive Shell
+
+- Adicionado menu lateral recolhível.
+- Adicionada pesquisa rápida de módulos na barra superior.
+- Adicionado breadcrumb dinâmico.
+- Adicionado centro inicial de notificações.
+- Melhorada a experiência de navegação principal.

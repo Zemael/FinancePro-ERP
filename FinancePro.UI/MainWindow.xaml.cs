@@ -7,6 +7,7 @@ using FinancePro.Application.Suppliers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Input;
 using FinancePro.Core.DTOs;
 using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
@@ -30,6 +31,7 @@ public partial class MainWindow : Window
     private readonly LoginResultDto _utilizador;
     private IServiceScope? _scopeAtual;
     private Button? _itemNavAtivo;
+    private bool _sidebarCollapsed;
 
     public MainWindow(LoginResultDto utilizador)
     {
@@ -42,6 +44,64 @@ public partial class MainWindow : Window
 
         Closed += (_, _) => _scopeAtual?.Dispose();
     }
+
+
+    private void ToggleSidebar_Click(object sender, RoutedEventArgs e)
+    {
+        _sidebarCollapsed = !_sidebarCollapsed;
+        SidebarColumn.Width = new GridLength(_sidebarCollapsed ? 76 : 238);
+        BrandTextPanel.Visibility = _sidebarCollapsed ? Visibility.Collapsed : Visibility.Visible;
+        CompanyCard.Visibility = _sidebarCollapsed ? Visibility.Collapsed : Visibility.Visible;
+
+        foreach (var text in FindVisualChildren<TextBlock>(SidebarRoot))
+        {
+            if (text.Style == FindResource("NavText"))
+                text.Visibility = _sidebarCollapsed ? Visibility.Collapsed : Visibility.Visible;
+        }
+    }
+
+    private void Notifications_Click(object sender, RoutedEventArgs e) =>
+        NotificationsPopup.IsOpen = !NotificationsPopup.IsOpen;
+
+    private void GlobalSearchBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+
+        var query = GlobalSearchBox.Text.Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(query)) return;
+
+        if (query.Contains("dashboard")) MostrarDashboard();
+        else if (query.Contains("cliente")) MostrarClientes();
+        else if (query.Contains("fornecedor")) MostrarFornecedores();
+        else if (query.Contains("empresa")) MostrarEmpresas();
+        else if (query.Contains("banco")) MostrarBancos();
+        else if (query.Contains("caixa")) MostrarCaixa();
+        else if (query.Contains("tesour")) MostrarTesouraria();
+        else if (query.Contains("receita") || query.Contains("receber")) MostrarReceitas();
+        else if (query.Contains("despesa") || query.Contains("pagar")) MostrarDespesas();
+        else if (query.Contains("compra")) MostrarCompras();
+        else if (query.Contains("patrim") || query.Contains("bem")) MostrarBens();
+        else if (query.Contains("orçamento") || query.Contains("orcamento")) MostrarOrcamento();
+        else if (query.Contains("contab")) MostrarContabilidade();
+        else if (query.Contains("utilizador")) MostrarUtilizadores();
+        else if (query.Contains("perfil")) MostrarPerfis();
+        else if (query.Contains("permiss")) MostrarPermissoes();
+        else if (query.Contains("config")) MostrarConfiguracoes();
+
+        GlobalSearchBox.SelectAll();
+    }
+
+    private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+        {
+            var child = VisualTreeHelper.GetChild(root, i);
+            if (child is T typed) yield return typed;
+            foreach (var nested in FindVisualChildren<T>(child)) yield return nested;
+        }
+    }
+
+    private void AtualizarBreadcrumb(string titulo) => BreadcrumbText.Text = titulo;
 
     private void Dashboard_Click(object sender, RoutedEventArgs e) => MostrarDashboard();
 
@@ -99,6 +159,7 @@ public partial class MainWindow : Window
     private void MostrarDashboard()
     {
         DestacarItemAtivo(BtnDashboard);
+        AtualizarBreadcrumb("Dashboard");
         TrocarScope();
         var dashboardService = _scopeAtual!.ServiceProvider.GetRequiredService<IDashboardService>();
         var viewModel = new DashboardViewModel(dashboardService, _utilizador.EmpresaId);
@@ -118,6 +179,7 @@ public partial class MainWindow : Window
     private void MostrarEmpresas()
     {
         DestacarItemAtivo(BtnEmpresas);
+        AtualizarBreadcrumb("Empresas");
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<IEmpresaService>();
         ConteudoHost.Content = new EmpresasView { DataContext = new EmpresasViewModel(service) };
@@ -126,6 +188,7 @@ public partial class MainWindow : Window
     private void MostrarClientes()
     {
         DestacarItemAtivo(BtnClientes);
+        AtualizarBreadcrumb("Clientes");
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<CustomerApplicationService>();
         ConteudoHost.Content = new ClientesView { DataContext = new ClientesViewModel(service, _utilizador.EmpresaId) };
@@ -134,6 +197,7 @@ public partial class MainWindow : Window
     private void MostrarFornecedores()
     {
         DestacarItemAtivo(BtnFornecedores);
+        AtualizarBreadcrumb("Fornecedores");
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<SupplierApplicationService>();
         ConteudoHost.Content = new FornecedoresView { DataContext = new FornecedoresViewModel(service, _utilizador.EmpresaId) };
@@ -142,6 +206,7 @@ public partial class MainWindow : Window
     private void MostrarExercicios()
     {
         DestacarItemAtivo(BtnExercicios);
+        AtualizarBreadcrumb("Exercícios Financeiros");
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<IExercicioFinanceiroService>();
         var empresaService = _scopeAtual.ServiceProvider.GetRequiredService<IEmpresaService>();
@@ -151,6 +216,7 @@ public partial class MainWindow : Window
     private void MostrarMoedas()
     {
         DestacarItemAtivo(BtnMoedas);
+        AtualizarBreadcrumb("Moedas");
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<IMoedaService>();
         ConteudoHost.Content = new MoedasView { DataContext = new MoedasViewModel(service) };
@@ -159,6 +225,7 @@ public partial class MainWindow : Window
     private void MostrarUtilizadores()
     {
         DestacarItemAtivo(BtnUtilizadores);
+        AtualizarBreadcrumb("Utilizadores");
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<IUtilizadorService>();
         var perfilService = _scopeAtual.ServiceProvider.GetRequiredService<IPerfilService>();
@@ -169,6 +236,7 @@ public partial class MainWindow : Window
     private void MostrarPerfis()
     {
         DestacarItemAtivo(BtnPerfis);
+        AtualizarBreadcrumb("Perfis de Acesso");
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<IPerfilService>();
         ConteudoHost.Content = new PerfisView { DataContext = new PerfisViewModel(service) };
@@ -178,6 +246,7 @@ public partial class MainWindow : Window
     {
         if (!SessaoAtual.TemPermissao("Permissoes")) return;
         DestacarItemAtivo(BtnPermissoes);
+        AtualizarBreadcrumb("Permissões");
         TrocarScope();
         var permissaoService = _scopeAtual!.ServiceProvider.GetRequiredService<IPermissaoService>();
         var perfilService = _scopeAtual.ServiceProvider.GetRequiredService<IPerfilService>();
@@ -213,6 +282,7 @@ public partial class MainWindow : Window
     private void MostrarTesouraria()
     {
         DestacarItemAtivo(BtnTesouraria);
+        AtualizarBreadcrumb("Tesouraria");
         TrocarScope();
         var tesourariaService = _scopeAtual!.ServiceProvider.GetRequiredService<AdvancedTreasuryApplicationService>();
         var viewModel = new TesourariaViewModel(tesourariaService, _utilizador.EmpresaId);
@@ -222,6 +292,7 @@ public partial class MainWindow : Window
     private void MostrarCaixa()
     {
         DestacarItemAtivo(BtnCaixa);
+        AtualizarBreadcrumb("Caixa");
         TrocarScope();
         var caixaService = _scopeAtual!.ServiceProvider.GetRequiredService<ICaixaService>();
         var viewModel = new CaixaViewModel(caixaService, _utilizador.EmpresaId);
@@ -231,6 +302,7 @@ public partial class MainWindow : Window
     private void MostrarBancos()
     {
         DestacarItemAtivo(BtnBancos);
+        AtualizarBreadcrumb("Bancos e Contas Bancárias");
         TrocarScope();
         var bancoService = _scopeAtual!.ServiceProvider.GetRequiredService<IBancoService>();
         var viewModel = new BancosViewModel(bancoService, _utilizador.EmpresaId);
@@ -240,6 +312,7 @@ public partial class MainWindow : Window
     private void MostrarReceitas()
     {
         DestacarItemAtivo(BtnReceitas);
+        AtualizarBreadcrumb("Receitas e Contas a Receber");
         TrocarScope();
         var receitasService = _scopeAtual!.ServiceProvider.GetRequiredService<ReceivablesApplicationService>();
         var viewModel = new ReceitasViewModel(receitasService, _utilizador.EmpresaId);
@@ -249,6 +322,7 @@ public partial class MainWindow : Window
     private void MostrarOrcamento()
     {
         DestacarItemAtivo(BtnOrcamento);
+        AtualizarBreadcrumb("Gestão Orçamental");
         TrocarScope();
         var orcamentoService = _scopeAtual!.ServiceProvider.GetRequiredService<IOrcamentoService>();
         var viewModel = new OrcamentoViewModel(orcamentoService, _utilizador.EmpresaId);
@@ -258,6 +332,7 @@ public partial class MainWindow : Window
     private void MostrarDespesas()
     {
         DestacarItemAtivo(BtnDespesas);
+        AtualizarBreadcrumb("Despesas e Contas a Pagar");
         TrocarScope();
         var despesasService = _scopeAtual!.ServiceProvider.GetRequiredService<PayablesApplicationService>();
         var viewModel = new DespesasViewModel(despesasService, _utilizador.EmpresaId);
@@ -267,6 +342,7 @@ public partial class MainWindow : Window
     private void MostrarCompras()
     {
         DestacarItemAtivo(BtnCompras);
+        AtualizarBreadcrumb("Compras");
         TrocarScope();
         var compraService = _scopeAtual!.ServiceProvider.GetRequiredService<ICompraService>();
         var viewModel = new CompraViewModel(compraService, _utilizador.EmpresaId);
@@ -276,6 +352,7 @@ public partial class MainWindow : Window
     private void MostrarBens()
     {
         DestacarItemAtivo(BtnBens);
+        AtualizarBreadcrumb("Gestão Patrimonial");
         TrocarScope();
         var bemService = _scopeAtual!.ServiceProvider.GetRequiredService<IBemService>();
         var auditoriaService = _scopeAtual!.ServiceProvider.GetRequiredService<IAuditoriaService>();
@@ -287,6 +364,7 @@ public partial class MainWindow : Window
     private void MostrarContabilidade()
     {
         DestacarItemAtivo(BtnContabilidade);
+        AtualizarBreadcrumb("Contabilidade");
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<AccountingApplicationService>();
         ConteudoHost.Content = new ContabilidadeView { DataContext = new ContabilidadeViewModel(service, _utilizador.EmpresaId) };
@@ -295,6 +373,7 @@ public partial class MainWindow : Window
     private void MostrarConfiguracoes()
     {
         DestacarItemAtivo(BtnConfiguracoes);
+        AtualizarBreadcrumb("Configurações");
         TrocarScope();
         var configService = _scopeAtual!.ServiceProvider.GetRequiredService<IConfiguracoesService>();
         var viewModel = new ConfiguracoesViewModel(configService, _utilizador.EmpresaId);
