@@ -20,7 +20,14 @@ public class DashboardViewModel : ViewModelBase
     private decimal _totalDespesas;
     private decimal _resultado;
     private decimal _margemPercentual;
-
+    private decimal _totalAReceber;
+    private decimal _totalAPagar;
+    private int _comprasPendentes;
+    private decimal _valorPatrimonio;
+    private decimal _totalOrcamento;
+    private decimal _execucaoOrcamental;
+    private int _totalAlertas;
+    private string _ultimaAtualizacao = string.Empty;
     private string _termoPesquisa = string.Empty;
     private bool _resultadosPesquisaVisiveis;
 
@@ -33,16 +40,21 @@ public class DashboardViewModel : ViewModelBase
     public decimal TotalDespesas { get => _totalDespesas; set => SetProperty(ref _totalDespesas, value); }
     public decimal Resultado { get => _resultado; set => SetProperty(ref _resultado, value); }
     public decimal MargemPercentual { get => _margemPercentual; set => SetProperty(ref _margemPercentual, value); }
+    public decimal TotalAReceber { get => _totalAReceber; set => SetProperty(ref _totalAReceber, value); }
+    public decimal TotalAPagar { get => _totalAPagar; set => SetProperty(ref _totalAPagar, value); }
+    public int ComprasPendentes { get => _comprasPendentes; set => SetProperty(ref _comprasPendentes, value); }
+    public decimal ValorPatrimonio { get => _valorPatrimonio; set => SetProperty(ref _valorPatrimonio, value); }
+    public decimal TotalOrcamento { get => _totalOrcamento; set => SetProperty(ref _totalOrcamento, value); }
+    public decimal ExecucaoOrcamental { get => _execucaoOrcamental; set => SetProperty(ref _execucaoOrcamental, value); }
+    public int TotalAlertas { get => _totalAlertas; set => SetProperty(ref _totalAlertas, value); }
+    public string UltimaAtualizacao { get => _ultimaAtualizacao; set => SetProperty(ref _ultimaAtualizacao, value); }
 
     public string TermoPesquisa
     {
         get => _termoPesquisa;
         set
         {
-            if (SetProperty(ref _termoPesquisa, value))
-            {
-                _ = PesquisarAsync();
-            }
+            if (SetProperty(ref _termoPesquisa, value)) _ = PesquisarAsync();
         }
     }
 
@@ -53,28 +65,37 @@ public class DashboardViewModel : ViewModelBase
     public ObservableCollection<SaldoOrigemDto> SaldosPorOrigem { get; } = new();
     public ObservableCollection<ContaReceberListItemDto> Pendencias { get; } = new();
     public ObservableCollection<AlertaDto> Alertas { get; } = new();
+    public ObservableCollection<AtividadeRecenteDto> AtividadesRecentes { get; } = new();
+    public ObservableCollection<FluxoCaixaMensalDto> FluxoMensal { get; } = new();
 
-    /// <summary>Disparado pelos botões de Ações Rápidas — a MainWindow decide para
-    /// que módulo navegar (evita o Dashboard depender diretamente da shell).</summary>
     public event Action<string>? NavegarPedido;
 
+    public ICommand AtualizarCommand { get; }
     public ICommand NovoMovimentoCommand { get; }
     public ICommand NovaContaReceberCommand { get; }
-    public ICommand NovaCaixaCommand { get; }
-    public ICommand NovoUtilizadorCommand { get; }
+    public ICommand NovaDespesaCommand { get; }
+    public ICommand NovaCompraCommand { get; }
+    public ICommand NovoBemCommand { get; }
+    public ICommand NovoOrcamentoCommand { get; }
 
     public DashboardViewModel(IDashboardService dashboardService, int empresaId)
     {
         _dashboardService = dashboardService;
         _empresaId = empresaId;
 
-        NovoMovimentoCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Tesouraria"); return Task.CompletedTask; });
-        NovaContaReceberCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Receitas"); return Task.CompletedTask; });
-        NovaCaixaCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Caixa"); return Task.CompletedTask; });
-        NovoUtilizadorCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Configuracoes"); return Task.CompletedTask; });
+        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync());
+        NovoMovimentoCommand = Navegar("Tesouraria");
+        NovaContaReceberCommand = Navegar("Receitas");
+        NovaDespesaCommand = Navegar("Despesas");
+        NovaCompraCommand = Navegar("Compras");
+        NovoBemCommand = Navegar("Património");
+        NovoOrcamentoCommand = Navegar("Orçamento");
 
         _ = CarregarAsync();
     }
+
+    private ICommand Navegar(string modulo) =>
+        new AsyncRelayCommand(_ => { NavegarPedido?.Invoke(modulo); return Task.CompletedTask; });
 
     private async Task CarregarAsync()
     {
@@ -82,7 +103,6 @@ public class DashboardViewModel : ViewModelBase
         try
         {
             var resumo = await _dashboardService.ObterResumoAsync(_empresaId);
-
             EmpresaNome = resumo.EmpresaNome;
             Exercicio = resumo.Exercicio;
             SaldoCaixa = resumo.SaldoCaixa;
@@ -91,23 +111,32 @@ public class DashboardViewModel : ViewModelBase
             TotalDespesas = resumo.TotalDespesas;
             Resultado = resumo.Resultado;
             MargemPercentual = resumo.MargemPercentual;
+            TotalAReceber = resumo.TotalAReceber;
+            TotalAPagar = resumo.TotalAPagar;
+            ComprasPendentes = resumo.ComprasPendentes;
+            ValorPatrimonio = resumo.ValorPatrimonio;
+            TotalOrcamento = resumo.TotalOrcamento;
+            ExecucaoOrcamental = resumo.ExecucaoOrcamental;
+            TotalAlertas = resumo.TotalAlertas;
+            UltimaAtualizacao = $"Atualizado às {DateTime.Now:HH:mm}";
 
-            MovimentosRecentes.Clear();
-            foreach (var m in resumo.MovimentosRecentes) MovimentosRecentes.Add(m);
-
-            SaldosPorOrigem.Clear();
-            foreach (var s in resumo.SaldosPorOrigem) SaldosPorOrigem.Add(s);
-
-            Pendencias.Clear();
-            foreach (var p in resumo.Pendencias) Pendencias.Add(p);
-
-            Alertas.Clear();
-            foreach (var a in resumo.Alertas) Alertas.Add(a);
+            Replace(MovimentosRecentes, resumo.MovimentosRecentes);
+            Replace(SaldosPorOrigem, resumo.SaldosPorOrigem);
+            Replace(Pendencias, resumo.Pendencias);
+            Replace(Alertas, resumo.Alertas);
+            Replace(AtividadesRecentes, resumo.AtividadesRecentes);
+            Replace(FluxoMensal, resumo.FluxoMensal);
         }
         finally
         {
             ACarregar = false;
         }
+    }
+
+    private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> items)
+    {
+        target.Clear();
+        foreach (var item in items) target.Add(item);
     }
 
     private async Task PesquisarAsync()
@@ -120,8 +149,7 @@ public class DashboardViewModel : ViewModelBase
         }
 
         var resultados = await _dashboardService.PesquisarAsync(_empresaId, TermoPesquisa);
-        ResultadosPesquisa.Clear();
-        foreach (var r in resultados) ResultadosPesquisa.Add(r);
+        Replace(ResultadosPesquisa, resultados);
         ResultadosPesquisaVisiveis = ResultadosPesquisa.Count > 0;
     }
 }

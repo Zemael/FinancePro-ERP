@@ -150,3 +150,10 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Adicionado breadcrumb dinâmico.
 - Adicionado centro inicial de notificações.
 - Melhorada a experiência de navegação principal.
+
+## v4.1.1 — Dashboard Executivo
+
+- Consolidação dos principais indicadores financeiros e operacionais.
+- Inclusão de contas a receber, contas a pagar, património, compras pendentes e execução orçamental.
+- Inclusão de pesquisa global, alertas, atividade de auditoria e fluxo de caixa mensal.
+- Novas ações rápidas e atualização manual do painel.

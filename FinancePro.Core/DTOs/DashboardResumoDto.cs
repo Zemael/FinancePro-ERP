@@ -1,30 +1,32 @@
 namespace FinancePro.Core.DTOs;
 
-/// <summary>Resumo completo para o Dashboard: cabeçalho, cartões por área,
-/// indicadores, saldos por origem, pendências e alertas.</summary>
+/// <summary>Resumo executivo consolidado do FinancePro.</summary>
 public class DashboardResumoDto
 {
-    // Cabeçalho
     public string EmpresaNome { get; set; } = string.Empty;
     public int Exercicio { get; set; }
 
-    // Tesouraria (dados reais)
     public decimal SaldoCaixa { get; set; }
     public decimal SaldoBancario { get; set; }
     public decimal SaldoTesouraria => SaldoCaixa + SaldoBancario;
 
-    // Receitas / Despesas (dados reais — vêm da Tesouraria/Receitas já construídas)
     public decimal TotalReceitas { get; set; }
     public decimal TotalDespesas { get; set; }
     public decimal Resultado => TotalReceitas - TotalDespesas;
     public decimal MargemPercentual => TotalReceitas > 0 ? Math.Round(Resultado / TotalReceitas * 100, 1) : 0;
 
-    // Orçamento / Património — módulos ainda não construídos, ficam a placeholder
-    public bool OrcamentoDisponivel => false;
-    public bool PatrimonioDisponivel => false;
+    public decimal TotalAReceber { get; set; }
+    public decimal TotalAPagar { get; set; }
+    public int ComprasPendentes { get; set; }
+    public decimal ValorPatrimonio { get; set; }
+    public decimal TotalOrcamento { get; set; }
+    public decimal ExecucaoOrcamental { get; set; }
+    public int TotalAlertas { get; set; }
 
     public List<MovimentoRecenteDto> MovimentosRecentes { get; set; } = new();
     public List<SaldoOrigemDto> SaldosPorOrigem { get; set; } = new();
     public List<ContaReceberListItemDto> Pendencias { get; set; } = new();
     public List<AlertaDto> Alertas { get; set; } = new();
+    public List<AtividadeRecenteDto> AtividadesRecentes { get; set; } = new();
+    public List<FluxoCaixaMensalDto> FluxoMensal { get; set; } = new();
 }
