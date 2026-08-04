@@ -22,6 +22,7 @@ using FinancePro.UI.Views;
 using FinancePro.Platform.Settings;
 using FinancePro.Platform.Workflow;
 using FinancePro.Platform.Reporting;
+using FinancePro.Platform.Documents;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinancePro.UI;
@@ -90,6 +91,8 @@ public partial class MainWindow : Window
     private void Workflow_Click(object sender, RoutedEventArgs e) => MostrarWorkflow();
 
     private void Relatorios_Click(object sender, RoutedEventArgs e) => MostrarRelatorios();
+
+    private void Documentos_Click(object sender, RoutedEventArgs e) => MostrarDocumentos();
 
     private void Tema_Click(object sender, RoutedEventArgs e) => GestorTema.Alternar();
 
@@ -305,6 +308,14 @@ public partial class MainWindow : Window
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<IReportingService>();
         ConteudoHost.Content = new ReportingView { DataContext = new ReportingViewModel(service, _utilizador.EmpresaId) };
+    }
+
+    private void MostrarDocumentos()
+    {
+        DestacarItemAtivo(BtnDocumentos);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IDocumentService>();
+        ConteudoHost.Content = new DocumentsView { DataContext = new DocumentsViewModel(service) };
     }
 
     private void MostrarConfiguracoes()

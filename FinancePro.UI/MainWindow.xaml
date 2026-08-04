@@ -182,6 +182,9 @@
                         <Button x:Name="BtnRelatorios" Style="{StaticResource ItemNav}" Click="Relatorios_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9F9;" Style="{StaticResource NavIcon}"/><TextBlock Text="Relatórios" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
+                        <Button x:Name="BtnDocumentos" Style="{StaticResource ItemNav}" Click="Documentos_Click">
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8A5;" Style="{StaticResource NavIcon}"/><TextBlock Text="Documentos" Style="{StaticResource NavText}"/></StackPanel>
+                        </Button>
                         <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" Style="{StaticResource NavIcon}"/><TextBlock Text="Auditoria" Style="{StaticResource NavText}"/></StackPanel></Border>
 
                         <Border Height="1" Background="#2B6091" Margin="18,8"/>

@@ -1,4 +1,12 @@
 
+## v5.4.0 — Document Engine Foundation
+
+- Motor de documentos institucionais.
+- Seis modelos iniciais e campos dinâmicos.
+- Pré-visualização e exportação TXT/HTML.
+- Integração no menu principal e testes automatizados.
+
+
 ## v3.3.0 — Parceiros de Negócio
 - Cadastro mestre unificado de clientes e fornecedores.
 - Novo serviço de aplicação, gateway EF Core, ViewModel e View WPF.
