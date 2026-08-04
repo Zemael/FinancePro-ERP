@@ -13,12 +13,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancePro.Application", "F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancePro.Application.Tests", "FinancePro.Application.Tests\FinancePro.Application.Tests.csproj", "{7C8A4019-AC29-4DC6-B17C-70E42F4557DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancePro.Platform", "FinancePro.Platform\FinancePro.Platform.csproj", "{D9F4C23B-42A4-4D94-9D15-938D45C786AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9F4C23B-42A4-4D94-9D15-938D45C786AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9F4C23B-42A4-4D94-9D15-938D45C786AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9F4C23B-42A4-4D94-9D15-938D45C786AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9F4C23B-42A4-4D94-9D15-938D45C786AA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7C8A4019-AC29-4DC6-B17C-70E42F4557DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7C8A4019-AC29-4DC6-B17C-70E42F4557DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C8A4019-AC29-4DC6-B17C-70E42F4557DB}.Release|Any CPU.ActiveCfg = Release|Any CPU

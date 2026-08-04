@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\FinancePro.Core\FinancePro.Core.csproj" />
+    <ProjectReference Include="..\FinancePro.Platform\FinancePro.Platform.csproj" />
   </ItemGroup>
 </Project>

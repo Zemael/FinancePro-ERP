@@ -19,6 +19,7 @@ using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
 using FinancePro.UI.ViewModels;
 using FinancePro.UI.Views;
+using FinancePro.Platform.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinancePro.UI;
@@ -285,7 +286,8 @@ public partial class MainWindow : Window
         DestacarItemAtivo(BtnConfiguracoes);
         TrocarScope();
         var configService = _scopeAtual!.ServiceProvider.GetRequiredService<IConfiguracoesService>();
-        var viewModel = new ConfiguracoesViewModel(configService, _utilizador.EmpresaId);
+        var settingsService = _scopeAtual.ServiceProvider.GetRequiredService<ISettingsService>();
+        var viewModel = new ConfiguracoesViewModel(configService, settingsService, _utilizador.EmpresaId);
         ConteudoHost.Content = new ConfiguracoesView { DataContext = viewModel };
     }
 

@@ -4,6 +4,7 @@ using System.Windows.Input;
 using FinancePro.Core.DTOs;
 using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
+using FinancePro.Platform.Settings;
 
 namespace FinancePro.UI.ViewModels;
 
@@ -11,6 +12,7 @@ public class ConfiguracoesViewModel : ViewModelBase
 {
     private readonly IConfiguracoesService _service;
     private readonly int _empresaId;
+    private readonly ISettingsService _settings;
 
     private string _empresaNome = string.Empty;
     private string _moeda = string.Empty;
@@ -27,6 +29,10 @@ public class ConfiguracoesViewModel : ViewModelBase
     private PerfilOpcaoDto? _perfilSelecionado;
     private string _mensagemErroUtilizador = string.Empty;
     private bool _aGuardarUtilizador;
+    private string _tema = "Light";
+    private bool _permitirCaixaNegativo;
+    private decimal _limiteAprovacaoPagamento;
+    private string _mensagemParametros = string.Empty;
 
     public string EmpresaNome { get => _empresaNome; set => SetProperty(ref _empresaNome, value); }
     public string Moeda { get => _moeda; set => SetProperty(ref _moeda, value); }
@@ -37,6 +43,11 @@ public class ConfiguracoesViewModel : ViewModelBase
     public string MensagemErroEmpresa { get => _mensagemErroEmpresa; set => SetProperty(ref _mensagemErroEmpresa, value); }
     public bool AGuardarEmpresa { get => _aGuardarEmpresa; set => SetProperty(ref _aGuardarEmpresa, value); }
     public ICommand GuardarEmpresaCommand { get; }
+    public string Tema { get => _tema; set => SetProperty(ref _tema, value); }
+    public bool PermitirCaixaNegativo { get => _permitirCaixaNegativo; set => SetProperty(ref _permitirCaixaNegativo, value); }
+    public decimal LimiteAprovacaoPagamento { get => _limiteAprovacaoPagamento; set => SetProperty(ref _limiteAprovacaoPagamento, value); }
+    public string MensagemParametros { get => _mensagemParametros; set => SetProperty(ref _mensagemParametros, value); }
+    public ICommand GuardarParametrosCommand { get; }
 
     public string NovoNome { get => _novoNome; set => SetProperty(ref _novoNome, value); }
     public string NovoEmail { get => _novoEmail; set => SetProperty(ref _novoEmail, value); }
@@ -51,12 +62,14 @@ public class ConfiguracoesViewModel : ViewModelBase
     public ICommand CriarUtilizadorCommand { get; }
     public ICommand AlternarAtivoUtilizadorCommand { get; }
 
-    public ConfiguracoesViewModel(IConfiguracoesService service, int empresaId)
+    public ConfiguracoesViewModel(IConfiguracoesService service, ISettingsService settings, int empresaId)
     {
         _service = service;
         _empresaId = empresaId;
+        _settings = settings;
 
         GuardarEmpresaCommand = new AsyncRelayCommand(_ => GuardarEmpresaAsync(), _ => !AGuardarEmpresa);
+        GuardarParametrosCommand = new AsyncRelayCommand(_ => GuardarParametrosAsync());
         CriarUtilizadorCommand = new AsyncRelayCommand(_ => CriarUtilizadorAsync(), _ => !AGuardarUtilizador);
         AlternarAtivoUtilizadorCommand = new AsyncRelayCommand(AlternarAtivoUtilizadorAsync);
 
@@ -85,6 +98,9 @@ public class ConfiguracoesViewModel : ViewModelBase
         PerfilSelecionado = Perfis.FirstOrDefault();
 
         await CarregarUtilizadoresAsync();
+        Tema = await _settings.GetAsync(_empresaId, "UI", "Theme", "Light") ?? "Light";
+        PermitirCaixaNegativo = await _settings.GetAsync(_empresaId, "Treasury", "AllowNegativeCash", false);
+        LimiteAprovacaoPagamento = await _settings.GetAsync(_empresaId, "Workflow", "PaymentApprovalLimit", 0m);
     }
 
     private async Task CarregarUtilizadoresAsync()
@@ -166,6 +182,22 @@ public class ConfiguracoesViewModel : ViewModelBase
         finally
         {
             AGuardarUtilizador = false;
+        }
+    }
+
+    private async Task GuardarParametrosAsync()
+    {
+        MensagemParametros = string.Empty;
+        try
+        {
+            await _settings.SetAsync(_empresaId, "UI", "Theme", Tema, "Tema visual da aplicação");
+            await _settings.SetAsync(_empresaId, "Treasury", "AllowNegativeCash", PermitirCaixaNegativo, "Permite saldo negativo de caixa");
+            await _settings.SetAsync(_empresaId, "Workflow", "PaymentApprovalLimit", LimiteAprovacaoPagamento, "Limite para aprovação obrigatória de pagamentos");
+            MensagemParametros = "Parâmetros guardados com sucesso.";
+        }
+        catch (Exception ex)
+        {
+            MensagemParametros = ex.Message;
         }
     }
 

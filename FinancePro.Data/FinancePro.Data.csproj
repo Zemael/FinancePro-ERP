@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FinancePro.Core\FinancePro.Core.csproj" />
+    <ProjectReference Include="..\FinancePro.Platform\FinancePro.Platform.csproj" />
     <ProjectReference Include="..\FinancePro.Application\FinancePro.Application.csproj" />
   </ItemGroup>
 
