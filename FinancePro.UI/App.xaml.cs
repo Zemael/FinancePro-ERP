@@ -1,3 +1,5 @@
+using FinancePro.Application.Platform;
+using FinancePro.Data.Platform;
 using FinancePro.Application.Treasury;
 using FinancePro.Data.Treasury;
 using FinancePro.Application.Payables;
@@ -105,6 +107,12 @@ public partial class App : System.Windows.Application
         services.AddScoped<SupplierApplicationService>();
         services.AddScoped<IAccountingGateway, AccountingGateway>();
         services.AddScoped<AccountingApplicationService>();
+        services.AddScoped<INumberingGateway, NumberingGateway>();
+        services.AddScoped<INumberingService, NumberingService>();
+        services.AddScoped<IAuditTrailGateway, AuditTrailGateway>();
+        services.AddScoped<IAuditTrailService, AuditTrailService>();
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+        services.AddScoped<IFinancialEngine, FinancialEngineService>();
         services.AddTransient<LoginViewModel>();
 
         _serviceProvider = services.BuildServiceProvider();

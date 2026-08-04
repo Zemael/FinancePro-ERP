@@ -681,116 +681,6 @@ namespace FinancePro.Data.Migrations
                     b.ToTable("Fornecedores", (string)null);
                 });
 
-            modelBuilder.Entity("FinancePro.Core.Entities.LancamentoContabil", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Ativo")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("DataAtualizacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DataContabilizacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DataCriacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DataLancamento")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Descricao")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("DocumentoReferencia")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<int>("EmpresaId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Numero")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("OrigemModulo")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int?>("UtilizadorId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UtilizadorId");
-
-                    b.HasIndex("EmpresaId", "Numero")
-                        .IsUnique();
-
-                    b.ToTable("LancamentosContabeis", (string)null);
-                });
-
-            modelBuilder.Entity("FinancePro.Core.Entities.LancamentoContabilLinha", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Ativo")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("CentroCusto")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<decimal>("Credito")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("DataAtualizacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DataCriacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Debito")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Descricao")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<int>("LancamentoContabilId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PlanoContasId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LancamentoContabilId");
-
-                    b.HasIndex("PlanoContasId");
-
-                    b.ToTable("LancamentoContabilLinhas", (string)null);
-                });
-
             modelBuilder.Entity("FinancePro.Core.Entities.LogAuditoria", b =>
                 {
                     b.Property<int>("Id")
@@ -1183,13 +1073,7 @@ namespace FinancePro.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("AceitaLancamentos")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("Ativo")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("CentroCustoObrigatorio")
                         .HasColumnType("bit");
 
                     b.Property<string>("Codigo")
@@ -1208,11 +1092,6 @@ namespace FinancePro.Data.Migrations
 
                     b.Property<int>("EmpresaId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Natureza")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -1579,43 +1458,6 @@ namespace FinancePro.Data.Migrations
                     b.Navigation("Empresa");
                 });
 
-            modelBuilder.Entity("FinancePro.Core.Entities.LancamentoContabil", b =>
-                {
-                    b.HasOne("FinancePro.Core.Entities.Empresa", "Empresa")
-                        .WithMany()
-                        .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("FinancePro.Core.Entities.Utilizador", "Utilizador")
-                        .WithMany()
-                        .HasForeignKey("UtilizadorId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Empresa");
-
-                    b.Navigation("Utilizador");
-                });
-
-            modelBuilder.Entity("FinancePro.Core.Entities.LancamentoContabilLinha", b =>
-                {
-                    b.HasOne("FinancePro.Core.Entities.LancamentoContabil", "LancamentoContabil")
-                        .WithMany("Linhas")
-                        .HasForeignKey("LancamentoContabilId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FinancePro.Core.Entities.PlanoContas", "PlanoContas")
-                        .WithMany("LinhasLancamento")
-                        .HasForeignKey("PlanoContasId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("LancamentoContabil");
-
-                    b.Navigation("PlanoContas");
-                });
-
             modelBuilder.Entity("FinancePro.Core.Entities.Movimento", b =>
                 {
                     b.HasOne("FinancePro.Core.Entities.Caixa", "Caixa")
@@ -1802,11 +1644,6 @@ namespace FinancePro.Data.Migrations
                     b.Navigation("Utilizadores");
                 });
 
-            modelBuilder.Entity("FinancePro.Core.Entities.LancamentoContabil", b =>
-                {
-                    b.Navigation("Linhas");
-                });
-
             modelBuilder.Entity("FinancePro.Core.Entities.Orcamento", b =>
                 {
                     b.Navigation("Detalhes");
@@ -1824,8 +1661,6 @@ namespace FinancePro.Data.Migrations
             modelBuilder.Entity("FinancePro.Core.Entities.PlanoContas", b =>
                 {
                     b.Navigation("Categorias");
-
-                    b.Navigation("LinhasLancamento");
 
                     b.Navigation("SubContas");
                 });

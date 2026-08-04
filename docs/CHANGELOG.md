@@ -1,3 +1,10 @@
+# v4.0.0 — Dashboard Design System
+
+- Clientes e Fornecedores adaptados ao padrão visual do Dashboard.
+- Novos cartões de indicadores, cabeçalho, pesquisa, grelha e painel de edição.
+- Design System ampliado com estilos reutilizáveis para as próximas Views.
+- Nenhuma migration necessária.
+
 
 ## v3.8.0 — Tesouraria Avançada
 - Camada Application dedicada à Tesouraria.
@@ -103,3 +110,9 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Corrigidos `MainWindow.xaml` e `DespesasView.xaml`.
 - Todos os ficheiros XAML foram validados estruturalmente.
 - Nenhuma migration necessária.
+
+## v3.9.0 — Platform Services
+- Adicionado Financial Engine transversal.
+- Adicionado serviço central de numeração transacional.
+- Adicionados auditoria transversal e eventos de domínio.
+- Adicionado script 012_PlatformServices.sql.

@@ -32,6 +32,12 @@ public sealed class ClientesViewModel : ViewModelBase
     }
 
     public ObservableCollection<ClienteDto> Itens { get; } = new();
+
+    public int TotalClientes => Itens.Count;
+    public int ClientesAtivos => Itens.Count(x => x.Ativo);
+    public int ClientesInativos => Itens.Count(x => !x.Ativo);
+    public int ClientesComEmail => Itens.Count(x => !string.IsNullOrWhiteSpace(x.Email));
+    public string UltimaAtualizacao { get; private set; } = "--";
     public ClienteDto? Selecionado { get => _selecionado; set => SetProperty(ref _selecionado, value); }
     public string Pesquisa { get => _pesquisa; set => SetProperty(ref _pesquisa, value); }
     public string Nome { get => _nome; set => SetProperty(ref _nome, value); }
@@ -54,6 +60,12 @@ public sealed class ClientesViewModel : ViewModelBase
         Itens.Clear();
         if (result.IsSuccess && result.Value is not null) foreach (var item in result.Value) Itens.Add(item);
         else Mensagem=result.Message ?? string.Join(Environment.NewLine, result.Errors);
+        UltimaAtualizacao = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        OnPropertyChanged(nameof(TotalClientes));
+        OnPropertyChanged(nameof(ClientesAtivos));
+        OnPropertyChanged(nameof(ClientesInativos));
+        OnPropertyChanged(nameof(ClientesComEmail));
+        OnPropertyChanged(nameof(UltimaAtualizacao));
         Ocupado=false;
     }
 

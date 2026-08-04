@@ -128,4 +128,36 @@
         <Setter Property="FontSize" Value="12"/>
     </Style>
 
+    <!-- Dashboard-aligned module styles v4.0 -->
+    <Style x:Key="FP.KpiLabel" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#42526A"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="FP.KpiValue" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource FP.Text}"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Margin" Value="0,5,0,0"/>
+    </Style>
+
+    <Style x:Key="FP.KpiHint" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource FP.TextMuted}"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="FP.FormTextBox" TargetType="TextBox">
+        <Setter Property="MinHeight" Value="38"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{StaticResource FP.Border}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="11,8"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource FP.Text}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource FP.Accent}"/>
+    </Style>
+
 </ResourceDictionary>
