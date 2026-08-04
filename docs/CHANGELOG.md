@@ -187,3 +187,8 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Adicionado motor base de workflow e Centro de Tarefas.
 - Incluídas decisões de aprovação, rejeição e devolução.
 - Adicionadas tabelas WorkflowTasks e WorkflowHistory.
+
+## v5.3.0 — Reporting Foundation
+- Central de Relatórios com pré-visualização e exportação CSV.
+- Relatórios iniciais de receber, pagar, tesouraria e património.
+- Serviço reutilizável na Platform e provider EF Core na Data.
