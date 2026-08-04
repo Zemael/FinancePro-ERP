@@ -1,153 +1,89 @@
 <UserControl x:Class="FinancePro.UI.Views.BancosView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-
-    <UserControl.Resources>
-        <Style x:Key="Cartao" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="18,16"/>
-            <Setter Property="BorderBrush" Value="#DCEAF0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <Style x:Key="Rotulo" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#595959"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-        <Style x:Key="BotaoPrimario" TargetType="Button" BasedOn="{StaticResource BaseButton}">
-            <Setter Property="Width" Value="160"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="Margin" Value="0,16,0,0"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-    </UserControl.Resources>
-
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
-        <StackPanel>
-
-            <TextBlock Text="Bancos" FontSize="18" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
-            <TextBlock Text="Catálogo de bancos e contas bancárias da empresa"
-                       FontSize="12" Foreground="#595959" Margin="0,0,0,16"/>
-
-            <TextBlock Text="Catálogo de bancos" FontSize="14" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,10"/>
-            <Border Style="{StaticResource Cartao}">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource FP.Page}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="24" MaxWidth="1450" HorizontalAlignment="Center">
+            <Grid Margin="0,0,0,18">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="160"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Nome do banco" Style="{StaticResource Rotulo}"/>
-                            <TextBox Text="{Binding NomeBanco, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Código SWIFT" Style="{StaticResource Rotulo}"/>
-                            <TextBox Text="{Binding SwiftBanco, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                    </Grid>
-                    <TextBlock Text="{Binding MensagemErroBanco}" Foreground="#C00000" FontSize="12"
-                               Margin="0,12,0,0" TextWrapping="Wrap"
-                               Visibility="{Binding MensagemErroBanco, Converter={StaticResource TextoParaVisibilidade}}"/>
-                    <Button Style="{StaticResource BotaoPrimario}" Command="{Binding CriarBancoCommand}"
-                            Content="{Binding AGuardarBanco, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Adicionar}"/>
+                    <TextBlock Text="Tesouraria / Cadastros" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/>
+                    <TextBlock Text="Bancos e Contas Bancárias" Style="{StaticResource TituloModulo}"/>
+                    <TextBlock Text="Centralize o catálogo bancário, acompanhe as contas da empresa e mantenha os saldos iniciais organizados." Style="{StaticResource TextoSecundario}"/>
                 </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource Cartao}" Padding="0" Margin="0,10,0,0">
-                <DataGrid ItemsSource="{Binding Bancos}" AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="34" BorderThickness="0">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Banco" Binding="{Binding Nome}" Width="*"/>
-                        <DataGridTextColumn Header="SWIFT" Binding="{Binding CodigoSwift}" Width="140"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Border>
-
-            <TextBlock Text="Contas bancárias da empresa" FontSize="14" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,24,0,10"/>
-            <Border Style="{StaticResource Cartao}">
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Banco" Style="{StaticResource Rotulo}"/>
-                            <ComboBox ItemsSource="{Binding Bancos}" SelectedItem="{Binding BancoSelecionado}" DisplayMemberPath="Nome"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Número de conta" Style="{StaticResource Rotulo}"/>
-                            <TextBox Text="{Binding NumeroConta, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <Grid Margin="0,14,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="IBAN (opcional)" Style="{StaticResource Rotulo}"/>
-                            <TextBox Text="{Binding IBAN, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Titular" Style="{StaticResource Rotulo}"/>
-                            <TextBox Text="{Binding Titular, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="Saldo inicial (FCFA)" Style="{StaticResource Rotulo}"/>
-                            <TextBox Text="{Binding SaldoInicialTexto, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock Text="{Binding MensagemErroConta}" Foreground="#C00000" FontSize="12"
-                               Margin="0,12,0,0" TextWrapping="Wrap"
-                               Visibility="{Binding MensagemErroConta, Converter={StaticResource TextoParaVisibilidade}}"/>
-                    <Button Style="{StaticResource BotaoPrimario}" Command="{Binding CriarContaCommand}"
-                            Content="{Binding AGuardarConta, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Adicionar}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                    <StackPanel Margin="0,2,14,0" HorizontalAlignment="Right">
+                        <TextBlock Text="Última atualização" Foreground="{StaticResource FP.TextMuted}" FontSize="10" HorizontalAlignment="Right"/>
+                        <TextBlock Text="{Binding UltimaAtualizacao, StringFormat={}{0:dd/MM/yyyy HH:mm}}" Foreground="{StaticResource FP.Text}" FontSize="11" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <Button Command="{Binding AtualizarCommand}" Style="{StaticResource FP.SecondaryButton}">
+                        <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0"/><TextBlock Text="Atualizar"/></StackPanel>
+                    </Button>
                 </StackPanel>
-            </Border>
+            </Grid>
 
-            <Border Style="{StaticResource Cartao}" Padding="0" Margin="0,10,0,0">
-                <DataGrid ItemsSource="{Binding Contas}" AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="36" BorderThickness="0">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Banco" Binding="{Binding BancoNome}" Width="130"/>
-                        <DataGridTextColumn Header="Nº de conta" Binding="{Binding NumeroConta}" Width="130"/>
-                        <DataGridTextColumn Header="Titular" Binding="{Binding Titular}" Width="*"/>
-                        <DataGridTextColumn Header="Saldo inicial" Binding="{Binding SaldoInicial, Converter={StaticResource ValorMoeda}}" Width="130"/>
-                        <DataGridTemplateColumn Header="Estado" Width="90">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Ativo, Converter={StaticResource AtivoParaTexto}}"
-                                               Foreground="{Binding Ativo, Converter={StaticResource AtivoParaCor}}"
-                                               FontWeight="Bold" VerticalAlignment="Center" Margin="8,0"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="" Width="110">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Content="{Binding Ativo, Converter={StaticResource AtivoParaAcaoTexto}}"
-                                            Command="{Binding DataContext.AlternarAtivoContaCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            Background="Transparent" BorderThickness="0" Foreground="#156082" Cursor="Hand"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Border>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="BANCOS" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding TotalBancos}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Instituições cadastradas" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+                <Border Grid.Column="2" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="CONTAS" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding TotalContas}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Contas bancárias da empresa" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+                <Border Grid.Column="4" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="CONTAS ATIVAS" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding ContasAtivas}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Disponíveis para movimentos" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+                <Border Grid.Column="6" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="SALDO INICIAL" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding SaldoInicialTotal, Converter={StaticResource ValorMoeda}}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Total informado nas contas" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+            </Grid>
 
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="1.55*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="0.9*"/></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <Border Style="{StaticResource FP.Card}" Padding="0" Margin="0,0,0,16">
+                        <StackPanel>
+                            <Grid Margin="18,16,18,12"><TextBlock Text="Contas bancárias" Style="{StaticResource FP.SectionTitle}"/><TextBlock Text="Lista consolidada das contas da empresa" Foreground="{StaticResource FP.TextMuted}" FontSize="10" VerticalAlignment="Bottom" HorizontalAlignment="Right"/></Grid>
+                            <DataGrid ItemsSource="{Binding Contas}" Style="{StaticResource FP.DataGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Banco" Binding="{Binding BancoNome}" Width="145"/>
+                                    <DataGridTextColumn Header="Nº de conta" Binding="{Binding NumeroConta}" Width="135"/>
+                                    <DataGridTextColumn Header="Titular" Binding="{Binding Titular}" Width="*"/>
+                                    <DataGridTextColumn Header="Saldo inicial" Binding="{Binding SaldoInicial, Converter={StaticResource ValorMoeda}}" Width="140"/>
+                                    <DataGridTemplateColumn Header="Estado" Width="95"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border Style="{StaticResource FP.StatusActive}" HorizontalAlignment="Left"><TextBlock Text="{Binding Ativo, Converter={StaticResource AtivoParaTexto}}" Foreground="{Binding Ativo, Converter={StaticResource AtivoParaCor}}" FontWeight="SemiBold" FontSize="10"/></Border></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Ação" Width="105"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="{Binding Ativo, Converter={StaticResource AtivoParaAcaoTexto}}" Command="{Binding DataContext.AlternarAtivoContaCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource FP.SecondaryButton}" Padding="9,4" MinHeight="28"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource FP.Card}" Padding="0">
+                        <StackPanel>
+                            <TextBlock Text="Catálogo de bancos" Style="{StaticResource FP.SectionTitle}" Margin="18,16,18,10"/>
+                            <DataGrid ItemsSource="{Binding Bancos}" Style="{StaticResource FP.DataGrid}" MaxHeight="260">
+                                <DataGrid.Columns><DataGridTextColumn Header="Banco" Binding="{Binding Nome}" Width="*"/><DataGridTextColumn Header="Código SWIFT" Binding="{Binding CodigoSwift}" Width="170"/></DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <Border Style="{StaticResource FP.Card}" Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Adicionar banco" Style="{StaticResource FP.SectionTitle}" Margin="0,0,0,14"/>
+                            <TextBlock Text="Nome do banco" Style="{StaticResource FP.FieldLabel}"/><TextBox Text="{Binding NomeBanco, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FormTextBox}"/>
+                            <TextBlock Text="Código SWIFT" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><TextBox Text="{Binding SwiftBanco, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FormTextBox}"/>
+                            <TextBlock Text="{Binding MensagemErroBanco}" Foreground="{StaticResource FP.Danger}" FontSize="11" Margin="0,10,0,0" TextWrapping="Wrap" Visibility="{Binding MensagemErroBanco, Converter={StaticResource TextoParaVisibilidade}}"/>
+                            <Button Command="{Binding CriarBancoCommand}" Style="{StaticResource FP.PrimaryButton}" Margin="0,14,0,0" HorizontalAlignment="Stretch" Content="{Binding AGuardarBanco, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Adicionar banco}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource FP.Card}">
+                        <StackPanel>
+                            <TextBlock Text="Nova conta bancária" Style="{StaticResource FP.SectionTitle}" Margin="0,0,0,14"/>
+                            <TextBlock Text="Banco" Style="{StaticResource FP.FieldLabel}"/><ComboBox ItemsSource="{Binding Bancos}" SelectedItem="{Binding BancoSelecionado}" DisplayMemberPath="Nome" Style="{StaticResource FP.FilterComboBox}"/>
+                            <TextBlock Text="Número da conta" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><TextBox Text="{Binding NumeroConta, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FormTextBox}"/>
+                            <TextBlock Text="IBAN" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><TextBox Text="{Binding IBAN, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FormTextBox}"/>
+                            <TextBlock Text="Titular" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><TextBox Text="{Binding Titular, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FormTextBox}"/>
+                            <TextBlock Text="Saldo inicial (FCFA)" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><TextBox Text="{Binding SaldoInicialTexto, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FormTextBox}"/>
+                            <TextBlock Text="{Binding MensagemErroConta}" Foreground="{StaticResource FP.Danger}" FontSize="11" Margin="0,10,0,0" TextWrapping="Wrap" Visibility="{Binding MensagemErroConta, Converter={StaticResource TextoParaVisibilidade}}"/>
+                            <Button Command="{Binding CriarContaCommand}" Style="{StaticResource FP.PrimaryButton}" Margin="0,14,0,0" HorizontalAlignment="Stretch" Content="{Binding AGuardarConta, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Adicionar conta}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

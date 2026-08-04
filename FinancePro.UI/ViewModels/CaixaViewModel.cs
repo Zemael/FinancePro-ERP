@@ -30,6 +30,7 @@ public sealed class CaixaViewModel : ViewModelBase
     private string _saldoAberturaTexto = "0";
     private string _saldoContadoTexto = "0";
     private string _observacaoSessao = string.Empty;
+    private DateTime _ultimaAtualizacao = DateTime.Now;
 
     public string Filtro { get => _filtro; set { if (SetProperty(ref _filtro, value)) AplicarFiltro(); } }
     public CaixaListItemDto? CaixaSelecionada { get => _caixaSelecionada; set => SetProperty(ref _caixaSelecionada, value); }
@@ -50,6 +51,10 @@ public sealed class CaixaViewModel : ViewModelBase
     public string ObservacaoSessao { get => _observacaoSessao; set => SetProperty(ref _observacaoSessao, value); }
 
     public ObservableCollection<CaixaListItemDto> Caixas { get; } = new();
+    public int TotalCaixas => _todasAsCaixas.Count;
+    public int CaixasAtivas => _todasAsCaixas.Count(c => c.Ativo);
+    public decimal SaldoInicialTotal => _todasAsCaixas.Sum(c => c.SaldoInicial);
+    public DateTime UltimaAtualizacao { get => _ultimaAtualizacao; private set => SetProperty(ref _ultimaAtualizacao, value); }
 
     public ICommand NovoCommand { get; }
     public ICommand EditarCommand { get; }
@@ -88,6 +93,10 @@ public sealed class CaixaViewModel : ViewModelBase
     {
         _todasAsCaixas = (await _service.ListarAsync(_empresaId)).ToList();
         AplicarFiltro();
+        UltimaAtualizacao = DateTime.Now;
+        OnPropertyChanged(nameof(TotalCaixas));
+        OnPropertyChanged(nameof(CaixasAtivas));
+        OnPropertyChanged(nameof(SaldoInicialTotal));
     }
 
     private async Task CarregarSessaoAsync()

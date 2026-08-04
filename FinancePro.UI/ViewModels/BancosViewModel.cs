@@ -24,6 +24,7 @@ public class BancosViewModel : ViewModelBase
     private string _saldoInicialTexto = string.Empty;
     private string _mensagemErroConta = string.Empty;
     private bool _aGuardarConta;
+    private DateTime _ultimaAtualizacao = DateTime.Now;
 
     public string NomeBanco { get => _nomeBanco; set => SetProperty(ref _nomeBanco, value); }
     public string SwiftBanco { get => _swiftBanco; set => SetProperty(ref _swiftBanco, value); }
@@ -42,6 +43,13 @@ public class BancosViewModel : ViewModelBase
     public ObservableCollection<ContaBancariaListItemDto> Contas { get; } = new();
     public ICommand CriarContaCommand { get; }
     public ICommand AlternarAtivoContaCommand { get; }
+    public ICommand AtualizarCommand { get; }
+
+    public int TotalBancos => Bancos.Count;
+    public int TotalContas => Contas.Count;
+    public int ContasAtivas => Contas.Count(c => c.Ativo);
+    public decimal SaldoInicialTotal => Contas.Sum(c => c.SaldoInicial);
+    public DateTime UltimaAtualizacao { get => _ultimaAtualizacao; private set => SetProperty(ref _ultimaAtualizacao, value); }
 
     public BancosViewModel(IBancoService service, int empresaId)
     {
@@ -51,6 +59,7 @@ public class BancosViewModel : ViewModelBase
         CriarBancoCommand = new AsyncRelayCommand(_ => CriarBancoAsync(), _ => !AGuardarBanco);
         CriarContaCommand = new AsyncRelayCommand(_ => CriarContaAsync(), _ => !AGuardarConta);
         AlternarAtivoContaCommand = new AsyncRelayCommand(AlternarAtivoContaAsync);
+        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync());
 
         _ = CarregarAsync();
     }
@@ -59,6 +68,11 @@ public class BancosViewModel : ViewModelBase
     {
         await CarregarBancosAsync();
         await CarregarContasAsync();
+        UltimaAtualizacao = DateTime.Now;
+        OnPropertyChanged(nameof(TotalBancos));
+        OnPropertyChanged(nameof(TotalContas));
+        OnPropertyChanged(nameof(ContasAtivas));
+        OnPropertyChanged(nameof(SaldoInicialTotal));
     }
 
     private async Task CarregarBancosAsync()

@@ -24,6 +24,7 @@ public class TesourariaViewModel : ViewModelBase
     private string _centroCusto = string.Empty;
     private string _mensagemErro = string.Empty;
     private bool _aGuardar;
+    private DateTime _ultimaAtualizacao = DateTime.Now;
 
     public DateTime Data { get => _data; set => SetProperty(ref _data, value); }
     public string Descricao { get => _descricao; set => SetProperty(ref _descricao, value); }
@@ -78,6 +79,13 @@ public class TesourariaViewModel : ViewModelBase
 
     public ICommand RegistarCommand { get; }
     public ICommand AlternarConciliadoCommand { get; }
+    public ICommand AtualizarCommand { get; }
+
+    public int TotalMovimentos => Movimentos.Count;
+    public decimal TotalEntradas => Movimentos.Where(m => m.Valor > 0).Sum(m => m.Valor);
+    public decimal TotalSaidas => Math.Abs(Movimentos.Where(m => m.Valor < 0).Sum(m => m.Valor));
+    public int NaoConciliados => Movimentos.Count(m => !m.Conciliado);
+    public DateTime UltimaAtualizacao { get => _ultimaAtualizacao; private set => SetProperty(ref _ultimaAtualizacao, value); }
 
     public TesourariaViewModel(AdvancedTreasuryApplicationService service, int empresaId)
     {
@@ -85,6 +93,7 @@ public class TesourariaViewModel : ViewModelBase
         _empresaId = empresaId;
         RegistarCommand = new AsyncRelayCommand(_ => RegistarAsync(), _ => !AGuardar);
         AlternarConciliadoCommand = new AsyncRelayCommand(AlternarConciliadoAsync);
+        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync());
         _ = CarregarAsync();
     }
 
@@ -108,6 +117,7 @@ public class TesourariaViewModel : ViewModelBase
 
         Movimentos.Clear();
         foreach (var movimento in result.Value.Movements) Movimentos.Add(movimento);
+        AtualizarIndicadores();
     }
 
     private async Task CarregarCategoriasAsync()
@@ -125,6 +135,16 @@ public class TesourariaViewModel : ViewModelBase
         if (result.IsFailure || result.Value is null) return;
         Movimentos.Clear();
         foreach (var movimento in result.Value.Movements) Movimentos.Add(movimento);
+        AtualizarIndicadores();
+    }
+
+    private void AtualizarIndicadores()
+    {
+        UltimaAtualizacao = DateTime.Now;
+        OnPropertyChanged(nameof(TotalMovimentos));
+        OnPropertyChanged(nameof(TotalEntradas));
+        OnPropertyChanged(nameof(TotalSaidas));
+        OnPropertyChanged(nameof(NaoConciliados));
     }
 
     private async Task RegistarAsync()

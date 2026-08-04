@@ -25,10 +25,11 @@
                                Style="{StaticResource TextoSecundario}"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <StackPanel Margin="0,2,14,0" HorizontalAlignment="Right">
+                        <TextBlock Text="Última atualização" Foreground="{StaticResource FP.TextMuted}" FontSize="10" HorizontalAlignment="Right"/>
+                        <TextBlock Text="{Binding UltimaAtualizacao, StringFormat={}{0:dd/MM/yyyy HH:mm}}" Foreground="{StaticResource FP.Text}" FontSize="11" FontWeight="SemiBold"/>
+                    </StackPanel>
                     <Button Content="Novo"
                             Command="{Binding NovoCommand}"
                             Style="{StaticResource BotaoPrimario}"
@@ -41,6 +42,17 @@
                             Command="{Binding EliminarCommand}"
                             Style="{StaticResource BotaoSecundario}"/>
                 </StackPanel>
+            </Grid>
+
+            <!-- Indicadores -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="CAIXAS" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding TotalCaixas}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Total de caixas cadastradas" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+                <Border Grid.Column="2" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="ATIVAS" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding CaixasAtivas}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Disponíveis para operações" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+                <Border Grid.Column="4" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="SALDO INICIAL" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding SaldoInicialTotal, Converter={StaticResource ValorMoeda}}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Total cadastrado" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+                <Border Grid.Column="6" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="SESSÃO" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding EstadoSessaoTexto}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Estado operacional atual" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
             </Grid>
 
             <!-- Estado da sessão -->

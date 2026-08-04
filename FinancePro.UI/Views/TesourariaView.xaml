@@ -1,151 +1,48 @@
 <UserControl x:Class="FinancePro.UI.Views.TesourariaView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource FP.Page}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="24" MaxWidth="1450" HorizontalAlignment="Center">
+            <Grid Margin="0,0,0,18"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel><TextBlock Text="Financeiro / Operações" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><TextBlock Text="Tesouraria" Style="{StaticResource TituloModulo}"/><TextBlock Text="Registe entradas, saídas, transferências e acompanhe a conciliação dos movimentos financeiros." Style="{StaticResource TextoSecundario}"/></StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top"><StackPanel Margin="0,2,14,0"><TextBlock Text="Última atualização" Foreground="{StaticResource FP.TextMuted}" FontSize="10" HorizontalAlignment="Right"/><TextBlock Text="{Binding UltimaAtualizacao, StringFormat={}{0:dd/MM/yyyy HH:mm}}" Foreground="{StaticResource FP.Text}" FontSize="11" FontWeight="SemiBold"/></StackPanel><Button Command="{Binding AtualizarCommand}" Style="{StaticResource FP.SecondaryButton}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0"/><TextBlock Text="Atualizar"/></StackPanel></Button></StackPanel>
+            </Grid>
 
-    <UserControl.Resources>
-        <Style x:Key="Cartao" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="18,16"/>
-            <Setter Property="BorderBrush" Value="#DCEAF0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <Style x:Key="Rotulo" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#595959"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-    </UserControl.Resources>
+            <Grid Margin="0,0,0,16"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="MOVIMENTOS" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding TotalMovimentos}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Operações carregadas" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+                <Border Grid.Column="2" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="ENTRADAS" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding TotalEntradas, Converter={StaticResource ValorMoeda}}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Movimentos positivos" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+                <Border Grid.Column="4" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="SAÍDAS" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding TotalSaidas, Converter={StaticResource ValorMoeda}}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Movimentos negativos" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+                <Border Grid.Column="6" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="NÃO CONCILIADOS" Style="{StaticResource FP.KpiLabel}"/><TextBlock Text="{Binding NaoConciliados}" Style="{StaticResource FP.KpiValue}"/><TextBlock Text="Pendentes de conferência" Style="{StaticResource FP.KpiHint}"/></StackPanel></Border>
+            </Grid>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
-        <StackPanel>
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="1.55*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="0.9*"/></Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource FP.Card}" Padding="0">
+                    <StackPanel><Grid Margin="18,16,18,12"><TextBlock Text="Movimentos financeiros" Style="{StaticResource FP.SectionTitle}"/><TextBlock Text="Clique no estado para conciliar" Foreground="{StaticResource FP.TextMuted}" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Bottom"/></Grid>
+                        <DataGrid ItemsSource="{Binding Movimentos}" Style="{StaticResource FP.DataGrid}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Data" Binding="{Binding Data, StringFormat=dd/MM/yyyy}" Width="90"/><DataGridTextColumn Header="Descrição" Binding="{Binding Descricao}" Width="*"/><DataGridTextColumn Header="Operação" Binding="{Binding TipoOperacao}" Width="105"/><DataGridTextColumn Header="Origem" Binding="{Binding Origem}" Width="135"/><DataGridTextColumn Header="Valor" Binding="{Binding Valor, Converter={StaticResource ValorMoeda}}" Width="125"/>
+                                <DataGridTemplateColumn Header="Conciliação" Width="115"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="{Binding Conciliado, Converter={StaticResource ConciliadoParaTexto}}" Command="{Binding DataContext.AlternarConciliadoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource FP.SecondaryButton}" Padding="8,4" MinHeight="28"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
 
-            <TextBlock Text="Tesouraria" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
-            <TextBlock Text="Movimentos financeiros — Entrada, Saída, Transferência, Sangria, Reforço, Ajuste, Bloqueio"
-                       FontSize="10.5" Foreground="#595959" Margin="0,0,0,16" TextWrapping="Wrap"/>
-
-            <Border Style="{StaticResource Cartao}">
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Data" Style="{StaticResource Rotulo}"/>
-                            <DatePicker SelectedDate="{Binding Data}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Tipo de operação" Style="{StaticResource Rotulo}"/>
-                            <ComboBox ItemsSource="{Binding TiposOperacaoDisponiveis}" SelectedItem="{Binding TipoOperacaoSelecionado}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="Valor (FCFA)" Style="{StaticResource Rotulo}"/>
-                            <TextBox Text="{Binding ValorTexto, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock Text="{Binding TipoCategoriaImplicito}" FontSize="9.5" Foreground="#888780" Margin="0,4,0,0"/>
-
-                    <TextBlock Text="Descrição" Style="{StaticResource Rotulo}" Margin="0,14,0,4"/>
-                    <TextBox Text="{Binding Descricao, UpdateSourceTrigger=PropertyChanged}"/>
-
-                    <!-- Origem única (Entrada / Saída / Ajuste / Bloqueio) -->
-                    <Grid Margin="0,14,0,0" Visibility="{Binding EhTransferencia, Converter={StaticResource BoolParaVisibilidade}, ConverterParameter=Inverso}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Origem" Style="{StaticResource Rotulo}"/>
-                            <ComboBox ItemsSource="{Binding Origens}" SelectedItem="{Binding OrigemSelecionada}" DisplayMemberPath="Nome"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Rubrica (categoria)" Style="{StaticResource Rotulo}"/>
-                            <ComboBox ItemsSource="{Binding Categorias}" SelectedItem="{Binding CategoriaSelecionada}" DisplayMemberPath="Nome"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Origem + Destino (Transferência / Sangria / Reforço) -->
-                    <Grid Margin="0,14,0,0" Visibility="{Binding EhTransferencia, Converter={StaticResource BoolParaVisibilidade}}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Origem (sai daqui)" Style="{StaticResource Rotulo}"/>
-                            <ComboBox ItemsSource="{Binding Origens}" SelectedItem="{Binding OrigemSelecionada}" DisplayMemberPath="Nome"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Destino (entra aqui)" Style="{StaticResource Rotulo}"/>
-                            <ComboBox ItemsSource="{Binding Origens}" SelectedItem="{Binding DestinoSelecionado}" DisplayMemberPath="Nome"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <Grid Margin="0,14,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Forma de pagamento (ex.: Numerário, Transferência, Cheque, Cartão)" Style="{StaticResource Rotulo}"/>
-                            <TextBox Text="{Binding FormaPagamento, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Centro de custo" Style="{StaticResource Rotulo}"/>
-                            <TextBox Text="{Binding CentroCusto, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock Text="{Binding MensagemErro}" Foreground="#C00000" FontSize="10.5"
-                               Margin="0,12,0,0" TextWrapping="Wrap"
-                               Visibility="{Binding MensagemErro, Converter={StaticResource TextoParaVisibilidade}}"/>
-
-                    <Button Content="{Binding AGuardar, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Registar}"
-                            Command="{Binding RegistarCommand}"
-                            Width="150" Height="36" HorizontalAlignment="Left" Margin="0,16,0,0"
-                            Background="#156082" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
-                </StackPanel>
-            </Border>
-
-            <TextBlock Text="Movimentos" FontSize="13" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,20,0,10"/>
-
-            <Border Style="{StaticResource Cartao}" Padding="0">
-                <DataGrid ItemsSource="{Binding Movimentos}" AutoGenerateColumns="False"
-                          IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                          RowHeight="32" BorderThickness="0">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Data" Binding="{Binding Data, StringFormat=dd/MM/yyyy}" Width="85"/>
-                        <DataGridTextColumn Header="Descrição" Binding="{Binding Descricao}" Width="*"/>
-                        <DataGridTextColumn Header="Operação" Binding="{Binding TipoOperacao}" Width="100"/>
-                        <DataGridTextColumn Header="Origem" Binding="{Binding Origem}" Width="140"/>
-                        <DataGridTextColumn Header="F. Pagamento" Binding="{Binding FormaPagamento}" Width="110"/>
-                        <DataGridTextColumn Header="C. Custo" Binding="{Binding CentroCusto}" Width="90"/>
-                        <DataGridTextColumn Header="Valor" Binding="{Binding Valor, Converter={StaticResource ValorMoeda}}" Width="110"/>
-                        <DataGridTemplateColumn Header="Conciliado" Width="90">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Content="{Binding Conciliado, Converter={StaticResource ConciliadoParaTexto}}"
-                                            Command="{Binding DataContext.AlternarConciliadoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            Background="Transparent" BorderThickness="0" Foreground="#156082" Cursor="Hand" FontSize="10"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Border>
-
+                <Border Grid.Column="2" Style="{StaticResource FP.Card}">
+                    <StackPanel><TextBlock Text="Novo movimento" Style="{StaticResource FP.SectionTitle}" Margin="0,0,0,14"/>
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Data" Style="{StaticResource FP.FieldLabel}"/><DatePicker SelectedDate="{Binding Data}" Height="38"/></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="Operação" Style="{StaticResource FP.FieldLabel}"/><ComboBox ItemsSource="{Binding TiposOperacaoDisponiveis}" SelectedItem="{Binding TipoOperacaoSelecionado}" Style="{StaticResource FP.FilterComboBox}"/></StackPanel></Grid>
+                        <TextBlock Text="Valor (FCFA)" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><TextBox Text="{Binding ValorTexto, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FormTextBox}"/>
+                        <TextBlock Text="Descrição" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><TextBox Text="{Binding Descricao, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FormTextBox}"/>
+                        <TextBlock Text="Origem" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><ComboBox ItemsSource="{Binding Origens}" SelectedItem="{Binding OrigemSelecionada}" DisplayMemberPath="Nome" Style="{StaticResource FP.FilterComboBox}"/>
+                        <StackPanel Visibility="{Binding EhTransferencia, Converter={StaticResource BoolParaVisibilidade}}"><TextBlock Text="Destino" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><ComboBox ItemsSource="{Binding Origens}" SelectedItem="{Binding DestinoSelecionado}" DisplayMemberPath="Nome" Style="{StaticResource FP.FilterComboBox}"/></StackPanel>
+                        <StackPanel Visibility="{Binding EhTransferencia, Converter={StaticResource BoolParaVisibilidade}, ConverterParameter=Inverso}"><TextBlock Text="Rubrica" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><ComboBox ItemsSource="{Binding Categorias}" SelectedItem="{Binding CategoriaSelecionada}" DisplayMemberPath="Nome" Style="{StaticResource FP.FilterComboBox}"/></StackPanel>
+                        <TextBlock Text="Forma de pagamento" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><TextBox Text="{Binding FormaPagamento, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FormTextBox}"/>
+                        <TextBlock Text="Centro de custo" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,5"/><TextBox Text="{Binding CentroCusto, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FormTextBox}"/>
+                        <TextBlock Text="{Binding MensagemErro}" Foreground="{StaticResource FP.Danger}" FontSize="11" Margin="0,10,0,0" TextWrapping="Wrap" Visibility="{Binding MensagemErro, Converter={StaticResource TextoParaVisibilidade}}"/>
+                        <Button Command="{Binding RegistarCommand}" Style="{StaticResource FP.PrimaryButton}" Margin="0,14,0,0" HorizontalAlignment="Stretch" Content="{Binding AGuardar, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Registar movimento}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

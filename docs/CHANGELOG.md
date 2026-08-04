@@ -1,3 +1,11 @@
+
+## v4.0.1 — Dashboard Design System: Bancos, Caixa e Tesouraria
+
+- Interfaces de Bancos, Caixa e Tesouraria alinhadas ao padrão visual do Dashboard.
+- Adicionados cartões KPI, cabeçalhos padronizados e indicadores de atualização.
+- Mantidas as funcionalidades e integrações existentes.
+- Nenhuma migration necessária.
+
 # v4.0.0 — Dashboard Design System
 
 - Clientes e Fornecedores adaptados ao padrão visual do Dashboard.
