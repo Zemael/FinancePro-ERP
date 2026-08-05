@@ -7,81 +7,23 @@ namespace FinancePro.UI.ViewModels;
 
 public sealed class AdministrationMasterDataViewModel : ViewModelBase
 {
-    private readonly IAdministrationMasterDataService _service;
-    private readonly int _companyId;
-    private string _costCode = string.Empty;
-    private string _costName = string.Empty;
-    private string _taxCode = string.Empty;
-    private string _taxName = string.Empty;
-    private decimal _taxRate;
-    private string _message = string.Empty;
-    private bool _busy;
-
-    public ObservableCollection<CostCenter> CostCenters { get; } = new();
-    public ObservableCollection<TaxRate> TaxRates { get; } = new();
-    public string CostCode { get => _costCode; set => SetProperty(ref _costCode, value); }
-    public string CostName { get => _costName; set => SetProperty(ref _costName, value); }
-    public string TaxCode { get => _taxCode; set => SetProperty(ref _taxCode, value); }
-    public string TaxName { get => _taxName; set => SetProperty(ref _taxName, value); }
-    public decimal TaxRate { get => _taxRate; set => SetProperty(ref _taxRate, value); }
-    public string Message { get => _message; set => SetProperty(ref _message, value); }
-    public bool Busy { get => _busy; set => SetProperty(ref _busy, value); }
-    public int ActiveCostCenters => CostCenters.Count(x => x.Active);
-    public int ActiveTaxRates => TaxRates.Count(x => x.Active);
-
-    public ICommand RefreshCommand { get; }
-    public ICommand SaveCostCenterCommand { get; }
-    public ICommand SaveTaxRateCommand { get; }
-    public ICommand ToggleCostCenterCommand { get; }
-    public ICommand ToggleTaxRateCommand { get; }
-
-    public AdministrationMasterDataViewModel(IAdministrationMasterDataService service, int companyId)
-    {
-        _service = service; _companyId = companyId;
-        RefreshCommand = new AsyncRelayCommand(_ => LoadAsync());
-        SaveCostCenterCommand = new AsyncRelayCommand(_ => SaveCostCenterAsync());
-        SaveTaxRateCommand = new AsyncRelayCommand(_ => SaveTaxRateAsync());
-        ToggleCostCenterCommand = new AsyncRelayCommand(ToggleCostCenterAsync);
-        ToggleTaxRateCommand = new AsyncRelayCommand(ToggleTaxRateAsync);
-        _ = LoadAsync();
-    }
-
-    private async Task LoadAsync()
-    {
-        Busy = true; Message = string.Empty;
-        try
-        {
-            var costs = await _service.ListCostCentersAsync(_companyId);
-            var taxes = await _service.ListTaxRatesAsync(_companyId);
-            CostCenters.Clear(); foreach (var item in costs) CostCenters.Add(item);
-            TaxRates.Clear(); foreach (var item in taxes) TaxRates.Add(item);
-            OnPropertyChanged(nameof(ActiveCostCenters)); OnPropertyChanged(nameof(ActiveTaxRates));
-        }
-        catch (Exception ex) { Message = ex.Message; }
-        finally { Busy = false; }
-    }
-
-    private async Task SaveCostCenterAsync()
-    {
-        try { await _service.SaveCostCenterAsync(new SaveCostCenterRequest(_companyId, null, CostCode, CostName)); CostCode = CostName = string.Empty; Message = "Centro de custo guardado."; await LoadAsync(); }
-        catch (Exception ex) { Message = ex.Message; }
-    }
-
-    private async Task SaveTaxRateAsync()
-    {
-        try { await _service.SaveTaxRateAsync(new SaveTaxRateRequest(_companyId, null, TaxCode, TaxName, TaxRate)); TaxCode = TaxName = string.Empty; TaxRate = 0; Message = "Taxa de IVA guardada."; await LoadAsync(); }
-        catch (Exception ex) { Message = ex.Message; }
-    }
-
-    private async Task ToggleCostCenterAsync(object? parameter)
-    {
-        if (parameter is not CostCenter item) return;
-        await _service.SetCostCenterActiveAsync(_companyId, item.Id, !item.Active); await LoadAsync();
-    }
-
-    private async Task ToggleTaxRateAsync(object? parameter)
-    {
-        if (parameter is not TaxRate item) return;
-        await _service.SetTaxRateActiveAsync(_companyId, item.Id, !item.Active); await LoadAsync();
-    }
+    private readonly IAdministrationMasterDataService _service; private readonly int _companyId;
+    private string _costCode="",_costName="",_taxCode="",_taxName="",_accountCode="",_accountName="",_accountType="Analítica",_accountNature="Devedora",_sequenceModule="",_sequencePrefix="",_message="";
+    private decimal _taxRate; private bool _busy,_accountAllowsPosting=true,_accountRequiresCostCenter,_sequenceRestartAnnually=true; private int _sequenceYear=DateTime.Today.Year,_sequenceDigits=6; private long _sequenceCurrentNumber;
+    public ObservableCollection<CostCenter> CostCenters { get; }=new(); public ObservableCollection<TaxRate> TaxRates { get; }=new(); public ObservableCollection<ChartAccount> ChartAccounts { get; }=new(); public ObservableCollection<DocumentSequence> DocumentSequences { get; }=new();
+    public IReadOnlyList<string> AccountTypes { get; }=["Sintética","Analítica"]; public IReadOnlyList<string> AccountNatures { get; }=["Devedora","Credora"];
+    public string CostCode{get=>_costCode;set=>SetProperty(ref _costCode,value);} public string CostName{get=>_costName;set=>SetProperty(ref _costName,value);} public string TaxCode{get=>_taxCode;set=>SetProperty(ref _taxCode,value);} public string TaxName{get=>_taxName;set=>SetProperty(ref _taxName,value);} public decimal TaxRate{get=>_taxRate;set=>SetProperty(ref _taxRate,value);}
+    public string AccountCode{get=>_accountCode;set=>SetProperty(ref _accountCode,value);} public string AccountName{get=>_accountName;set=>SetProperty(ref _accountName,value);} public string AccountType{get=>_accountType;set{if(SetProperty(ref _accountType,value)&&value=="Sintética")AccountAllowsPosting=false;}} public string AccountNature{get=>_accountNature;set=>SetProperty(ref _accountNature,value);} public bool AccountAllowsPosting{get=>_accountAllowsPosting;set=>SetProperty(ref _accountAllowsPosting,value);} public bool AccountRequiresCostCenter{get=>_accountRequiresCostCenter;set=>SetProperty(ref _accountRequiresCostCenter,value);}
+    public int SequenceYear{get=>_sequenceYear;set=>SetProperty(ref _sequenceYear,value);} public string SequenceModule{get=>_sequenceModule;set=>SetProperty(ref _sequenceModule,value);} public string SequencePrefix{get=>_sequencePrefix;set=>SetProperty(ref _sequencePrefix,value);} public long SequenceCurrentNumber{get=>_sequenceCurrentNumber;set=>SetProperty(ref _sequenceCurrentNumber,value);} public int SequenceDigits{get=>_sequenceDigits;set=>SetProperty(ref _sequenceDigits,value);} public bool SequenceRestartAnnually{get=>_sequenceRestartAnnually;set=>SetProperty(ref _sequenceRestartAnnually,value);}
+    public string Message{get=>_message;set=>SetProperty(ref _message,value);} public bool Busy{get=>_busy;set=>SetProperty(ref _busy,value);}
+    public int ActiveCostCenters=>CostCenters.Count(x=>x.Active); public int ActiveTaxRates=>TaxRates.Count(x=>x.Active); public int ActiveAccounts=>ChartAccounts.Count(x=>x.Active); public int ActiveSequences=>DocumentSequences.Count(x=>x.Active);
+    public ICommand RefreshCommand{get;} public ICommand SaveCostCenterCommand{get;} public ICommand SaveTaxRateCommand{get;} public ICommand SaveChartAccountCommand{get;} public ICommand SaveSequenceCommand{get;} public ICommand ToggleCostCenterCommand{get;} public ICommand ToggleTaxRateCommand{get;} public ICommand ToggleChartAccountCommand{get;} public ICommand ToggleSequenceCommand{get;}
+    public AdministrationMasterDataViewModel(IAdministrationMasterDataService service,int companyId){_service=service;_companyId=companyId;RefreshCommand=new AsyncRelayCommand(_=>LoadAsync());SaveCostCenterCommand=new AsyncRelayCommand(_=>SaveCostCenterAsync());SaveTaxRateCommand=new AsyncRelayCommand(_=>SaveTaxRateAsync());SaveChartAccountCommand=new AsyncRelayCommand(_=>SaveChartAccountAsync());SaveSequenceCommand=new AsyncRelayCommand(_=>SaveSequenceAsync());ToggleCostCenterCommand=new AsyncRelayCommand(ToggleCostCenterAsync);ToggleTaxRateCommand=new AsyncRelayCommand(ToggleTaxRateAsync);ToggleChartAccountCommand=new AsyncRelayCommand(ToggleChartAccountAsync);ToggleSequenceCommand=new AsyncRelayCommand(ToggleSequenceAsync);_=LoadAsync();}
+    private async Task LoadAsync(){Busy=true;Message="";try{var c=await _service.ListCostCentersAsync(_companyId);var t=await _service.ListTaxRatesAsync(_companyId);var a=await _service.ListChartAccountsAsync(_companyId);var s=await _service.ListDocumentSequencesAsync(_companyId);Replace(CostCenters,c);Replace(TaxRates,t);Replace(ChartAccounts,a);Replace(DocumentSequences,s);OnPropertyChanged(nameof(ActiveCostCenters));OnPropertyChanged(nameof(ActiveTaxRates));OnPropertyChanged(nameof(ActiveAccounts));OnPropertyChanged(nameof(ActiveSequences));}catch(Exception ex){Message=ex.Message;}finally{Busy=false;}}
+    private async Task SaveCostCenterAsync(){try{await _service.SaveCostCenterAsync(new(_companyId,null,CostCode,CostName));CostCode=CostName="";Message="Centro de custo guardado.";await LoadAsync();}catch(Exception ex){Message=ex.Message;}}
+    private async Task SaveTaxRateAsync(){try{await _service.SaveTaxRateAsync(new(_companyId,null,TaxCode,TaxName,TaxRate));TaxCode=TaxName="";TaxRate=0;Message="Taxa de IVA guardada.";await LoadAsync();}catch(Exception ex){Message=ex.Message;}}
+    private async Task SaveChartAccountAsync(){try{await _service.SaveChartAccountAsync(new(_companyId,null,AccountCode,AccountName,null,AccountType,AccountNature,AccountAllowsPosting,AccountRequiresCostCenter));AccountCode=AccountName="";Message="Conta guardada.";await LoadAsync();}catch(Exception ex){Message=ex.Message;}}
+    private async Task SaveSequenceAsync(){try{await _service.SaveDocumentSequenceAsync(new(_companyId,null,SequenceYear,SequenceModule,SequencePrefix,SequenceCurrentNumber,SequenceDigits,SequenceRestartAnnually));SequenceModule=SequencePrefix="";SequenceCurrentNumber=0;Message="Sequência documental guardada.";await LoadAsync();}catch(Exception ex){Message=ex.Message;}}
+    private async Task ToggleCostCenterAsync(object? p){if(p is CostCenter x){await _service.SetCostCenterActiveAsync(_companyId,x.Id,!x.Active);await LoadAsync();}} private async Task ToggleTaxRateAsync(object? p){if(p is TaxRate x){await _service.SetTaxRateActiveAsync(_companyId,x.Id,!x.Active);await LoadAsync();}} private async Task ToggleChartAccountAsync(object? p){if(p is ChartAccount x){await _service.SetChartAccountActiveAsync(_companyId,x.Id,!x.Active);await LoadAsync();}} private async Task ToggleSequenceAsync(object? p){if(p is DocumentSequence x){await _service.SetDocumentSequenceActiveAsync(_companyId,x.Id,!x.Active);await LoadAsync();}}
+    private static void Replace<T>(ObservableCollection<T> target,IEnumerable<T> source){target.Clear();foreach(var x in source)target.Add(x);}
 }

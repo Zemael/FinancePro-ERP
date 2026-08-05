@@ -20,9 +20,15 @@ public sealed class AdministrationMasterDataServiceTests
         public SaveTaxRateRequest? LastTax { get; private set; }
         public Task<IReadOnlyList<CostCenter>> ListCostCentersAsync(int companyId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<CostCenter>>([]);
         public Task<IReadOnlyList<TaxRate>> ListTaxRatesAsync(int companyId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<TaxRate>>([]);
+        public Task<IReadOnlyList<ChartAccount>> ListChartAccountsAsync(int companyId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<ChartAccount>>([]);
+        public Task<IReadOnlyList<DocumentSequence>> ListDocumentSequencesAsync(int companyId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<DocumentSequence>>([]);
         public Task SaveCostCenterAsync(SaveCostCenterRequest request, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SaveTaxRateAsync(SaveTaxRateRequest request, CancellationToken cancellationToken = default) { LastTax = request; return Task.CompletedTask; }
+        public Task SaveChartAccountAsync(SaveChartAccountRequest request, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task SaveDocumentSequenceAsync(SaveDocumentSequenceRequest request, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SetCostCenterActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SetTaxRateActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task SetChartAccountActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task SetDocumentSequenceActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

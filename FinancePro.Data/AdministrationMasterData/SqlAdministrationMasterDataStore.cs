@@ -11,49 +11,23 @@ public sealed class SqlAdministrationMasterDataStore : IAdministrationMasterData
     private readonly FinanceProDbContext _dbContext;
     public SqlAdministrationMasterDataStore(FinanceProDbContext dbContext) => _dbContext = dbContext;
 
-    public Task<IReadOnlyList<CostCenter>> ListCostCentersAsync(int companyId, CancellationToken cancellationToken = default) =>
-        QueryAsync("SELECT Id, CompanyId, Code, Name, Active FROM dbo.CostCenters WHERE CompanyId=@companyId ORDER BY Code", companyId,
-            r => new CostCenter(r.GetInt32(0), r.GetInt32(1), r.GetString(2), r.GetString(3), r.GetBoolean(4)), cancellationToken);
+    public Task<IReadOnlyList<CostCenter>> ListCostCentersAsync(int companyId,CancellationToken ct=default)=>QueryAsync("SELECT Id,CompanyId,Code,Name,Active FROM dbo.CostCenters WHERE CompanyId=@companyId ORDER BY Code",companyId,r=>new CostCenter(r.GetInt32(0),r.GetInt32(1),r.GetString(2),r.GetString(3),r.GetBoolean(4)),ct);
+    public Task<IReadOnlyList<TaxRate>> ListTaxRatesAsync(int companyId,CancellationToken ct=default)=>QueryAsync("SELECT Id,CompanyId,Code,Name,Rate,Active FROM dbo.TaxRates WHERE CompanyId=@companyId ORDER BY Code",companyId,r=>new TaxRate(r.GetInt32(0),r.GetInt32(1),r.GetString(2),r.GetString(3),r.GetDecimal(4),r.GetBoolean(5)),ct);
+    public Task<IReadOnlyList<ChartAccount>> ListChartAccountsAsync(int companyId,CancellationToken ct=default)=>QueryAsync("SELECT Id,CompanyId,Code,Name,ParentId,AccountType,Nature,AllowsPosting,RequiresCostCenter,Active FROM dbo.EnterpriseChartAccounts WHERE CompanyId=@companyId ORDER BY Code",companyId,r=>new ChartAccount(r.GetInt32(0),r.GetInt32(1),r.GetString(2),r.GetString(3),r.IsDBNull(4)?null:r.GetInt32(4),r.GetString(5),r.GetString(6),r.GetBoolean(7),r.GetBoolean(8),r.GetBoolean(9)),ct);
+    public Task<IReadOnlyList<DocumentSequence>> ListDocumentSequencesAsync(int companyId,CancellationToken ct=default)=>QueryAsync("SELECT Id,CompanyId,FiscalYear,Module,Prefix,CurrentNumber,Digits,RestartAnnually,Active FROM dbo.DocumentSequences WHERE CompanyId=@companyId ORDER BY FiscalYear DESC,Module",companyId,r=>new DocumentSequence(r.GetInt32(0),r.GetInt32(1),r.GetInt32(2),r.GetString(3),r.GetString(4),r.GetInt64(5),r.GetInt32(6),r.GetBoolean(7),r.GetBoolean(8)),ct);
 
-    public Task<IReadOnlyList<TaxRate>> ListTaxRatesAsync(int companyId, CancellationToken cancellationToken = default) =>
-        QueryAsync("SELECT Id, CompanyId, Code, Name, Rate, Active FROM dbo.TaxRates WHERE CompanyId=@companyId ORDER BY Code", companyId,
-            r => new TaxRate(r.GetInt32(0), r.GetInt32(1), r.GetString(2), r.GetString(3), r.GetDecimal(4), r.GetBoolean(5)), cancellationToken);
+    public Task SaveCostCenterAsync(SaveCostCenterRequest x,CancellationToken ct=default)=>ExecuteAsync(x.CompanyId,x.Id,@"IF @id IS NULL INSERT INTO dbo.CostCenters(CompanyId,Code,Name,Active,CreatedAt,UpdatedAt) VALUES(@companyId,@code,@name,@active,SYSUTCDATETIME(),SYSUTCDATETIME()); ELSE UPDATE dbo.CostCenters SET Code=@code,Name=@name,Active=@active,UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId;",ct,("@code",x.Code),("@name",x.Name),("@active",x.Active));
+    public Task SaveTaxRateAsync(SaveTaxRateRequest x,CancellationToken ct=default)=>ExecuteAsync(x.CompanyId,x.Id,@"IF @id IS NULL INSERT INTO dbo.TaxRates(CompanyId,Code,Name,Rate,Active,CreatedAt,UpdatedAt) VALUES(@companyId,@code,@name,@rate,@active,SYSUTCDATETIME(),SYSUTCDATETIME()); ELSE UPDATE dbo.TaxRates SET Code=@code,Name=@name,Rate=@rate,Active=@active,UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId;",ct,("@code",x.Code),("@name",x.Name),("@rate",x.Rate),("@active",x.Active));
+    public Task SaveChartAccountAsync(SaveChartAccountRequest x,CancellationToken ct=default)=>ExecuteAsync(x.CompanyId,x.Id,@"IF @id IS NULL INSERT INTO dbo.EnterpriseChartAccounts(CompanyId,Code,Name,ParentId,AccountType,Nature,AllowsPosting,RequiresCostCenter,Active,CreatedAt,UpdatedAt) VALUES(@companyId,@code,@name,@parentId,@accountType,@nature,@allowsPosting,@requiresCostCenter,@active,SYSUTCDATETIME(),SYSUTCDATETIME()); ELSE UPDATE dbo.EnterpriseChartAccounts SET Code=@code,Name=@name,ParentId=@parentId,AccountType=@accountType,Nature=@nature,AllowsPosting=@allowsPosting,RequiresCostCenter=@requiresCostCenter,Active=@active,UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId;",ct,("@code",x.Code),("@name",x.Name),("@parentId",x.ParentId),("@accountType",x.AccountType),("@nature",x.Nature),("@allowsPosting",x.AllowsPosting),("@requiresCostCenter",x.RequiresCostCenter),("@active",x.Active));
+    public Task SaveDocumentSequenceAsync(SaveDocumentSequenceRequest x,CancellationToken ct=default)=>ExecuteAsync(x.CompanyId,x.Id,@"IF @id IS NULL INSERT INTO dbo.DocumentSequences(CompanyId,FiscalYear,Module,Prefix,CurrentNumber,Digits,RestartAnnually,Active,CreatedAt,UpdatedAt) VALUES(@companyId,@fiscalYear,@module,@prefix,@currentNumber,@digits,@restartAnnually,@active,SYSUTCDATETIME(),SYSUTCDATETIME()); ELSE UPDATE dbo.DocumentSequences SET FiscalYear=@fiscalYear,Module=@module,Prefix=@prefix,CurrentNumber=@currentNumber,Digits=@digits,RestartAnnually=@restartAnnually,Active=@active,UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId;",ct,("@fiscalYear",x.FiscalYear),("@module",x.Module),("@prefix",x.Prefix),("@currentNumber",x.CurrentNumber),("@digits",x.Digits),("@restartAnnually",x.RestartAnnually),("@active",x.Active));
 
-    public Task SaveCostCenterAsync(SaveCostCenterRequest request, CancellationToken cancellationToken = default) => ExecuteAsync(@"
-IF @id IS NULL
- INSERT INTO dbo.CostCenters (CompanyId, Code, Name, Active, CreatedAt, UpdatedAt) VALUES (@companyId,@code,@name,@active,SYSUTCDATETIME(),SYSUTCDATETIME());
-ELSE
- UPDATE dbo.CostCenters SET Code=@code, Name=@name, Active=@active, UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId;",
-        request.CompanyId, request.Id, request.Code, request.Name, null, request.Active, cancellationToken);
+    public Task SetCostCenterActiveAsync(int c,int id,bool a,CancellationToken ct=default)=>ToggleAsync("CostCenters",c,id,a,ct);
+    public Task SetTaxRateActiveAsync(int c,int id,bool a,CancellationToken ct=default)=>ToggleAsync("TaxRates",c,id,a,ct);
+    public Task SetChartAccountActiveAsync(int c,int id,bool a,CancellationToken ct=default)=>ToggleAsync("EnterpriseChartAccounts",c,id,a,ct);
+    public Task SetDocumentSequenceActiveAsync(int c,int id,bool a,CancellationToken ct=default)=>ToggleAsync("DocumentSequences",c,id,a,ct);
 
-    public Task SaveTaxRateAsync(SaveTaxRateRequest request, CancellationToken cancellationToken = default) => ExecuteAsync(@"
-IF @id IS NULL
- INSERT INTO dbo.TaxRates (CompanyId, Code, Name, Rate, Active, CreatedAt, UpdatedAt) VALUES (@companyId,@code,@name,@rate,@active,SYSUTCDATETIME(),SYSUTCDATETIME());
-ELSE
- UPDATE dbo.TaxRates SET Code=@code, Name=@name, Rate=@rate, Active=@active, UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId;",
-        request.CompanyId, request.Id, request.Code, request.Name, request.Rate, request.Active, cancellationToken);
-
-    public Task SetCostCenterActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) =>
-        ExecuteAsync("UPDATE dbo.CostCenters SET Active=@active, UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId", companyId, id, "", "", null, active, cancellationToken);
-
-    public Task SetTaxRateActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) =>
-        ExecuteAsync("UPDATE dbo.TaxRates SET Active=@active, UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId", companyId, id, "", "", null, active, cancellationToken);
-
-    private async Task<IReadOnlyList<T>> QueryAsync<T>(string sql, int companyId, Func<DbDataReader,T> map, CancellationToken ct)
-    {
-        var result = new List<T>(); var connection = _dbContext.Database.GetDbConnection(); var close = connection.State != ConnectionState.Open;
-        if (close) await connection.OpenAsync(ct);
-        try { await using var command = connection.CreateCommand(); command.CommandText = sql; Add(command,"@companyId",companyId); await using var reader = await command.ExecuteReaderAsync(ct); while (await reader.ReadAsync(ct)) result.Add(map(reader)); return result; }
-        finally { if (close) await connection.CloseAsync(); }
-    }
-
-    private async Task ExecuteAsync(string sql, int companyId, int? id, string code, string name, decimal? rate, bool active, CancellationToken ct)
-    {
-        var connection = _dbContext.Database.GetDbConnection(); var close = connection.State != ConnectionState.Open;
-        if (close) await connection.OpenAsync(ct);
-        try { await using var command = connection.CreateCommand(); command.CommandText = sql; Add(command,"@companyId",companyId); Add(command,"@id",id); Add(command,"@code",code); Add(command,"@name",name); Add(command,"@rate",rate); Add(command,"@active",active); await command.ExecuteNonQueryAsync(ct); }
-        finally { if (close) await connection.CloseAsync(); }
-    }
-
-    private static void Add(DbCommand command, string name, object? value) { var p=command.CreateParameter(); p.ParameterName=name; p.Value=value ?? DBNull.Value; command.Parameters.Add(p); }
+    private async Task<IReadOnlyList<T>> QueryAsync<T>(string sql,int companyId,Func<DbDataReader,T> map,CancellationToken ct){var list=new List<T>();var cn=_dbContext.Database.GetDbConnection();var close=cn.State!=ConnectionState.Open;if(close)await cn.OpenAsync(ct);try{await using var cmd=cn.CreateCommand();cmd.CommandText=sql;Add(cmd,"@companyId",companyId);await using var rd=await cmd.ExecuteReaderAsync(ct);while(await rd.ReadAsync(ct))list.Add(map(rd));return list;}finally{if(close)await cn.CloseAsync();}}
+    private Task ToggleAsync(string table,int companyId,int id,bool active,CancellationToken ct)=>ExecuteAsync(companyId,id,$"UPDATE dbo.{table} SET Active=@active,UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId",ct,("@active",active));
+    private async Task ExecuteAsync(int companyId,int? id,string sql,CancellationToken ct,params (string,object?)[] values){var cn=_dbContext.Database.GetDbConnection();var close=cn.State!=ConnectionState.Open;if(close)await cn.OpenAsync(ct);try{await using var cmd=cn.CreateCommand();cmd.CommandText=sql;Add(cmd,"@companyId",companyId);Add(cmd,"@id",id);foreach(var x in values)Add(cmd,x.Item1,x.Item2);await cmd.ExecuteNonQueryAsync(ct);}finally{if(close)await cn.CloseAsync();}}
+    private static void Add(DbCommand c,string n,object? v){var p=c.CreateParameter();p.ParameterName=n;p.Value=v??DBNull.Value;c.Parameters.Add(p);}
 }
