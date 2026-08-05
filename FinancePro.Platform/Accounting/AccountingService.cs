@@ -121,6 +121,39 @@ public sealed class AccountingService : IAccountingService
             Previous(BalanceSheetSection.CurrentLiability) + Previous(BalanceSheetSection.NonCurrentLiability) + Previous(BalanceSheetSection.Equity));
     }
 
+    public async Task<IReadOnlyList<CashFlowRow>> GetCashFlowAsync(int companyId, DateTime from, DateTime to, string method, CancellationToken cancellationToken = default)
+    {
+        ValidatePeriod(companyId, from, to);
+        if (method != CashFlowMethod.Direct && method != CashFlowMethod.Indirect)
+            throw new ArgumentException("Método de fluxo de caixa inválido.");
+
+        var direct = await _store.GetDirectCashFlowAsync(companyId, from.Date, to.Date, cancellationToken);
+        if (method == CashFlowMethod.Direct) return direct;
+
+        var income = await GetIncomeStatementSummaryAsync(companyId, from, to, from.AddYears(-1), to.AddYears(-1), cancellationToken);
+        var current = await GetBalanceSheetAsync(companyId, to, from.AddDays(-1), cancellationToken);
+        decimal Change(string section) => current.Where(x => x.Section == section).Sum(x => x.CurrentAmount - x.PreviousAmount);
+        var workingCapital = Change(BalanceSheetSection.CurrentLiability) - Change(BalanceSheetSection.CurrentAsset);
+        var investing = direct.Where(x => x.Activity == CashFlowActivity.Investing).Sum(x => x.NetAmount);
+        var financing = direct.Where(x => x.Activity == CashFlowActivity.Financing).Sum(x => x.NetAmount);
+        return new List<CashFlowRow>
+        {
+            new(from.Date, string.Empty, "Resultado líquido do período", CashFlowActivity.Operating, income.NetResult >= 0 ? income.NetResult : 0, income.NetResult < 0 ? -income.NetResult : 0),
+            new(to.Date, string.Empty, "Variação do capital circulante", CashFlowActivity.Operating, workingCapital >= 0 ? workingCapital : 0, workingCapital < 0 ? -workingCapital : 0),
+            new(to.Date, string.Empty, "Fluxo líquido de investimento", CashFlowActivity.Investing, investing >= 0 ? investing : 0, investing < 0 ? -investing : 0),
+            new(to.Date, string.Empty, "Fluxo líquido de financiamento", CashFlowActivity.Financing, financing >= 0 ? financing : 0, financing < 0 ? -financing : 0)
+        };
+    }
+
+    public async Task<CashFlowSummary> GetCashFlowSummaryAsync(int companyId, DateTime from, DateTime to, string method, CancellationToken cancellationToken = default)
+    {
+        var rows = await GetCashFlowAsync(companyId, from, to, method, cancellationToken);
+        var opening = await _store.GetCashBalanceAsync(companyId, from.Date.AddDays(-1), cancellationToken);
+        var closing = await _store.GetCashBalanceAsync(companyId, to.Date, cancellationToken);
+        decimal Net(string activity) => rows.Where(x => x.Activity == activity).Sum(x => x.NetAmount);
+        return new CashFlowSummary(opening, Net(CashFlowActivity.Operating), Net(CashFlowActivity.Investing), Net(CashFlowActivity.Financing), closing);
+    }
+
     private static void ValidatePeriod(int companyId, DateTime from, DateTime to)
     {
         if (companyId <= 0) throw new ArgumentException("Empresa inválida.");

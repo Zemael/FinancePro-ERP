@@ -60,6 +60,16 @@ public sealed class AccountingServiceTests
         Assert.Equal(150m, summary.TotalAssets);
     }
 
+
+    [Fact]
+    public async Task Cash_flow_reconciles_opening_and_closing_balances()
+    {
+        var service = new AccountingService(new FakeStore());
+        var summary = await service.GetCashFlowSummaryAsync(1, DateTime.Today.AddDays(-5), DateTime.Today, CashFlowMethod.Direct);
+        Assert.True(summary.IsReconciled);
+        Assert.Equal(30m, summary.NetChange);
+    }
+
     private sealed class FakeStore : IAccountingStore
     {
         public string Status { get; private set; } = AccountingEntryStatus.Draft;
@@ -86,6 +96,14 @@ public sealed class AccountingServiceTests
                 new("2000","Fornecedores",BalanceSheetSection.CurrentLiability,40,35),
                 new("2500","Empréstimos",BalanceSheetSection.NonCurrentLiability,30,35),
                 new("3000","Capital",BalanceSheetSection.Equity,80,65)]);
+
+        public Task<IReadOnlyList<CashFlowRow>> GetDirectCashFlowAsync(int companyId,DateTime from,DateTime to,CancellationToken cancellationToken=default)
+            => Task.FromResult<IReadOnlyList<CashFlowRow>>([
+                new(DateTime.Today,"TES-1","Recebimento",CashFlowActivity.Operating,100,0),
+                new(DateTime.Today,"TES-2","Pagamento",CashFlowActivity.Operating,0,50),
+                new(DateTime.Today,"PAT-1","Aquisição",CashFlowActivity.Investing,0,20)]);
+        public Task<decimal> GetCashBalanceAsync(int companyId,DateTime asOf,CancellationToken cancellationToken=default)
+            => Task.FromResult(asOf.Date < DateTime.Today ? 70m : 100m);
         public Task<IReadOnlyList<TrialBalanceRow>> GetTrialBalanceAsync(int companyId,DateTime from,DateTime to,CancellationToken cancellationToken=default)=>Task.FromResult<IReadOnlyList<TrialBalanceRow>>([new(1,"1","Caixa",0,0,100,0,100,0),new(2,"2","Capital",0,0,0,100,0,100)]);
     }
 }

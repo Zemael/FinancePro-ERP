@@ -182,3 +182,40 @@ public sealed record BalanceSheetSummary(
     public decimal Difference => TotalAssets - TotalLiabilitiesAndEquity;
     public bool IsBalanced => Math.Abs(Difference) < 0.01m;
 }
+
+public static class CashFlowMethod
+{
+    public const string Direct = "Direto";
+    public const string Indirect = "Indireto";
+}
+
+public static class CashFlowActivity
+{
+    public const string Operating = "Operacional";
+    public const string Investing = "Investimento";
+    public const string Financing = "Financiamento";
+}
+
+public sealed record CashFlowRow(
+    DateTime Date,
+    string DocumentNumber,
+    string Description,
+    string Activity,
+    decimal Inflow,
+    decimal Outflow,
+    bool IsSubtotal = false)
+{
+    public decimal NetAmount => Inflow - Outflow;
+}
+
+public sealed record CashFlowSummary(
+    decimal OpeningBalance,
+    decimal OperatingNet,
+    decimal InvestingNet,
+    decimal FinancingNet,
+    decimal ClosingBalance)
+{
+    public decimal NetChange => OperatingNet + InvestingNet + FinancingNet;
+    public bool IsReconciled => Math.Abs((OpeningBalance + NetChange) - ClosingBalance) < 0.01m;
+}
+

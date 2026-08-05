@@ -250,6 +250,57 @@ ORDER BY a.Code";
         finally { if (close) await cn.CloseAsync(); }
     }
 
+    public async Task<IReadOnlyList<CashFlowRow>> GetDirectCashFlowAsync(int companyId, DateTime from, DateTime to, CancellationToken cancellationToken = default)
+    {
+        var list = new List<CashFlowRow>();
+        var cn = _dbContext.Database.GetDbConnection(); var close = cn.State != ConnectionState.Open;
+        if (close) await cn.OpenAsync(cancellationToken);
+        try
+        {
+            await using var cmd = cn.CreateCommand();
+            cmd.CommandText = @"SELECT e.EntryDate,e.DocumentNumber,e.Description,
+CASE WHEN e.SourceModule IN ('Assets','Patrimonio','Património') THEN 'Investimento'
+     WHEN e.SourceModule IN ('Financing','Financiamento','Capital','Loans','Emprestimos','Empréstimos') THEN 'Financiamento'
+     ELSE 'Operacional' END Activity,
+SUM(CASE WHEN l.Debit-l.Credit>0 THEN l.Debit-l.Credit ELSE 0 END) Inflow,
+SUM(CASE WHEN l.Debit-l.Credit<0 THEN l.Credit-l.Debit ELSE 0 END) Outflow
+FROM dbo.AccountingEntries e
+INNER JOIN dbo.AccountingEntryLines l ON l.AccountingEntryId=e.Id
+INNER JOIN dbo.EnterpriseChartAccounts a ON a.Id=l.AccountId
+WHERE e.CompanyId=@companyId AND e.Status='Contabilizado'
+AND e.EntryDate>=@from AND e.EntryDate<DATEADD(day,1,@to)
+AND (a.Code LIKE '10%' OR a.Code LIKE '11%' OR a.Code LIKE '12%')
+GROUP BY e.EntryDate,e.DocumentNumber,e.Description,e.SourceModule,e.Id
+HAVING SUM(l.Debit-l.Credit)<>0
+ORDER BY e.EntryDate,e.Id";
+            Add(cmd,"@companyId",companyId); Add(cmd,"@from",from); Add(cmd,"@to",to);
+            await using var rd = await cmd.ExecuteReaderAsync(cancellationToken);
+            while (await rd.ReadAsync(cancellationToken))
+                list.Add(new CashFlowRow(rd.GetDateTime(0),rd.GetString(1),rd.GetString(2),rd.GetString(3),rd.GetDecimal(4),rd.GetDecimal(5)));
+            return list;
+        }
+        finally { if (close) await cn.CloseAsync(); }
+    }
+
+    public async Task<decimal> GetCashBalanceAsync(int companyId, DateTime asOf, CancellationToken cancellationToken = default)
+    {
+        var cn = _dbContext.Database.GetDbConnection(); var close = cn.State != ConnectionState.Open;
+        if (close) await cn.OpenAsync(cancellationToken);
+        try
+        {
+            await using var cmd = cn.CreateCommand();
+            cmd.CommandText = @"SELECT COALESCE(SUM(l.Debit-l.Credit),0)
+FROM dbo.AccountingEntryLines l
+INNER JOIN dbo.AccountingEntries e ON e.Id=l.AccountingEntryId
+INNER JOIN dbo.EnterpriseChartAccounts a ON a.Id=l.AccountId
+WHERE e.CompanyId=@companyId AND e.Status='Contabilizado' AND e.EntryDate<DATEADD(day,1,@asOf)
+AND (a.Code LIKE '10%' OR a.Code LIKE '11%' OR a.Code LIKE '12%')";
+            Add(cmd,"@companyId",companyId); Add(cmd,"@asOf",asOf);
+            return Convert.ToDecimal(await cmd.ExecuteScalarAsync(cancellationToken));
+        }
+        finally { if (close) await cn.CloseAsync(); }
+    }
+
     private static async Task<IReadOnlyList<AccountingEntryLine>> ListLinesAsync(DbConnection cn, int entryId, CancellationToken ct)
     {
         var list=new List<AccountingEntryLine>(); await using var cmd=cn.CreateCommand();
