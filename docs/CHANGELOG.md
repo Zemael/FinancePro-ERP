@@ -213,3 +213,10 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 
 ## v5.9.0
 - Dashboard fiscal com taxa de conformidade, vencimentos próximos e obrigações atrasadas.
+
+## v6.1.0
+- Motor de lançamentos contabilísticos em partidas dobradas.
+- Diário contabilístico, contabilização e estorno.
+
+## v6.3.0 — DRE
+- Demonstração de Resultados com comparação entre períodos, margens e exportação CSV.

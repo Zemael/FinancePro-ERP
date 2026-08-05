@@ -13,6 +13,8 @@ using FinancePro.Data.Reporting;
 using FinancePro.Platform.Reporting;
 using FinancePro.Platform.Documents;
 using FinancePro.Platform.Administration;
+using FinancePro.Platform.Accounting;
+using FinancePro.Data.Accounting;
 using FinancePro.Data.AdministrationMasterData;
 using FinancePro.Application.Treasury;
 using FinancePro.Data.Revenue;
@@ -118,6 +120,8 @@ public partial class App : System.Windows.Application
         services.AddScoped<IDocumentService, DocumentService>();
         services.AddScoped<IAdministrationMasterDataStore, SqlAdministrationMasterDataStore>();
         services.AddScoped<IAdministrationMasterDataService, AdministrationMasterDataService>();
+        services.AddScoped<IAccountingStore, SqlAccountingStore>();
+        services.AddScoped<IAccountingService, AccountingService>();
 
         var connectionString = configuration.GetConnectionString("FinanceProDb")
             ?? throw new InvalidOperationException("A connection string 'FinanceProDb' não foi configurada.");
