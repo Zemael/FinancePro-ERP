@@ -200,3 +200,6 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 - Central de Relatórios com pré-visualização e exportação CSV.
 - Relatórios iniciais de receber, pagar, tesouraria e património.
 - Serviço reutilizável na Platform e provider EF Core na Data.
+
+## v5.7.0
+- Calendário Fiscal e obrigações tributárias por empresa.

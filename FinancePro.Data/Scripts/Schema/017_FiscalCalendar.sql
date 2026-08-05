@@ -1,0 +1,15 @@
+SET XACT_ABORT ON;
+BEGIN TRANSACTION;
+IF OBJECT_ID('dbo.FiscalObligations','U') IS NULL
+BEGIN
+CREATE TABLE dbo.FiscalObligations(
+ Id INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_FiscalObligations PRIMARY KEY,
+ CompanyId INT NOT NULL, Code NVARCHAR(40) NOT NULL, Name NVARCHAR(180) NOT NULL,
+ Category NVARCHAR(40) NOT NULL, DueDate DATE NOT NULL, Frequency NVARCHAR(30) NOT NULL,
+ Status NVARCHAR(30) NOT NULL, Notes NVARCHAR(500) NULL, Active BIT NOT NULL CONSTRAINT DF_FiscalObligations_Active DEFAULT(1),
+ CreatedAt DATETIME2 NOT NULL CONSTRAINT DF_FiscalObligations_CreatedAt DEFAULT SYSUTCDATETIME(),
+ UpdatedAt DATETIME2 NOT NULL CONSTRAINT DF_FiscalObligations_UpdatedAt DEFAULT SYSUTCDATETIME(),
+ CONSTRAINT UQ_FiscalObligations_Company_Code UNIQUE(CompanyId,Code));
+CREATE INDEX IX_FiscalObligations_Company_DueDate ON dbo.FiscalObligations(CompanyId,DueDate,Status);
+END
+COMMIT TRANSACTION;
