@@ -23,6 +23,7 @@ using FinancePro.Platform.Settings;
 using FinancePro.Platform.Workflow;
 using FinancePro.Platform.Reporting;
 using FinancePro.Platform.Documents;
+using FinancePro.Platform.Administration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinancePro.UI;
@@ -93,6 +94,7 @@ public partial class MainWindow : Window
     private void Relatorios_Click(object sender, RoutedEventArgs e) => MostrarRelatorios();
 
     private void Documentos_Click(object sender, RoutedEventArgs e) => MostrarDocumentos();
+    private void Administracao_Click(object sender, RoutedEventArgs e) => MostrarAdministracao();
 
     private void Tema_Click(object sender, RoutedEventArgs e) => GestorTema.Alternar();
 
@@ -214,6 +216,7 @@ public partial class MainWindow : Window
         BtnConfiguracoes.Visibility = Visibilidade("Configuracoes");
         BtnWorkflow.Visibility = Visibility.Visible;
         BtnRelatorios.Visibility = Visibility.Visible;
+        BtnAdministracao.Visibility = Visibility.Visible;
     }
 
     private static Visibility Visibilidade(string modulo) =>
@@ -316,6 +319,15 @@ public partial class MainWindow : Window
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<IDocumentService>();
         ConteudoHost.Content = new DocumentsView { DataContext = new DocumentsViewModel(service) };
+    }
+
+
+    private void MostrarAdministracao()
+    {
+        DestacarItemAtivo(BtnAdministracao);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IAdministrationMasterDataService>();
+        ConteudoHost.Content = new AdministrationMasterDataView { DataContext = new AdministrationMasterDataViewModel(service, _utilizador.EmpresaId) };
     }
 
     private void MostrarConfiguracoes()

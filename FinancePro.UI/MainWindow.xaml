@@ -194,7 +194,7 @@
                         <Button x:Name="BtnConfiguracoes" Style="{StaticResource ItemNav}" Click="Configuracoes_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" Style="{StaticResource NavIcon}"/><TextBlock Text="Configurações" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
-                        <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72E;" Style="{StaticResource NavIcon}"/><TextBlock Text="Administração" Style="{StaticResource NavText}"/></StackPanel></Border>
+                        <Button x:Name="BtnAdministracao" Style="{StaticResource ItemNav}" Click="Administracao_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72E;" Style="{StaticResource NavIcon}"/><TextBlock Text="Administração" Style="{StaticResource NavText}"/></StackPanel></Button>
                     </StackPanel>
                 </ScrollViewer>
 

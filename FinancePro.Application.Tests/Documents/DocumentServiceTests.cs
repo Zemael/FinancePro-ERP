@@ -31,6 +31,6 @@ public sealed class DocumentServiceTests
         var service = new DocumentService();
         var fields = service.GetFields("oficio");
         Assert.NotEmpty(fields);
-        Assert.Single(fields.Where(x => x.Key == "Assunto"));
+        Assert.Single(fields, x => x.Key == "Assunto");
     }
 }

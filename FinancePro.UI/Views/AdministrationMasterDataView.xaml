@@ -1,0 +1,44 @@
+<UserControl x:Class="FinancePro.UI.Views.AdministrationMasterDataView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+  <StackPanel>
+   <Grid Margin="0,0,0,16"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+    <StackPanel><TextBlock Text="Administração" FontSize="22" FontWeight="Bold" Foreground="#0E4C5E"/><TextBlock Text="Centros de custo e taxas de IVA por empresa" Foreground="#595959" Margin="0,4,0,0"/></StackPanel>
+    <Button Grid.Column="1" Content="Atualizar" Command="{Binding RefreshCommand}" Style="{StaticResource BaseButton}" Padding="18,8"/>
+   </Grid>
+   <UniformGrid Columns="2" Margin="0,0,0,16">
+    <Border Background="White" BorderBrush="#DCEAF0" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,8,0"><StackPanel><TextBlock Text="Centros de custo ativos" Foreground="#595959"/><TextBlock Text="{Binding ActiveCostCenters}" FontSize="28" FontWeight="Bold" Foreground="#0E4C5E"/></StackPanel></Border>
+    <Border Background="White" BorderBrush="#DCEAF0" BorderThickness="1" CornerRadius="10" Padding="18" Margin="8,0,0,0"><StackPanel><TextBlock Text="Taxas de IVA ativas" Foreground="#595959"/><TextBlock Text="{Binding ActiveTaxRates}" FontSize="28" FontWeight="Bold" Foreground="#0E4C5E"/></StackPanel></Border>
+   </UniformGrid>
+   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <StackPanel Grid.Column="0">
+     <TextBlock Text="Centros de custo" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,8"/>
+     <Border Background="White" BorderBrush="#DCEAF0" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,10"><StackPanel>
+      <TextBlock Text="Código" FontWeight="SemiBold"/><TextBox Text="{Binding CostCode, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10"/>
+      <TextBlock Text="Designação" FontWeight="SemiBold"/><TextBox Text="{Binding CostName, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10"/>
+      <Button Content="Adicionar centro" Command="{Binding SaveCostCenterCommand}" Style="{StaticResource BaseButton}" HorizontalAlignment="Left" Padding="16,8"/>
+     </StackPanel></Border>
+     <DataGrid ItemsSource="{Binding CostCenters}" AutoGenerateColumns="False" IsReadOnly="True" RowHeight="36"><DataGrid.Columns>
+      <DataGridTextColumn Header="Código" Binding="{Binding Code}" Width="100"/><DataGridTextColumn Header="Designação" Binding="{Binding Name}" Width="*"/>
+      <DataGridCheckBoxColumn Header="Ativo" Binding="{Binding Active}" Width="60"/><DataGridTemplateColumn Header="" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Alternar" Command="{Binding DataContext.ToggleCostCenterCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="Transparent" BorderThickness="0" Foreground="#156082"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+     </DataGrid.Columns></DataGrid>
+    </StackPanel>
+    <StackPanel Grid.Column="2">
+     <TextBlock Text="Taxas de IVA" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,8"/>
+     <Border Background="White" BorderBrush="#DCEAF0" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,10"><StackPanel>
+      <TextBlock Text="Código" FontWeight="SemiBold"/><TextBox Text="{Binding TaxCode, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10"/>
+      <TextBlock Text="Designação" FontWeight="SemiBold"/><TextBox Text="{Binding TaxName, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10"/>
+      <TextBlock Text="Taxa (%)" FontWeight="SemiBold"/><TextBox Text="{Binding TaxRate, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10"/>
+      <Button Content="Adicionar taxa" Command="{Binding SaveTaxRateCommand}" Style="{StaticResource BaseButton}" HorizontalAlignment="Left" Padding="16,8"/>
+     </StackPanel></Border>
+     <DataGrid ItemsSource="{Binding TaxRates}" AutoGenerateColumns="False" IsReadOnly="True" RowHeight="36"><DataGrid.Columns>
+      <DataGridTextColumn Header="Código" Binding="{Binding Code}" Width="85"/><DataGridTextColumn Header="Designação" Binding="{Binding Name}" Width="*"/><DataGridTextColumn Header="Taxa" Binding="{Binding Rate, StringFormat={}{0:N2}%}" Width="75"/>
+      <DataGridCheckBoxColumn Header="Ativo" Binding="{Binding Active}" Width="60"/><DataGridTemplateColumn Header="" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Alternar" Command="{Binding DataContext.ToggleTaxRateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="Transparent" BorderThickness="0" Foreground="#156082"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+     </DataGrid.Columns></DataGrid>
+    </StackPanel>
+   </Grid>
+   <TextBlock Text="{Binding Message}" Foreground="#0E6B4F" Margin="0,14,0,0" TextWrapping="Wrap"/>
+  </StackPanel>
+ </ScrollViewer>
+</UserControl>
