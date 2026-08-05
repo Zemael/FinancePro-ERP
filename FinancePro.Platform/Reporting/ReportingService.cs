@@ -12,7 +12,8 @@ public sealed class ReportingService : IReportingService
         new ReportDefinition("receivables", "Contas a Receber", "Títulos emitidos no período selecionado."),
         new ReportDefinition("payables", "Contas a Pagar", "Obrigações registadas no período selecionado."),
         new ReportDefinition("treasury", "Movimentos de Tesouraria", "Entradas, saídas e transferências do período."),
-        new ReportDefinition("assets", "Inventário Patrimonial", "Bens patrimoniais e respetiva situação atual.")
+        new ReportDefinition("assets", "Inventário Patrimonial", "Bens patrimoniais e respetiva situação atual."),
+        new ReportDefinition("fiscal", "Conformidade Fiscal", "Obrigações fiscais, vencimentos e respetivo estado.")
     };
 
     public ReportingService(IReportDataProvider provider) => _provider = provider;

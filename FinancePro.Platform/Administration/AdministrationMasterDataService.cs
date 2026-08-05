@@ -11,6 +11,20 @@ public sealed class AdministrationMasterDataService : IAdministrationMasterDataS
     public Task<IReadOnlyList<DocumentSequence>> ListDocumentSequencesAsync(int companyId, CancellationToken cancellationToken = default) => ValidateCompanyAndRun(companyId, () => _store.ListDocumentSequencesAsync(companyId, cancellationToken));
     public Task<IReadOnlyList<FiscalObligation>> ListFiscalObligationsAsync(int companyId, CancellationToken cancellationToken = default) => ValidateCompanyAndRun(companyId, () => _store.ListFiscalObligationsAsync(companyId, cancellationToken));
 
+    public async Task<FiscalComplianceSummary> GetFiscalComplianceSummaryAsync(int companyId, DateTime? referenceDate = null, CancellationToken cancellationToken = default)
+    {
+        if (companyId <= 0) throw new ArgumentOutOfRangeException(nameof(companyId));
+        var reference = (referenceDate ?? DateTime.Today).Date;
+        var obligations = await _store.ListFiscalObligationsAsync(companyId, cancellationToken);
+        var active = obligations.Where(x => x.Active && x.Status != "Cancelada").ToList();
+        var completed = active.Count(x => x.Status == "Cumprida");
+        var pending = active.Count(x => x.Status == "Pendente");
+        var overdue = active.Count(x => x.Status == "Atrasada" || (x.Status == "Pendente" && x.DueDate.Date < reference));
+        var dueSoon = active.Count(x => x.Status == "Pendente" && x.DueDate.Date >= reference && x.DueDate.Date <= reference.AddDays(7));
+        var rate = active.Count == 0 ? 100m : Math.Round(completed * 100m / active.Count, 1);
+        return new FiscalComplianceSummary(active.Count, pending, overdue, dueSoon, completed, rate);
+    }
+
     public Task SaveCostCenterAsync(SaveCostCenterRequest request, CancellationToken cancellationToken = default)
     { Validate(request.CompanyId, request.Code, request.Name); return _store.SaveCostCenterAsync(request with { Code=request.Code.Trim().ToUpperInvariant(), Name=request.Name.Trim() }, cancellationToken); }
     public Task SaveTaxRateAsync(SaveTaxRateRequest request, CancellationToken cancellationToken = default)
@@ -57,6 +71,14 @@ public sealed class AdministrationMasterDataService : IAdministrationMasterDataS
     public Task SetChartAccountActiveAsync(int companyId,int id,bool active,CancellationToken cancellationToken=default)=>_store.SetChartAccountActiveAsync(companyId,id,active,cancellationToken);
     public Task SetDocumentSequenceActiveAsync(int companyId,int id,bool active,CancellationToken cancellationToken=default)=>_store.SetDocumentSequenceActiveAsync(companyId,id,active,cancellationToken);
     public Task SetFiscalObligationActiveAsync(int companyId,int id,bool active,CancellationToken cancellationToken=default)=>_store.SetFiscalObligationActiveAsync(companyId,id,active,cancellationToken);
+    public Task SetFiscalObligationStatusAsync(int companyId, int id, string status, CancellationToken cancellationToken = default)
+    {
+        if (companyId <= 0) throw new ArgumentOutOfRangeException(nameof(companyId));
+        if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id));
+        var statuses = new[] { "Pendente", "Cumprida", "Atrasada", "Cancelada" };
+        if (!statuses.Contains(status)) throw new ArgumentException("Estado fiscal inválido.", nameof(status));
+        return _store.SetFiscalObligationStatusAsync(companyId, id, status, cancellationToken);
+    }
 
     private static Task<T> ValidateCompanyAndRun<T>(int companyId, Func<Task<T>> action) { if(companyId<=0) throw new ArgumentOutOfRangeException(nameof(companyId)); return action(); }
     private static void Validate(int companyId,string code,string name) { if(companyId<=0) throw new ArgumentOutOfRangeException(nameof(companyId)); if(string.IsNullOrWhiteSpace(code)) throw new ArgumentException("Código obrigatório.",nameof(code)); if(string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Nome obrigatório.",nameof(name)); }

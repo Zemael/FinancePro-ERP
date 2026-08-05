@@ -16,6 +16,7 @@ public sealed class EfReportDataProvider : IReportDataProvider
             "payables" => PayablesAsync(request, cancellationToken),
             "treasury" => TreasuryAsync(request, cancellationToken),
             "assets" => AssetsAsync(request, cancellationToken),
+            "fiscal" => FiscalAsync(request, cancellationToken),
             _ => throw new ArgumentOutOfRangeException(nameof(request), "Relatório não suportado.")
         };
 
@@ -68,6 +69,44 @@ public sealed class EfReportDataProvider : IReportDataProvider
         return Build("Inventário Patrimonial",
             new[] { C("Numero","N.º patrimonial"), C("Descricao","Descrição"), C("Categoria","Categoria"), C("Localizacao","Localização"), C("Responsavel","Responsável"), C("Data","Aquisição"), C("Valor","Valor"), C("Estado","Estado") },
             data.Select(x => R(("Numero",x.NumeroPatrimonial),("Descricao",x.Descricao),("Categoria",x.Categoria),("Localizacao",x.Localizacao),("Responsavel",x.Responsavel),("Data",x.DataAquisicao),("Valor",x.ValorAquisicao),("Estado",x.Estado))));
+    }
+
+
+    private async Task<ReportResult> FiscalAsync(ReportRequest request, CancellationToken ct)
+    {
+        var cn = _db.Database.GetDbConnection();
+        var shouldClose = cn.State != System.Data.ConnectionState.Open;
+        if (shouldClose) await cn.OpenAsync(ct);
+        try
+        {
+            await using var cmd = cn.CreateCommand();
+            cmd.CommandText = @"SELECT Code,Name,Category,DueDate,Frequency,Status,Notes,Active
+FROM dbo.FiscalObligations
+WHERE CompanyId=@companyId AND DueDate>=@from AND DueDate<@to
+ORDER BY DueDate,Code";
+            Add(cmd, "@companyId", request.CompanyId);
+            Add(cmd, "@from", request.From.Date);
+            Add(cmd, "@to", request.To.Date.AddDays(1));
+            var rows = new List<ReportRow>();
+            await using var rd = await cmd.ExecuteReaderAsync(ct);
+            while (await rd.ReadAsync(ct))
+            {
+                var dueDate = rd.GetDateTime(3);
+                var status = rd.GetString(5);
+                if (status == "Pendente" && dueDate.Date < DateTime.Today) status = "Atrasada";
+                rows.Add(R(("Codigo",rd.GetString(0)),("Obrigacao",rd.GetString(1)),("Categoria",rd.GetString(2)),("Vencimento",dueDate),("Periodicidade",rd.GetString(4)),("Estado",status),("Observacoes",rd.IsDBNull(6)?string.Empty:rd.GetString(6)),("Ativo",rd.GetBoolean(7)?"Sim":"Não")));
+            }
+            return Build("Conformidade Fiscal", new[] { C("Codigo","Código"), C("Obrigacao","Obrigação"), C("Categoria","Categoria"), C("Vencimento","Vencimento"), C("Periodicidade","Periodicidade"), C("Estado","Estado"), C("Observacoes","Observações"), C("Ativo","Ativo") }, rows);
+        }
+        finally { if (shouldClose) await cn.CloseAsync(); }
+    }
+
+    private static void Add(System.Data.Common.DbCommand command, string name, object value)
+    {
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = name;
+        parameter.Value = value;
+        command.Parameters.Add(parameter);
     }
 
     private static ReportColumn C(string key, string header) => new(key, header);

@@ -28,6 +28,7 @@ public sealed class SqlAdministrationMasterDataStore : IAdministrationMasterData
     public Task SetChartAccountActiveAsync(int c,int id,bool a,CancellationToken ct=default)=>ToggleAsync("EnterpriseChartAccounts",c,id,a,ct);
     public Task SetDocumentSequenceActiveAsync(int c,int id,bool a,CancellationToken ct=default)=>ToggleAsync("DocumentSequences",c,id,a,ct);
     public Task SetFiscalObligationActiveAsync(int c,int id,bool a,CancellationToken ct=default)=>ToggleAsync("FiscalObligations",c,id,a,ct);
+    public Task SetFiscalObligationStatusAsync(int c,int id,string status,CancellationToken ct=default)=>ExecuteAsync(c,id,"UPDATE dbo.FiscalObligations SET Status=@status,UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId",ct,("@status",status));
 
     private async Task<IReadOnlyList<T>> QueryAsync<T>(string sql,int companyId,Func<DbDataReader,T> map,CancellationToken ct){var list=new List<T>();var cn=_dbContext.Database.GetDbConnection();var close=cn.State!=ConnectionState.Open;if(close)await cn.OpenAsync(ct);try{await using var cmd=cn.CreateCommand();cmd.CommandText=sql;Add(cmd,"@companyId",companyId);await using var rd=await cmd.ExecuteReaderAsync(ct);while(await rd.ReadAsync(ct))list.Add(map(rd));return list;}finally{if(close)await cn.CloseAsync();}}
     private Task ToggleAsync(string table,int companyId,int id,bool active,CancellationToken ct)=>ExecuteAsync(companyId,id,$"UPDATE dbo.{table} SET Active=@active,UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId",ct,("@active",active));

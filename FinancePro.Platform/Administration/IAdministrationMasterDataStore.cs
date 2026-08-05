@@ -17,4 +17,5 @@ public interface IAdministrationMasterDataStore
     Task SetChartAccountActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default);
     Task SetDocumentSequenceActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default);
     Task SetFiscalObligationActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default);
+    Task SetFiscalObligationStatusAsync(int companyId, int id, string status, CancellationToken cancellationToken = default);
 }

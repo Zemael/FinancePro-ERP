@@ -203,3 +203,6 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 
 ## v5.7.0
 - Calendário Fiscal e obrigações tributárias por empresa.
+
+## v5.8.0
+- Centro de conformidade fiscal, KPIs, ações de estado e relatório fiscal.
