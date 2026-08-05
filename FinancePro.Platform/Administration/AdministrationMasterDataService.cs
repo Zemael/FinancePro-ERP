@@ -9,6 +9,7 @@ public sealed class AdministrationMasterDataService : IAdministrationMasterDataS
     public Task<IReadOnlyList<TaxRate>> ListTaxRatesAsync(int companyId, CancellationToken cancellationToken = default) => ValidateCompanyAndRun(companyId, () => _store.ListTaxRatesAsync(companyId, cancellationToken));
     public Task<IReadOnlyList<ChartAccount>> ListChartAccountsAsync(int companyId, CancellationToken cancellationToken = default) => ValidateCompanyAndRun(companyId, () => _store.ListChartAccountsAsync(companyId, cancellationToken));
     public Task<IReadOnlyList<DocumentSequence>> ListDocumentSequencesAsync(int companyId, CancellationToken cancellationToken = default) => ValidateCompanyAndRun(companyId, () => _store.ListDocumentSequencesAsync(companyId, cancellationToken));
+    public Task<IReadOnlyList<AccountingPeriod>> ListAccountingPeriodsAsync(int companyId, CancellationToken cancellationToken = default) => ValidateCompanyAndRun(companyId, () => _store.ListAccountingPeriodsAsync(companyId, cancellationToken));
     public Task<IReadOnlyList<FiscalObligation>> ListFiscalObligationsAsync(int companyId, CancellationToken cancellationToken = default) => ValidateCompanyAndRun(companyId, () => _store.ListFiscalObligationsAsync(companyId, cancellationToken));
 
     public async Task<FiscalComplianceSummary> GetFiscalComplianceSummaryAsync(int companyId, DateTime? referenceDate = null, CancellationToken cancellationToken = default)
@@ -49,6 +50,16 @@ public sealed class AdministrationMasterDataService : IAdministrationMasterDataS
         return _store.SaveDocumentSequenceAsync(request with { Module=request.Module.Trim().ToUpperInvariant(), Prefix=request.Prefix.Trim().ToUpperInvariant() }, cancellationToken);
     }
 
+    public Task SaveAccountingPeriodAsync(SaveAccountingPeriodRequest request, CancellationToken cancellationToken = default)
+    {
+        if (request.CompanyId <= 0) throw new ArgumentOutOfRangeException(nameof(request.CompanyId));
+        if (request.FiscalYear is < 2000 or > 2200) throw new ArgumentOutOfRangeException(nameof(request.FiscalYear));
+        if (request.Month is < 1 or > 12) throw new ArgumentOutOfRangeException(nameof(request.Month));
+        if (request.EndDate.Date < request.StartDate.Date) throw new ArgumentException("A data final não pode ser anterior à data inicial.", nameof(request));
+        var statuses = new[] { "Aberto", "Fechado", "Bloqueado" };
+        if (!statuses.Contains(request.Status)) throw new ArgumentException("Estado contabilístico inválido.", nameof(request));
+        return _store.SaveAccountingPeriodAsync(request, cancellationToken);
+    }
 
     public Task SaveFiscalObligationAsync(SaveFiscalObligationRequest request, CancellationToken cancellationToken = default)
     {
@@ -70,6 +81,15 @@ public sealed class AdministrationMasterDataService : IAdministrationMasterDataS
     public Task SetTaxRateActiveAsync(int companyId,int id,bool active,CancellationToken cancellationToken=default)=>_store.SetTaxRateActiveAsync(companyId,id,active,cancellationToken);
     public Task SetChartAccountActiveAsync(int companyId,int id,bool active,CancellationToken cancellationToken=default)=>_store.SetChartAccountActiveAsync(companyId,id,active,cancellationToken);
     public Task SetDocumentSequenceActiveAsync(int companyId,int id,bool active,CancellationToken cancellationToken=default)=>_store.SetDocumentSequenceActiveAsync(companyId,id,active,cancellationToken);
+    public Task SetAccountingPeriodActiveAsync(int companyId,int id,bool active,CancellationToken cancellationToken=default)=>_store.SetAccountingPeriodActiveAsync(companyId,id,active,cancellationToken);
+    public Task SetAccountingPeriodStatusAsync(int companyId,int id,string status,CancellationToken cancellationToken=default)
+    {
+        if (companyId <= 0) throw new ArgumentOutOfRangeException(nameof(companyId));
+        if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id));
+        var statuses = new[] { "Aberto", "Fechado", "Bloqueado" };
+        if (!statuses.Contains(status)) throw new ArgumentException("Estado contabilístico inválido.", nameof(status));
+        return _store.SetAccountingPeriodStatusAsync(companyId,id,status,cancellationToken);
+    }
     public Task SetFiscalObligationActiveAsync(int companyId,int id,bool active,CancellationToken cancellationToken=default)=>_store.SetFiscalObligationActiveAsync(companyId,id,active,cancellationToken);
     public Task SetFiscalObligationStatusAsync(int companyId, int id, string status, CancellationToken cancellationToken = default)
     {

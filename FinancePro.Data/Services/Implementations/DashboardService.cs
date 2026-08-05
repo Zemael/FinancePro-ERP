@@ -117,6 +117,57 @@ public class DashboardService : IDashboardService
             });
         }
 
+
+        var fiscalAtrasadas = 0;
+        var fiscalProximas = 0;
+        var fiscalCumpridas = 0;
+        var taxaConformidadeFiscal = 100m;
+
+        // Integração com o Calendário Fiscal. O bloco é tolerante a instalações
+        // que ainda não executaram o script 017_FiscalCalendar.sql.
+        try
+        {
+            var connection = _context.Database.GetDbConnection();
+            var shouldClose = connection.State != System.Data.ConnectionState.Open;
+            if (shouldClose) await connection.OpenAsync();
+            try
+            {
+                await using var command = connection.CreateCommand();
+                command.CommandText = @"SELECT
+    SUM(CASE WHEN Active=1 AND Status<>'Cancelada' AND (Status='Atrasada' OR (Status='Pendente' AND DueDate < CAST(GETDATE() AS date))) THEN 1 ELSE 0 END),
+    SUM(CASE WHEN Active=1 AND Status='Pendente' AND DueDate >= CAST(GETDATE() AS date) AND DueDate <= DATEADD(day,7,CAST(GETDATE() AS date)) THEN 1 ELSE 0 END),
+    SUM(CASE WHEN Active=1 AND Status='Cumprida' THEN 1 ELSE 0 END),
+    SUM(CASE WHEN Active=1 AND Status<>'Cancelada' THEN 1 ELSE 0 END)
+FROM dbo.FiscalObligations WHERE CompanyId=@companyId";
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@companyId";
+                parameter.Value = empresaId;
+                command.Parameters.Add(parameter);
+                await using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    fiscalAtrasadas = reader.IsDBNull(0) ? 0 : Convert.ToInt32(reader.GetValue(0));
+                    fiscalProximas = reader.IsDBNull(1) ? 0 : Convert.ToInt32(reader.GetValue(1));
+                    fiscalCumpridas = reader.IsDBNull(2) ? 0 : Convert.ToInt32(reader.GetValue(2));
+                    var fiscalTotal = reader.IsDBNull(3) ? 0 : Convert.ToInt32(reader.GetValue(3));
+                    taxaConformidadeFiscal = fiscalTotal == 0 ? 100m : Math.Round(fiscalCumpridas * 100m / fiscalTotal, 1);
+                }
+            }
+            finally
+            {
+                if (shouldClose) await connection.CloseAsync();
+            }
+
+            if (fiscalAtrasadas > 0)
+                alertas.Add(new AlertaDto { Severidade = "Critico", Mensagem = $"{fiscalAtrasadas} obrigação(ões) fiscal(is) em atraso" });
+            if (fiscalProximas > 0)
+                alertas.Add(new AlertaDto { Severidade = "Aviso", Mensagem = $"{fiscalProximas} obrigação(ões) fiscal(is) vence(m) nos próximos 7 dias" });
+        }
+        catch (System.Data.Common.DbException)
+        {
+            // Calendário fiscal ainda não instalado: o restante Dashboard continua funcional.
+        }
+
         // Lembrete estático — ainda não existe um subsistema de backup real na app.
         alertas.Add(new AlertaDto { Severidade = "Info", Mensagem = "Backup da base de dados não configurado" });
 
@@ -131,7 +182,11 @@ public class DashboardService : IDashboardService
             MovimentosRecentes = movimentosRecentes,
             SaldosPorOrigem = saldosPorOrigem,
             Pendencias = pendencias,
-            Alertas = alertas
+            Alertas = alertas,
+            ObrigacoesFiscaisAtrasadas = fiscalAtrasadas,
+            ObrigacoesFiscaisProximas = fiscalProximas,
+            ObrigacoesFiscaisCumpridas = fiscalCumpridas,
+            TaxaConformidadeFiscal = taxaConformidadeFiscal
         };
     }
 

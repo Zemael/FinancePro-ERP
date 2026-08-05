@@ -177,12 +177,20 @@
 
                 <Border Grid.Column="2" Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="Execução orçamental" Style="{StaticResource SectionTitle}"/>
-                        <Grid Height="210">
-                            <Ellipse Width="132" Height="132" Stroke="#E2E8F0" StrokeThickness="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="0%" FontSize="25" FontWeight="Bold" Foreground="#0F2747" HorizontalAlignment="Center"/><TextBlock Text="Executado" Style="{StaticResource Muted}" HorizontalAlignment="Center"/></StackPanel>
+                        <TextBlock Text="Conformidade fiscal" Style="{StaticResource SectionTitle}"/>
+                        <Grid Height="150">
+                            <Ellipse Width="116" Height="116" Stroke="#E2E8F0" StrokeThickness="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding TaxaConformidadeFiscal, StringFormat={}{0:N1}%}" FontSize="24" FontWeight="Bold" Foreground="#0F2747" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Cumprimento" Style="{StaticResource Muted}" HorizontalAlignment="Center"/>
+                            </StackPanel>
                         </Grid>
-                        <StackPanel><TextBlock Text="● Executado      0 FCFA (0%)" Foreground="#2563EB" FontSize="11"/><TextBlock Text="● Pendente       0 FCFA (0%)" Foreground="#F59E0B" FontSize="11" Margin="0,7,0,0"/><TextBlock Text="● Total orçamento 0 FCFA" Foreground="#94A3B8" FontSize="11" Margin="0,7,0,0"/></StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0"><TextBlock Text="Atrasadas" Style="{StaticResource Muted}" HorizontalAlignment="Center"/><TextBlock Text="{Binding ObrigacoesFiscaisAtrasadas}" Foreground="#DC2626" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/></StackPanel>
+                            <StackPanel Grid.Column="1"><TextBlock Text="Próx. 7 dias" Style="{StaticResource Muted}" HorizontalAlignment="Center"/><TextBlock Text="{Binding ObrigacoesFiscaisProximas}" Foreground="#D97706" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/></StackPanel>
+                            <StackPanel Grid.Column="2"><TextBlock Text="Cumpridas" Style="{StaticResource Muted}" HorizontalAlignment="Center"/><TextBlock Text="{Binding ObrigacoesFiscaisCumpridas}" Foreground="#16A34A" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/></StackPanel>
+                        </Grid>
                     </StackPanel>
                 </Border>
 

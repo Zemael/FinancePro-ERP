@@ -45,23 +45,38 @@ public sealed class AdministrationMasterDataServiceTests
         Assert.Equal(33.3m, summary.ComplianceRate);
     }
 
+
+    [Fact]
+    public async Task SaveAccountingPeriod_validates_dates_and_status()
+    {
+        var store = new FakeStore();
+        var service = new AdministrationMasterDataService(store);
+        await service.SaveAccountingPeriodAsync(new SaveAccountingPeriodRequest(1,null,2026,8,new DateTime(2026,8,1),new DateTime(2026,8,31),"Aberto"));
+        Assert.Equal("Aberto", store.LastPeriod!.Status);
+        await Assert.ThrowsAsync<ArgumentException>(() => service.SaveAccountingPeriodAsync(new SaveAccountingPeriodRequest(1,null,2026,8,new DateTime(2026,8,31),new DateTime(2026,8,1),"Aberto")));
+    }
+
     private sealed class FakeStore : IAdministrationMasterDataStore
     {
-        public SaveTaxRateRequest? LastTax { get; private set; } public SaveFiscalObligationRequest? LastFiscal { get; private set; } public IReadOnlyList<FiscalObligation> FiscalItems { get; set; } = [];
+        public SaveAccountingPeriodRequest? LastPeriod { get; private set; } public SaveTaxRateRequest? LastTax { get; private set; } public SaveFiscalObligationRequest? LastFiscal { get; private set; } public IReadOnlyList<FiscalObligation> FiscalItems { get; set; } = [];
         public Task<IReadOnlyList<CostCenter>> ListCostCentersAsync(int companyId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<CostCenter>>([]);
         public Task<IReadOnlyList<TaxRate>> ListTaxRatesAsync(int companyId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<TaxRate>>([]);
         public Task<IReadOnlyList<ChartAccount>> ListChartAccountsAsync(int companyId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<ChartAccount>>([]);
         public Task<IReadOnlyList<DocumentSequence>> ListDocumentSequencesAsync(int companyId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<DocumentSequence>>([]);
+        public Task<IReadOnlyList<AccountingPeriod>> ListAccountingPeriodsAsync(int companyId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<AccountingPeriod>>([]);
         public Task<IReadOnlyList<FiscalObligation>> ListFiscalObligationsAsync(int companyId, CancellationToken cancellationToken = default) => Task.FromResult(FiscalItems);
         public Task SaveCostCenterAsync(SaveCostCenterRequest request, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SaveTaxRateAsync(SaveTaxRateRequest request, CancellationToken cancellationToken = default) { LastTax = request; return Task.CompletedTask; }
         public Task SaveChartAccountAsync(SaveChartAccountRequest request, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SaveDocumentSequenceAsync(SaveDocumentSequenceRequest request, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task SaveAccountingPeriodAsync(SaveAccountingPeriodRequest request, CancellationToken cancellationToken = default) { LastPeriod = request; return Task.CompletedTask; }
         public Task SaveFiscalObligationAsync(SaveFiscalObligationRequest request, CancellationToken cancellationToken = default) { LastFiscal = request; return Task.CompletedTask; }
         public Task SetCostCenterActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SetTaxRateActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SetChartAccountActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SetDocumentSequenceActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task SetAccountingPeriodActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task SetAccountingPeriodStatusAsync(int companyId, int id, string status, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SetFiscalObligationActiveAsync(int companyId, int id, bool active, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SetFiscalObligationStatusAsync(int companyId, int id, string status, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }

@@ -10,6 +10,8 @@ public sealed record FiscalObligation(int Id, int CompanyId, string Code, string
     public bool IsDueSoon => Active && Status == "Pendente" && DueDate.Date >= DateTime.Today && DueDate.Date <= DateTime.Today.AddDays(7);
 }
 
+public sealed record AccountingPeriod(int Id, int CompanyId, int FiscalYear, int Month, DateTime StartDate, DateTime EndDate, string Status, bool Active);
+
 public sealed record FiscalComplianceSummary(
     int TotalActive,
     int Pending,
@@ -22,4 +24,5 @@ public sealed record SaveCostCenterRequest(int CompanyId, int? Id, string Code, 
 public sealed record SaveTaxRateRequest(int CompanyId, int? Id, string Code, string Name, decimal Rate, bool Active = true);
 public sealed record SaveChartAccountRequest(int CompanyId, int? Id, string Code, string Name, int? ParentId, string AccountType, string Nature, bool AllowsPosting, bool RequiresCostCenter, bool Active = true);
 public sealed record SaveDocumentSequenceRequest(int CompanyId, int? Id, int FiscalYear, string Module, string Prefix, long CurrentNumber, int Digits, bool RestartAnnually, bool Active = true);
+public sealed record SaveAccountingPeriodRequest(int CompanyId, int? Id, int FiscalYear, int Month, DateTime StartDate, DateTime EndDate, string Status, bool Active = true);
 public sealed record SaveFiscalObligationRequest(int CompanyId, int? Id, string Code, string Name, string Category, DateTime DueDate, string Frequency, string Status, string? Notes, bool Active = true);

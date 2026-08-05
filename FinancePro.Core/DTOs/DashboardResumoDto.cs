@@ -23,6 +23,12 @@ public class DashboardResumoDto
     public bool OrcamentoDisponivel => false;
     public bool PatrimonioDisponivel => false;
 
+    // Conformidade fiscal
+    public int ObrigacoesFiscaisAtrasadas { get; set; }
+    public int ObrigacoesFiscaisProximas { get; set; }
+    public int ObrigacoesFiscaisCumpridas { get; set; }
+    public decimal TaxaConformidadeFiscal { get; set; }
+
     public List<MovimentoRecenteDto> MovimentosRecentes { get; set; } = new();
     public List<SaldoOrigemDto> SaldosPorOrigem { get; set; } = new();
     public List<ContaReceberListItemDto> Pendencias { get; set; } = new();

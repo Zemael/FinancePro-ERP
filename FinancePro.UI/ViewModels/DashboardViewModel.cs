@@ -24,6 +24,10 @@ public class DashboardViewModel : ViewModelBase
     private string _nomeUtilizador = string.Empty;
     private string _ultimaAtualizacao = string.Empty;
     private string _mensagemErro = string.Empty;
+    private int _obrigacoesFiscaisAtrasadas;
+    private int _obrigacoesFiscaisProximas;
+    private int _obrigacoesFiscaisCumpridas;
+    private decimal _taxaConformidadeFiscal;
 
     private string _termoPesquisa = string.Empty;
     private bool _resultadosPesquisaVisiveis;
@@ -41,6 +45,10 @@ public class DashboardViewModel : ViewModelBase
     public string NomeUtilizador { get => _nomeUtilizador; set => SetProperty(ref _nomeUtilizador, value); }
     public string UltimaAtualizacao { get => _ultimaAtualizacao; set => SetProperty(ref _ultimaAtualizacao, value); }
     public string MensagemErro { get => _mensagemErro; set => SetProperty(ref _mensagemErro, value); }
+    public int ObrigacoesFiscaisAtrasadas { get => _obrigacoesFiscaisAtrasadas; set => SetProperty(ref _obrigacoesFiscaisAtrasadas, value); }
+    public int ObrigacoesFiscaisProximas { get => _obrigacoesFiscaisProximas; set => SetProperty(ref _obrigacoesFiscaisProximas, value); }
+    public int ObrigacoesFiscaisCumpridas { get => _obrigacoesFiscaisCumpridas; set => SetProperty(ref _obrigacoesFiscaisCumpridas, value); }
+    public decimal TaxaConformidadeFiscal { get => _taxaConformidadeFiscal; set => SetProperty(ref _taxaConformidadeFiscal, value); }
 
     public string TermoPesquisa
     {
@@ -110,6 +118,10 @@ public class DashboardViewModel : ViewModelBase
             Resultado = resumo.Resultado;
             MargemPercentual = resumo.MargemPercentual;
             TotalDisponivel = resumo.SaldoTesouraria;
+            ObrigacoesFiscaisAtrasadas = resumo.ObrigacoesFiscaisAtrasadas;
+            ObrigacoesFiscaisProximas = resumo.ObrigacoesFiscaisProximas;
+            ObrigacoesFiscaisCumpridas = resumo.ObrigacoesFiscaisCumpridas;
+            TaxaConformidadeFiscal = resumo.TaxaConformidadeFiscal;
             UltimaAtualizacao = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
 
             MovimentosRecentes.Clear();

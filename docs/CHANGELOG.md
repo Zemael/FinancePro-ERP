@@ -1,3 +1,6 @@
+# v6.0.0
+- Períodos contabilísticos e preparação para fecho mensal.
+
 
 ## v5.4.0 — Document Engine Foundation
 
@@ -206,3 +209,7 @@ A navegação legada da `MainWindow` ainda permanece ativa. A migração para `I
 
 ## v5.8.0
 - Centro de conformidade fiscal, KPIs, ações de estado e relatório fiscal.
+
+
+## v5.9.0
+- Dashboard fiscal com taxa de conformidade, vencimentos próximos e obrigações atrasadas.
