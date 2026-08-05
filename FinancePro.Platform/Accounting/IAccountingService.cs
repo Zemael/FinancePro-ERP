@@ -13,4 +13,6 @@ public interface IAccountingService
     Task<TrialBalanceSummary> GetTrialBalanceSummaryAsync(int companyId, DateTime from, DateTime to, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<IncomeStatementRow>> GetIncomeStatementAsync(int companyId, DateTime from, DateTime to, DateTime previousFrom, DateTime previousTo, CancellationToken cancellationToken = default);
     Task<IncomeStatementSummary> GetIncomeStatementSummaryAsync(int companyId, DateTime from, DateTime to, DateTime previousFrom, DateTime previousTo, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<BalanceSheetRow>> GetBalanceSheetAsync(int companyId, DateTime asOf, DateTime previousAsOf, CancellationToken cancellationToken = default);
+    Task<BalanceSheetSummary> GetBalanceSheetSummaryAsync(int companyId, DateTime asOf, DateTime previousAsOf, CancellationToken cancellationToken = default);
 }

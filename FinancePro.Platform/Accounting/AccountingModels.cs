@@ -146,3 +146,39 @@ public sealed record IncomeStatementSummary(
     public decimal OperatingMargin => NetRevenue == 0 ? 0 : OperatingResult / NetRevenue * 100m;
     public decimal NetMargin => NetRevenue == 0 ? 0 : NetResult / NetRevenue * 100m;
 }
+
+
+public static class BalanceSheetSection
+{
+    public const string CurrentAsset = "AtivoCirculante";
+    public const string NonCurrentAsset = "AtivoNaoCirculante";
+    public const string CurrentLiability = "PassivoCirculante";
+    public const string NonCurrentLiability = "PassivoNaoCirculante";
+    public const string Equity = "PatrimonioLiquido";
+}
+
+public sealed record BalanceSheetRow(
+    string AccountCode,
+    string AccountName,
+    string Section,
+    decimal CurrentAmount,
+    decimal PreviousAmount)
+{
+    public decimal Variation => CurrentAmount - PreviousAmount;
+}
+
+public sealed record BalanceSheetSummary(
+    decimal CurrentAssets,
+    decimal NonCurrentAssets,
+    decimal CurrentLiabilities,
+    decimal NonCurrentLiabilities,
+    decimal Equity,
+    decimal PreviousAssets,
+    decimal PreviousLiabilitiesAndEquity)
+{
+    public decimal TotalAssets => CurrentAssets + NonCurrentAssets;
+    public decimal TotalLiabilities => CurrentLiabilities + NonCurrentLiabilities;
+    public decimal TotalLiabilitiesAndEquity => TotalLiabilities + Equity;
+    public decimal Difference => TotalAssets - TotalLiabilitiesAndEquity;
+    public bool IsBalanced => Math.Abs(Difference) < 0.01m;
+}

@@ -101,6 +101,26 @@ public sealed class AccountingService : IAccountingService
         return new IncomeStatementSummary(grossRevenue, deductions, netRevenue, costs, grossProfit, operatingExpenses, operatingResult, financialResult, resultBeforeTax, taxes, netResult, previousNetResult);
     }
 
+    public Task<IReadOnlyList<BalanceSheetRow>> GetBalanceSheetAsync(int companyId, DateTime asOf, DateTime previousAsOf, CancellationToken cancellationToken = default)
+    {
+        if (companyId <= 0) throw new ArgumentException("Empresa inválida.");
+        if (previousAsOf.Date > asOf.Date) throw new ArgumentException("A data comparativa não pode ser posterior à data atual.");
+        return _store.GetBalanceSheetAsync(companyId, asOf.Date, previousAsOf.Date, cancellationToken);
+    }
+
+    public async Task<BalanceSheetSummary> GetBalanceSheetSummaryAsync(int companyId, DateTime asOf, DateTime previousAsOf, CancellationToken cancellationToken = default)
+    {
+        var rows = await GetBalanceSheetAsync(companyId, asOf, previousAsOf, cancellationToken);
+        decimal Current(string section) => rows.Where(x => x.Section == section).Sum(x => x.CurrentAmount);
+        decimal Previous(string section) => rows.Where(x => x.Section == section).Sum(x => x.PreviousAmount);
+        return new BalanceSheetSummary(
+            Current(BalanceSheetSection.CurrentAsset), Current(BalanceSheetSection.NonCurrentAsset),
+            Current(BalanceSheetSection.CurrentLiability), Current(BalanceSheetSection.NonCurrentLiability),
+            Current(BalanceSheetSection.Equity),
+            Previous(BalanceSheetSection.CurrentAsset) + Previous(BalanceSheetSection.NonCurrentAsset),
+            Previous(BalanceSheetSection.CurrentLiability) + Previous(BalanceSheetSection.NonCurrentLiability) + Previous(BalanceSheetSection.Equity));
+    }
+
     private static void ValidatePeriod(int companyId, DateTime from, DateTime to)
     {
         if (companyId <= 0) throw new ArgumentException("Empresa inválida.");

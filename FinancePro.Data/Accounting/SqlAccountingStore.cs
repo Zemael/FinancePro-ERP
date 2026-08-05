@@ -216,6 +216,40 @@ ORDER BY a.Code";
         finally { if (close) await cn.CloseAsync(); }
     }
 
+    public async Task<IReadOnlyList<BalanceSheetRow>> GetBalanceSheetAsync(int companyId, DateTime asOf, DateTime previousAsOf, CancellationToken cancellationToken = default)
+    {
+        var list = new List<BalanceSheetRow>();
+        var cn = _dbContext.Database.GetDbConnection(); var close = cn.State != ConnectionState.Open;
+        if (close) await cn.OpenAsync(cancellationToken);
+        try
+        {
+            await using var cmd = cn.CreateCommand();
+            cmd.CommandText = @"SELECT a.Code,a.Name,
+CASE WHEN a.Code LIKE '10%' OR a.Code LIKE '11%' OR a.Code LIKE '12%' THEN 'AtivoCirculante'
+     WHEN a.Code LIKE '1%' THEN 'AtivoNaoCirculante'
+     WHEN a.Code LIKE '20%' OR a.Code LIKE '21%' OR a.Code LIKE '22%' THEN 'PassivoCirculante'
+     WHEN a.Code LIKE '2%' THEN 'PassivoNaoCirculante'
+     WHEN a.Code LIKE '3%' THEN 'PatrimonioLiquido' ELSE '' END Section,
+SUM(CASE WHEN e.EntryDate<DATEADD(day,1,@asOf) THEN CASE WHEN a.Code LIKE '1%' THEN l.Debit-l.Credit ELSE l.Credit-l.Debit END ELSE 0 END) CurrentAmount,
+SUM(CASE WHEN e.EntryDate<DATEADD(day,1,@previousAsOf) THEN CASE WHEN a.Code LIKE '1%' THEN l.Debit-l.Credit ELSE l.Credit-l.Debit END ELSE 0 END) PreviousAmount
+FROM dbo.EnterpriseChartAccounts a
+INNER JOIN dbo.AccountingEntryLines l ON l.AccountId=a.Id
+INNER JOIN dbo.AccountingEntries e ON e.Id=l.AccountingEntryId
+WHERE a.CompanyId=@companyId AND e.CompanyId=@companyId AND e.Status='Contabilizado'
+AND (a.Code LIKE '1%' OR a.Code LIKE '2%' OR a.Code LIKE '3%')
+GROUP BY a.Code,a.Name
+HAVING SUM(CASE WHEN e.EntryDate<DATEADD(day,1,@asOf) THEN l.Debit+l.Credit ELSE 0 END)<>0
+ OR SUM(CASE WHEN e.EntryDate<DATEADD(day,1,@previousAsOf) THEN l.Debit+l.Credit ELSE 0 END)<>0
+ORDER BY a.Code";
+            Add(cmd,"@companyId",companyId); Add(cmd,"@asOf",asOf); Add(cmd,"@previousAsOf",previousAsOf);
+            await using var rd = await cmd.ExecuteReaderAsync(cancellationToken);
+            while (await rd.ReadAsync(cancellationToken))
+                list.Add(new BalanceSheetRow(rd.GetString(0),rd.GetString(1),rd.GetString(2),rd.GetDecimal(3),rd.GetDecimal(4)));
+            return list;
+        }
+        finally { if (close) await cn.CloseAsync(); }
+    }
+
     private static async Task<IReadOnlyList<AccountingEntryLine>> ListLinesAsync(DbConnection cn, int entryId, CancellationToken ct)
     {
         var list=new List<AccountingEntryLine>(); await using var cmd=cn.CreateCommand();

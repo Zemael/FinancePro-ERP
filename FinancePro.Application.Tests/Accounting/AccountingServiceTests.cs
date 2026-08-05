@@ -50,6 +50,16 @@ public sealed class AccountingServiceTests
         Assert.Equal(100m, summary.GrossRevenue);
     }
 
+
+    [Fact]
+    public async Task Balance_sheet_is_balanced()
+    {
+        var service = new AccountingService(new FakeStore());
+        var summary = await service.GetBalanceSheetSummaryAsync(1, DateTime.Today, DateTime.Today.AddYears(-1));
+        Assert.True(summary.IsBalanced);
+        Assert.Equal(150m, summary.TotalAssets);
+    }
+
     private sealed class FakeStore : IAccountingStore
     {
         public string Status { get; private set; } = AccountingEntryStatus.Draft;
@@ -69,6 +79,13 @@ public sealed class AccountingServiceTests
                 new("6000","Despesas",IncomeStatementLineType.OperatingExpense,20,18),
                 new("7000","Resultado financeiro",IncomeStatementLineType.FinancialResult,5,4),
                 new("8000","Impostos",IncomeStatementLineType.Tax,10,8)]);
+        public Task<IReadOnlyList<BalanceSheetRow>> GetBalanceSheetAsync(int companyId,DateTime asOf,DateTime previousAsOf,CancellationToken cancellationToken=default)
+            => Task.FromResult<IReadOnlyList<BalanceSheetRow>>([
+                new("1000","Caixa",BalanceSheetSection.CurrentAsset,100,80),
+                new("1500","Equipamentos",BalanceSheetSection.NonCurrentAsset,50,55),
+                new("2000","Fornecedores",BalanceSheetSection.CurrentLiability,40,35),
+                new("2500","Empréstimos",BalanceSheetSection.NonCurrentLiability,30,35),
+                new("3000","Capital",BalanceSheetSection.Equity,80,65)]);
         public Task<IReadOnlyList<TrialBalanceRow>> GetTrialBalanceAsync(int companyId,DateTime from,DateTime to,CancellationToken cancellationToken=default)=>Task.FromResult<IReadOnlyList<TrialBalanceRow>>([new(1,"1","Caixa",0,0,100,0,100,0),new(2,"2","Capital",0,0,0,100,0,100)]);
     }
 }
