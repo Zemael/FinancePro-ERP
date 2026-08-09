@@ -111,6 +111,15 @@
      <Button Content="Guardar Exercício" Command="{Binding GuardarCommand}" Style="{StaticResource FP.PrimaryButton}" HorizontalAlignment="Stretch"/>
      <Button Content="Carregar selecionado" Command="{Binding EditarCommand}" Style="{StaticResource FP.SecondaryButton}" HorizontalAlignment="Stretch" Margin="0,10,0,0"/>
      <Border Height="1" Background="{StaticResource FP.Border}" Margin="0,22"/>
+     <TextBlock Text="Fecho Anual" Style="{StaticResource FP.SectionTitle}" Margin="0,0,0,10"/>
+     <TextBlock Text="Valide todos os períodos antes de encerrar o exercício." Foreground="{StaticResource FP.TextMuted}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,10"/>
+     <Button Content="Validar Fecho" Command="{Binding ValidarFechoCommand}" Style="{StaticResource FP.SecondaryButton}" HorizontalAlignment="Stretch"/>
+     <TextBlock Text="{Binding ResumoFecho}" Foreground="{StaticResource FP.Text}" FontSize="10" TextWrapping="Wrap" Margin="0,10,0,10"/>
+     <Button Content="Encerrar Exercício" Command="{Binding EncerrarExercicioCommand}" Style="{StaticResource FP.PrimaryButton}" HorizontalAlignment="Stretch"/>
+     <TextBlock Text="Motivo da reabertura" Style="{StaticResource FP.FieldLabel}" Margin="0,12,0,0"/>
+     <TextBox Text="{Binding MotivoReabertura, UpdateSourceTrigger=PropertyChanged}" MinHeight="40"/>
+     <Button Content="Reabrir Exercício" Command="{Binding ReabrirExercicioCommand}" Style="{StaticResource FP.SecondaryButton}" HorizontalAlignment="Stretch" Margin="0,10,0,0"/>
+     <Border Height="1" Background="{StaticResource FP.Border}" Margin="0,22"/>
      <TextBlock Text="Resumo rápido" Style="{StaticResource FP.SectionTitle}" Margin="0,0,0,12"/>
      <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
       <Border Grid.Column="0" Style="{StaticResource FP.Card}" Padding="12"><StackPanel><TextBlock Text="Ano" Foreground="{StaticResource FP.TextMuted}" FontSize="10"/><TextBlock Text="{Binding Selecionado.Ano, TargetNullValue=—}" Foreground="{StaticResource FP.Accent}" FontSize="17" FontWeight="SemiBold" Margin="0,6,0,0"/></StackPanel></Border>

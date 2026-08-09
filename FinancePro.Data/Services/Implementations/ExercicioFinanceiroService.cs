@@ -71,4 +71,69 @@ public sealed class ExercicioFinanceiroService : IExercicioFinanceiroService
         entity.DataAtualizacao = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }
+    public async Task<FechoAnualPreviewDto> ObterPreviewFechoAsync(int id)
+    {
+        var exercicio = await _context.ExerciciosFinanceiros.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id)
+            ?? throw new InvalidOperationException("Exercício não encontrado.");
+        var checks = new List<FechoAnualCheckDto>();
+        var cn = _context.Database.GetDbConnection();
+        var fechar = cn.State != System.Data.ConnectionState.Open;
+        if (fechar) await cn.OpenAsync();
+        try
+        {
+            async Task<int> CountAsync(string sql)
+            {
+                await using var cmd = cn.CreateCommand(); cmd.CommandText = sql;
+                var p1=cmd.CreateParameter();p1.ParameterName="@empresa";p1.Value=exercicio.EmpresaId;cmd.Parameters.Add(p1);
+                var p2=cmd.CreateParameter();p2.ParameterName="@ano";p2.Value=exercicio.Ano;cmd.Parameters.Add(p2);
+                return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+            }
+            var periodos = await CountAsync("SELECT COUNT(*) FROM dbo.AccountingPeriods WHERE CompanyId=@empresa AND FiscalYear=@ano");
+            checks.Add(new("PERIODOS_12","Os 12 períodos contabilísticos devem existir",true,periodos == 12 ? 0 : Math.Abs(12-periodos),$"Períodos encontrados: {periodos}/12."));
+            var abertos = await CountAsync("SELECT COUNT(*) FROM dbo.AccountingPeriods WHERE CompanyId=@empresa AND FiscalYear=@ano AND Status<>'Fechado'");
+            checks.Add(new("PERIODOS_FECHADOS","Todos os períodos mensais devem estar fechados",true,abertos,abertos==0?"Todos os períodos estão fechados.":$"{abertos} período(s) ainda não estão fechados."));
+            var rascunhos = await CountAsync("SELECT COUNT(*) FROM dbo.AccountingEntries WHERE CompanyId=@empresa AND YEAR(EntryDate)=@ano AND Status='Rascunho'");
+            checks.Add(new("RASCUNHOS","Não podem existir lançamentos em rascunho",true,rascunhos,rascunhos==0?"Sem rascunhos pendentes.":$"{rascunhos} lançamento(s) em rascunho."));
+            var desequilibrados = await CountAsync(@"SELECT COUNT(*) FROM (SELECT e.Id FROM dbo.AccountingEntries e JOIN dbo.AccountingEntryLines l ON l.AccountingEntryId=e.Id WHERE e.CompanyId=@empresa AND YEAR(e.EntryDate)=@ano AND e.Status='Contabilizado' GROUP BY e.Id HAVING SUM(l.Debit)<>SUM(l.Credit)) q");
+            checks.Add(new("EQUILIBRIO","Lançamentos contabilizados devem estar equilibrados",true,desequilibrados,desequilibrados==0?"Todos os lançamentos estão equilibrados.":$"{desequilibrados} lançamento(s) desequilibrado(s)."));
+        }
+        finally { if (fechar) await cn.CloseAsync(); }
+        return new(exercicio.Id, exercicio.EmpresaId, exercicio.Ano, exercicio.Encerrado, checks);
+    }
+
+    public async Task EncerrarAsync(int id, int utilizadorId, string utilizadorNome)
+    {
+        if (utilizadorId<=0 || string.IsNullOrWhiteSpace(utilizadorNome)) throw new InvalidOperationException("Utilizador responsável obrigatório.");
+        var preview=await ObterPreviewFechoAsync(id);
+        if (!preview.PodeEncerrar) throw new InvalidOperationException($"O exercício não pode ser encerrado. Pendências bloqueantes: {preview.PendenciasBloqueantes}.");
+        var e=await _context.ExerciciosFinanceiros.FindAsync(id) ?? throw new InvalidOperationException("Exercício não encontrado.");
+        await using var tx=await _context.Database.BeginTransactionAsync();
+        try
+        {
+            e.Encerrado=true;e.Padrao=false;e.DataAtualizacao=DateTime.UtcNow;await _context.SaveChangesAsync();
+            await _context.Database.ExecuteSqlInterpolatedAsync($@"INSERT INTO dbo.FiscalYearClosingHistory(CompanyId,FiscalYearId,FiscalYear,Operation,UserId,UserName,Reason,CreatedAt) VALUES({e.EmpresaId},{e.Id},{e.Ano},{"Fecho"},{utilizadorId},{utilizadorNome.Trim()},{"Fecho anual validado"},SYSUTCDATETIME())");
+            var seguinte=await _context.ExerciciosFinanceiros.FirstOrDefaultAsync(x=>x.EmpresaId==e.EmpresaId && x.Ano==e.Ano+1);
+            if(seguinte is null){seguinte=new ExercicioFinanceiro{EmpresaId=e.EmpresaId,Ano=e.Ano+1,DataInicio=new DateTime(e.Ano+1,1,1),DataFim=new DateTime(e.Ano+1,12,31),Padrao=true,Encerrado=false,Ativo=true};_context.ExerciciosFinanceiros.Add(seguinte);}else{seguinte.Padrao=true;seguinte.Encerrado=false;seguinte.Ativo=true;}
+            foreach(var outro in await _context.ExerciciosFinanceiros.Where(x=>x.EmpresaId==e.EmpresaId && x.Id!=seguinte.Id && x.Padrao).ToListAsync()) outro.Padrao=false;
+            await _context.SaveChangesAsync();await tx.CommitAsync();
+        }catch{await tx.RollbackAsync();throw;}
+    }
+
+    public async Task ReabrirAsync(int id,int utilizadorId,string utilizadorNome,string motivo)
+    {
+        if(utilizadorId<=0||string.IsNullOrWhiteSpace(utilizadorNome))throw new InvalidOperationException("Utilizador responsável obrigatório.");
+        if(string.IsNullOrWhiteSpace(motivo)||motivo.Trim().Length<5)throw new InvalidOperationException("Informe um motivo de reabertura com pelo menos 5 caracteres.");
+        var e=await _context.ExerciciosFinanceiros.FindAsync(id)??throw new InvalidOperationException("Exercício não encontrado.");
+        if(!e.Encerrado)throw new InvalidOperationException("Apenas exercícios encerrados podem ser reabertos.");
+        e.Encerrado=false;e.DataAtualizacao=DateTime.UtcNow;await _context.SaveChangesAsync();
+        await _context.Database.ExecuteSqlInterpolatedAsync($@"INSERT INTO dbo.FiscalYearClosingHistory(CompanyId,FiscalYearId,FiscalYear,Operation,UserId,UserName,Reason,CreatedAt) VALUES({e.EmpresaId},{e.Id},{e.Ano},{"Reabertura"},{utilizadorId},{utilizadorNome.Trim()},{motivo.Trim()},SYSUTCDATETIME())");
+    }
+
+    public async Task<IReadOnlyList<FechoAnualHistoricoDto>> ObterHistoricoFechoAsync(int id)
+    {
+        var e=await _context.ExerciciosFinanceiros.AsNoTracking().FirstOrDefaultAsync(x=>x.Id==id)??throw new InvalidOperationException("Exercício não encontrado.");
+        var list=new List<FechoAnualHistoricoDto>();var cn=_context.Database.GetDbConnection();var fechar=cn.State!=System.Data.ConnectionState.Open;if(fechar)await cn.OpenAsync();
+        try{await using var cmd=cn.CreateCommand();cmd.CommandText="SELECT Id,FiscalYearId,Operation,UserId,UserName,Reason,CreatedAt FROM dbo.FiscalYearClosingHistory WHERE CompanyId=@c AND FiscalYearId=@id ORDER BY CreatedAt DESC,Id DESC";var a=cmd.CreateParameter();a.ParameterName="@c";a.Value=e.EmpresaId;cmd.Parameters.Add(a);var b=cmd.CreateParameter();b.ParameterName="@id";b.Value=id;cmd.Parameters.Add(b);await using var rd=await cmd.ExecuteReaderAsync();while(await rd.ReadAsync())list.Add(new(rd.GetInt32(0),rd.GetInt32(1),rd.GetString(2),rd.GetInt32(3),rd.GetString(4),rd.GetString(5),rd.GetDateTime(6)));return list;}finally{if(fechar)await cn.CloseAsync();}
+    }
+
 }

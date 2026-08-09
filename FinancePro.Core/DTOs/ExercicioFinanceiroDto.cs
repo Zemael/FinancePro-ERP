@@ -12,3 +12,13 @@ public sealed class ExercicioFinanceiroDto
     public bool Encerrado { get; set; }
     public bool Ativo { get; set; } = true;
 }
+
+public sealed record FechoAnualCheckDto(string Codigo, string Descricao, bool Bloqueante, int Quantidade, string Mensagem);
+
+public sealed record FechoAnualPreviewDto(int ExercicioId, int EmpresaId, int Ano, bool Encerrado, IReadOnlyList<FechoAnualCheckDto> Verificacoes)
+{
+    public int PendenciasBloqueantes => Verificacoes.Count(x => x.Bloqueante && x.Quantidade > 0);
+    public bool PodeEncerrar => !Encerrado && PendenciasBloqueantes == 0;
+}
+
+public sealed record FechoAnualHistoricoDto(int Id, int ExercicioId, string Operacao, int UtilizadorId, string UtilizadorNome, string Motivo, DateTime CriadoEm);

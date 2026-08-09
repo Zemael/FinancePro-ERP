@@ -21,6 +21,8 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
     private bool _encerrado;
     private string _mensagem = string.Empty;
     private bool _aGuardar;
+    private string _motivoReabertura = string.Empty;
+    private string _resumoFecho = string.Empty;
 
     public ObservableCollection<ExercicioFinanceiroDto> Exercicios { get; } = new();
     public ObservableCollection<EmpresaListItemDto> Empresas { get; } = new();
@@ -34,12 +36,17 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
     public bool Encerrado { get => _encerrado; set => SetProperty(ref _encerrado, value); }
     public string Mensagem { get => _mensagem; set => SetProperty(ref _mensagem, value); }
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
+    public string MotivoReabertura { get => _motivoReabertura; set => SetProperty(ref _motivoReabertura, value); }
+    public string ResumoFecho { get => _resumoFecho; set => SetProperty(ref _resumoFecho, value); }
 
     public ICommand PesquisarCommand { get; }
     public ICommand NovoCommand { get; }
     public ICommand EditarCommand { get; }
     public ICommand GuardarCommand { get; }
     public ICommand AlternarAtivoCommand { get; }
+    public ICommand ValidarFechoCommand { get; }
+    public ICommand EncerrarExercicioCommand { get; }
+    public ICommand ReabrirExercicioCommand { get; }
 
     public ExerciciosFinanceirosViewModel(IExercicioFinanceiroService service, IEmpresaService empresaService)
     {
@@ -50,6 +57,9 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
         EditarCommand = new RelayCommand(_ => Editar(), _ => Selecionado is not null);
         GuardarCommand = new AsyncRelayCommand(_ => GuardarAsync(), _ => !AGuardar);
         AlternarAtivoCommand = new AsyncRelayCommand(AlternarAtivoAsync);
+        ValidarFechoCommand = new AsyncRelayCommand(_ => ValidarFechoAsync(), _ => Selecionado is not null);
+        EncerrarExercicioCommand = new AsyncRelayCommand(_ => EncerrarExercicioAsync(), _ => Selecionado is not null);
+        ReabrirExercicioCommand = new AsyncRelayCommand(_ => ReabrirExercicioAsync(), _ => Selecionado is not null);
         _ = InicializarAsync();
     }
 
@@ -106,6 +116,27 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
         if (parametro is not ExercicioFinanceiroDto item) return;
         await _service.AlternarAtivoAsync(item.Id, !item.Ativo);
         await CarregarAsync();
+    }
+
+    private async Task ValidarFechoAsync()
+    {
+        if (Selecionado is null) return;
+        try { var p = await _service.ObterPreviewFechoAsync(Selecionado.Id); ResumoFecho = string.Join("\n", p.Verificacoes.Select(x => $"{(x.Quantidade == 0 ? "✓" : "•")} {x.Descricao}: {x.Mensagem}")); Mensagem = p.PodeEncerrar ? "Exercício pronto para encerramento." : $"Existem {p.PendenciasBloqueantes} pendência(s) bloqueante(s)."; }
+        catch (Exception ex) { Mensagem = ex.Message; }
+    }
+
+    private async Task EncerrarExercicioAsync()
+    {
+        if (Selecionado is null) return;
+        try { await _service.EncerrarAsync(Selecionado.Id, SessaoAtual.UtilizadorId, SessaoAtual.NomeCompleto); Mensagem = "Exercício encerrado e exercício seguinte preparado com sucesso."; await CarregarAsync(); }
+        catch (Exception ex) { Mensagem = ex.Message; }
+    }
+
+    private async Task ReabrirExercicioAsync()
+    {
+        if (Selecionado is null) return;
+        try { await _service.ReabrirAsync(Selecionado.Id, SessaoAtual.UtilizadorId, SessaoAtual.NomeCompleto, MotivoReabertura); Mensagem = "Exercício reaberto com sucesso."; MotivoReabertura = string.Empty; await CarregarAsync(); }
+        catch (Exception ex) { Mensagem = ex.Message; }
     }
 
     private void Limpar()
