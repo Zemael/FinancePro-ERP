@@ -1,4 +1,4 @@
-<Window x:Class="FinancePro.UI.Views.LoginView"
+﻿<Window x:Class="FinancePro.UI.Views.LoginView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="FinancePro ERP — Iniciar sessão"
@@ -21,75 +21,59 @@
                           Color="#18314F"/>
 
         <Style x:Key="InputTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Height" Value="46"/>
-            <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="#233247"/>
-            <Setter Property="Background" Value="#F8FAFD"/>
-            <Setter Property="BorderBrush" Value="#D5DFEA"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#B8C6D5"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush" Value="#0F4C81"/>
+            <Setter Property="CaretBrush" Value="#111827"/>
+            <Setter Property="SelectionBrush" Value="#B9D8F2"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="InputBorder"
-                                Background="{TemplateBinding Background}"
+                        <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="9">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="{TemplateBinding Padding}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
+                                          VerticalAlignment="Center"/>
                         </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#2E75B6"/>
-                                <Setter TargetName="InputBorder" Property="BorderThickness" Value="1.5"/>
-                                <Setter TargetName="InputBorder" Property="Background" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="InputBorder" Property="Opacity" Value="0.65"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            
         </Style>
 
         <Style x:Key="InputPasswordStyle" TargetType="PasswordBox">
-            <Setter Property="Height" Value="46"/>
-            <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="#233247"/>
-            <Setter Property="Background" Value="#F8FAFD"/>
-            <Setter Property="BorderBrush" Value="#D5DFEA"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#B8C6D5"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush" Value="#0F4C81"/>
+            <Setter Property="CaretBrush" Value="#111827"/>
             <Setter Property="SelectionBrush" Value="#B9D8F2"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="PasswordBox">
-                        <Border x:Name="InputBorder"
-                                Background="{TemplateBinding Background}"
+                        <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="9">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="{TemplateBinding Padding}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
+                                          VerticalAlignment="Center"/>
                         </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#2E75B6"/>
-                                <Setter TargetName="InputBorder" Property="BorderThickness" Value="1.5"/>
-                                <Setter TargetName="InputBorder" Property="Background" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="InputBorder" Property="Opacity" Value="0.65"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -301,20 +285,105 @@
                                        Foreground="#3A5066" Margin="0,0,0,7"/>
                             <TextBox x:Name="EmailBox"
                                      Style="{StaticResource InputTextBoxStyle}"
-                                     Foreground="#233247"
-                                     CaretBrush="#0F4C81"
+                                     FontSize="16"
+                                     FontWeight="Normal"
+                                     Foreground="#111827"
+                                     Background="White"
+                                     CaretBrush="#111827"
                                      Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
                                      IsEnabled="{Binding AAutenticar, Converter={StaticResource InversorBool}}"/>
 
                             <TextBlock Text="Palavra-passe" FontSize="12" FontWeight="SemiBold"
                                        Foreground="#3A5066" Margin="0,18,0,7"/>
-                            <PasswordBox x:Name="SenhaBox"
-                                         Style="{StaticResource InputPasswordStyle}"
-                                         Foreground="#233247"
-                                         CaretBrush="#0F4C81"
-                                         PasswordChar="●"
+                            <Grid>
+                                <PasswordBox x:Name="SenhaBox"
+                                             Style="{StaticResource InputPasswordStyle}"
+                                             FontSize="16"
+                                             FontWeight="Normal"
+                                             Foreground="#111827"
+                                             Background="White"
+                                             CaretBrush="#111827"
+                                             Padding="14,0,50,0"
+                                             PasswordChar="●"
+                                             PasswordChanged="SenhaBox_PasswordChanged"
+                                             KeyDown="SenhaBox_KeyDown"
+                                             IsEnabled="{Binding AAutenticar, Converter={StaticResource InversorBool}}"/>
+
+                                <TextBox x:Name="SenhaVisivelBox"
+                                         Style="{StaticResource InputTextBoxStyle}"
+                                         FontSize="16"
+                                         FontWeight="Normal"
+                                         Foreground="#111827"
+                                         Background="White"
+                                         CaretBrush="#111827"
+                                         Padding="14,0,50,0"
+                                         Visibility="Collapsed"
+                                         TextChanged="SenhaVisivelBox_TextChanged"
                                          KeyDown="SenhaBox_KeyDown"
                                          IsEnabled="{Binding AAutenticar, Converter={StaticResource InversorBool}}"/>
+
+                                <Button x:Name="MostrarSenhaButton"
+                                        Width="42"
+                                        Height="46"
+                                        Margin="0,2,3,2"
+                                        Padding="0"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Cursor="Hand"
+                                        ToolTip="Mostrar palavra-passe"
+                                        Click="MostrarSenha_Click">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="EyeButtonBorder"
+                                                    Background="Transparent"
+                                                    CornerRadius="7">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="EyeButtonBorder" Property="Background" Value="#EEF4FA"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter TargetName="EyeButtonBorder" Property="Background" Value="#E1EBF4"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <Grid Width="20" Height="20">
+                                        <Path x:Name="EyeOpenIcon"
+                                              Data="M1,10 C4.2,4.6 7.1,3 10,3 C12.9,3 15.8,4.6 19,10 C15.8,15.4 12.9,17 10,17 C7.1,17 4.2,15.4 1,10 Z"
+                                              Fill="Transparent"
+                                              Stroke="#536B82"
+                                              StrokeThickness="1.6"
+                                              StrokeLineJoin="Round"/>
+                                        <Ellipse x:Name="EyeOpenPupil"
+                                                 Width="5" Height="5"
+                                                 Fill="#536B82"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center"/>
+
+                                        <Grid x:Name="EyeClosedIcon" Visibility="Collapsed">
+                                            <Path Data="M1,10 C4.2,4.6 7.1,3 10,3 C12.9,3 15.8,4.6 19,10 C15.8,15.4 12.9,17 10,17 C7.1,17 4.2,15.4 1,10 Z"
+                                                  Fill="Transparent"
+                                                  Stroke="#536B82"
+                                                  StrokeThickness="1.6"
+                                                  StrokeLineJoin="Round"/>
+                                            <Ellipse Width="5" Height="5"
+                                                     Fill="#536B82"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"/>
+                                            <Path Data="M3,3 L17,17"
+                                                  Stroke="#536B82"
+                                                  StrokeThickness="1.9"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"/>
+                                        </Grid>
+                                    </Grid>
+                                </Button>
+                            </Grid>
 
                             <Grid Margin="0,14,0,0">
                                 <CheckBox Content="Lembrar acesso" Foreground="#536B82" FontSize="12"

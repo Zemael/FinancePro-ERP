@@ -18,10 +18,12 @@ public sealed class AccountingService : IAccountingService
             entries.Where(x => x.Status != AccountingEntryStatus.Reversed).Sum(x => x.TotalCredit));
     }
 
-    public Task<int> SaveDraftAsync(SaveAccountingEntryRequest request, CancellationToken cancellationToken = default)
+    public async Task<int> SaveDraftAsync(SaveAccountingEntryRequest request, CancellationToken cancellationToken = default)
     {
         Validate(request);
-        return _store.SaveAsync(request, cancellationToken);
+        if (!await _store.IsDateOpenForPostingAsync(request.CompanyId, request.EntryDate.Date, cancellationToken))
+            throw new InvalidOperationException("O período contabilístico da data selecionada está fechado ou bloqueado.");
+        return await _store.SaveAsync(request, cancellationToken);
     }
 
     public async Task PostAsync(int companyId, int id, int userId, string userName, CancellationToken cancellationToken = default)
@@ -31,6 +33,8 @@ public sealed class AccountingService : IAccountingService
             throw new InvalidOperationException("Apenas lançamentos em rascunho podem ser contabilizados.");
         if (!entry.IsBalanced || entry.TotalDebit <= 0)
             throw new InvalidOperationException("O lançamento deve estar equilibrado e possuir valor superior a zero.");
+        if (!await _store.IsDateOpenForPostingAsync(companyId, entry.EntryDate.Date, cancellationToken))
+            throw new InvalidOperationException("O período contabilístico deste lançamento está fechado ou bloqueado.");
         await _store.SetStatusAsync(companyId, id, AccountingEntryStatus.Posted, userId, userName, cancellationToken);
     }
 
@@ -153,6 +157,33 @@ public sealed class AccountingService : IAccountingService
         decimal Net(string activity) => rows.Where(x => x.Activity == activity).Sum(x => x.NetAmount);
         return new CashFlowSummary(opening, Net(CashFlowActivity.Operating), Net(CashFlowActivity.Investing), Net(CashFlowActivity.Financing), closing);
     }
+
+    public async Task<AccountingPeriodClosingPreview> GetPeriodClosingPreviewAsync(int companyId, int periodId, CancellationToken cancellationToken = default)
+    {
+        if (companyId <= 0 || periodId <= 0) throw new ArgumentException("Empresa e período são obrigatórios.");
+        return await _store.GetPeriodClosingPreviewAsync(companyId, periodId, cancellationToken)
+            ?? throw new KeyNotFoundException("Período contabilístico não encontrado.");
+    }
+
+    public async Task ClosePeriodAsync(int companyId, int periodId, int userId, string userName, CancellationToken cancellationToken = default)
+    {
+        if (userId <= 0 || string.IsNullOrWhiteSpace(userName)) throw new ArgumentException("Utilizador responsável obrigatório.");
+        var preview = await GetPeriodClosingPreviewAsync(companyId, periodId, cancellationToken);
+        if (!preview.CanClose) throw new InvalidOperationException($"O período não pode ser fechado. Pendências bloqueantes: {preview.BlockingIssues}.");
+        await _store.ClosePeriodAsync(companyId, periodId, userId, userName.Trim(), cancellationToken);
+    }
+
+    public async Task ReopenPeriodAsync(int companyId, int periodId, int userId, string userName, string reason, CancellationToken cancellationToken = default)
+    {
+        if (userId <= 0 || string.IsNullOrWhiteSpace(userName)) throw new ArgumentException("Utilizador responsável obrigatório.");
+        if (string.IsNullOrWhiteSpace(reason) || reason.Trim().Length < 5) throw new ArgumentException("Informe um motivo de reabertura com pelo menos 5 caracteres.");
+        var preview = await GetPeriodClosingPreviewAsync(companyId, periodId, cancellationToken);
+        if (preview.Status != AccountingPeriodStatus.Closed) throw new InvalidOperationException("Apenas períodos fechados podem ser reabertos.");
+        await _store.ReopenPeriodAsync(companyId, periodId, userId, userName.Trim(), reason.Trim(), cancellationToken);
+    }
+
+    public Task<IReadOnlyList<AccountingPeriodClosingHistory>> GetPeriodClosingHistoryAsync(int companyId, int periodId, CancellationToken cancellationToken = default)
+        => _store.GetPeriodClosingHistoryAsync(companyId, periodId, cancellationToken);
 
     private static void ValidatePeriod(int companyId, DateTime from, DateTime to)
     {

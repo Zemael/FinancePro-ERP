@@ -17,4 +17,8 @@ public interface IAccountingService
     Task<BalanceSheetSummary> GetBalanceSheetSummaryAsync(int companyId, DateTime asOf, DateTime previousAsOf, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<CashFlowRow>> GetCashFlowAsync(int companyId, DateTime from, DateTime to, string method, CancellationToken cancellationToken = default);
     Task<CashFlowSummary> GetCashFlowSummaryAsync(int companyId, DateTime from, DateTime to, string method, CancellationToken cancellationToken = default);
+    Task<AccountingPeriodClosingPreview> GetPeriodClosingPreviewAsync(int companyId, int periodId, CancellationToken cancellationToken = default);
+    Task ClosePeriodAsync(int companyId, int periodId, int userId, string userName, CancellationToken cancellationToken = default);
+    Task ReopenPeriodAsync(int companyId, int periodId, int userId, string userName, string reason, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AccountingPeriodClosingHistory>> GetPeriodClosingHistoryAsync(int companyId, int periodId, CancellationToken cancellationToken = default);
 }

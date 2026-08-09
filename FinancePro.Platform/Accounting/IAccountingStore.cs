@@ -13,4 +13,9 @@ public interface IAccountingStore
     Task<IReadOnlyList<BalanceSheetRow>> GetBalanceSheetAsync(int companyId, DateTime asOf, DateTime previousAsOf, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<CashFlowRow>> GetDirectCashFlowAsync(int companyId, DateTime from, DateTime to, CancellationToken cancellationToken = default);
     Task<decimal> GetCashBalanceAsync(int companyId, DateTime asOf, CancellationToken cancellationToken = default);
+    Task<AccountingPeriodClosingPreview?> GetPeriodClosingPreviewAsync(int companyId, int periodId, CancellationToken cancellationToken = default);
+    Task ClosePeriodAsync(int companyId, int periodId, int userId, string userName, CancellationToken cancellationToken = default);
+    Task ReopenPeriodAsync(int companyId, int periodId, int userId, string userName, string reason, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AccountingPeriodClosingHistory>> GetPeriodClosingHistoryAsync(int companyId, int periodId, CancellationToken cancellationToken = default);
+    Task<bool> IsDateOpenForPostingAsync(int companyId, DateTime date, CancellationToken cancellationToken = default);
 }

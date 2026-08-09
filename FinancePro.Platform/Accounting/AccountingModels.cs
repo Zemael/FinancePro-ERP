@@ -219,3 +219,18 @@ public sealed record CashFlowSummary(
     public bool IsReconciled => Math.Abs((OpeningBalance + NetChange) - ClosingBalance) < 0.01m;
 }
 
+
+public static class AccountingPeriodStatus
+{
+    public const string Open = "Aberto";
+    public const string Closed = "Fechado";
+    public const string Blocked = "Bloqueado";
+}
+
+public sealed record AccountingPeriodClosingCheck(string Code, string Description, bool IsBlocking, int Count, string Message);
+public sealed record AccountingPeriodClosingPreview(int PeriodId, int FiscalYear, int Month, DateTime StartDate, DateTime EndDate, string Status, IReadOnlyList<AccountingPeriodClosingCheck> Checks)
+{
+    public bool CanClose => Status == AccountingPeriodStatus.Open && Checks.All(x => !x.IsBlocking || x.Count == 0);
+    public int BlockingIssues => Checks.Where(x => x.IsBlocking).Sum(x => x.Count);
+}
+public sealed record AccountingPeriodClosingHistory(int Id, int PeriodId, string Operation, string PreviousStatus, string NewStatus, int UserId, string UserName, string Reason, DateTime CreatedAt);

@@ -70,9 +70,40 @@ public sealed class AccountingServiceTests
         Assert.Equal(30m, summary.NetChange);
     }
 
+
+    [Fact]
+    public async Task Close_period_rejects_blocking_drafts()
+    {
+        var store = new FakeStore { ClosingDrafts = 2 }; var service = new AccountingService(store);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.ClosePeriodAsync(1, 1, 1, "Admin"));
+    }
+
+    [Fact]
+    public async Task Close_and_reopen_period_are_audited()
+    {
+        var store = new FakeStore(); var service = new AccountingService(store);
+        await service.ClosePeriodAsync(1, 1, 1, "Admin");
+        Assert.Equal("Fechado", store.PeriodStatus);
+        await service.ReopenPeriodAsync(1, 1, 1, "Admin", "Correção autorizada");
+        Assert.Equal("Aberto", store.PeriodStatus);
+        Assert.Equal(2, store.History.Count);
+    }
+
+    [Fact]
+    public async Task Save_draft_rejects_closed_period()
+    {
+        var store = new FakeStore { DateOpen = false }; var service = new AccountingService(store);
+        var request = new SaveAccountingEntryRequest(1,null,DateTime.Today,"CTB-2","","Teste","Manual",1,"Admin",[new(1,null,"D",100,0),new(2,null,"C",0,100)]);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveDraftAsync(request));
+    }
+
     private sealed class FakeStore : IAccountingStore
     {
         public string Status { get; private set; } = AccountingEntryStatus.Draft;
+        public string PeriodStatus { get; private set; } = AccountingPeriodStatus.Open;
+        public int ClosingDrafts { get; set; }
+        public bool DateOpen { get; set; } = true;
+        public List<AccountingPeriodClosingHistory> History { get; } = [];
         private AccountingEntry Entry => new(1,1,DateTime.Today,"CTB-1","","Teste","Manual",Status,1,"Admin",DateTime.UtcNow,
             [new(null,1,"1","Caixa",null,null,"",100,0),new(null,2,"2","Capital",null,null,"",0,100)]);
         public Task<IReadOnlyList<AccountingEntry>> ListAsync(int companyId,DateTime? from=null,DateTime? to=null,CancellationToken cancellationToken=default)=>Task.FromResult<IReadOnlyList<AccountingEntry>>([Entry]);
@@ -104,6 +135,11 @@ public sealed class AccountingServiceTests
                 new(DateTime.Today,"PAT-1","Aquisição",CashFlowActivity.Investing,0,20)]);
         public Task<decimal> GetCashBalanceAsync(int companyId,DateTime asOf,CancellationToken cancellationToken=default)
             => Task.FromResult(asOf.Date < DateTime.Today ? 70m : 100m);
+        public Task<bool> IsDateOpenForPostingAsync(int companyId,DateTime date,CancellationToken cancellationToken=default)=>Task.FromResult(DateOpen);
+        public Task<AccountingPeriodClosingPreview?> GetPeriodClosingPreviewAsync(int companyId,int periodId,CancellationToken cancellationToken=default)=>Task.FromResult<AccountingPeriodClosingPreview?>(new(periodId,2026,8,new DateTime(2026,8,1),new DateTime(2026,8,31),PeriodStatus,[new("DRAFT_ENTRIES","Rascunhos",true,ClosingDrafts,"")]));
+        public Task ClosePeriodAsync(int companyId,int periodId,int userId,string userName,CancellationToken cancellationToken=default){var old=PeriodStatus;PeriodStatus=AccountingPeriodStatus.Closed;History.Add(new(History.Count+1,periodId,"Fecho",old,PeriodStatus,userId,userName,"Fecho",DateTime.UtcNow));return Task.CompletedTask;}
+        public Task ReopenPeriodAsync(int companyId,int periodId,int userId,string userName,string reason,CancellationToken cancellationToken=default){var old=PeriodStatus;PeriodStatus=AccountingPeriodStatus.Open;History.Add(new(History.Count+1,periodId,"Reabertura",old,PeriodStatus,userId,userName,reason,DateTime.UtcNow));return Task.CompletedTask;}
+        public Task<IReadOnlyList<AccountingPeriodClosingHistory>> GetPeriodClosingHistoryAsync(int companyId,int periodId,CancellationToken cancellationToken=default)=>Task.FromResult<IReadOnlyList<AccountingPeriodClosingHistory>>(History);
         public Task<IReadOnlyList<TrialBalanceRow>> GetTrialBalanceAsync(int companyId,DateTime from,DateTime to,CancellationToken cancellationToken=default)=>Task.FromResult<IReadOnlyList<TrialBalanceRow>>([new(1,"1","Caixa",0,0,100,0,100,0),new(2,"2","Capital",0,0,0,100,0,100)]);
     }
 }

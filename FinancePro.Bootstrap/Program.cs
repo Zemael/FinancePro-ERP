@@ -16,6 +16,15 @@ var options = new DbContextOptionsBuilder<FinanceProDbContext>().UseSqlServer(cs
 await using var db = new FinanceProDbContext(options);
 
 if (!await db.Database.CanConnectAsync()) throw new InvalidOperationException("Não foi possível ligar à base FinancePro.");
+
+// Aplica a evolução v6.6 de forma idempotente pelo próprio .NET.
+var closingSchema = Path.Combine(root, "FinancePro.Data", "Scripts", "Schema", "020_AccountingPeriodClosing.sql");
+if (File.Exists(closingSchema))
+{
+    var sql = await File.ReadAllTextAsync(closingSchema);
+    if (!string.IsNullOrWhiteSpace(sql)) await db.Database.ExecuteSqlRawAsync(sql);
+}
+
 if (Has(args, "--validate")) {
     Console.WriteLine($"OK: ligação à base {db.Database.GetDbConnection().Database} em {db.Database.GetDbConnection().DataSource}.");
     Console.WriteLine($"Empresas={await db.Empresas.CountAsync()}; Utilizadores={await db.Utilizadores.CountAsync()}; Moedas={await db.Moedas.CountAsync()}; Exercícios={await db.ExerciciosFinanceiros.CountAsync()}");

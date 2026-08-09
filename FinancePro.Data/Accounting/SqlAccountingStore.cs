@@ -301,6 +301,48 @@ AND (a.Code LIKE '10%' OR a.Code LIKE '11%' OR a.Code LIKE '12%')";
         finally { if (close) await cn.CloseAsync(); }
     }
 
+    public async Task<bool> IsDateOpenForPostingAsync(int companyId, DateTime date, CancellationToken cancellationToken = default)
+    {
+        var cn=_dbContext.Database.GetDbConnection(); var close=cn.State!=ConnectionState.Open; if(close) await cn.OpenAsync(cancellationToken);
+        try { await using var cmd=cn.CreateCommand(); cmd.CommandText=@"SELECT CASE WHEN EXISTS(SELECT 1 FROM dbo.AccountingPeriods WHERE CompanyId=@companyId AND @date BETWEEN StartDate AND EndDate AND Active=1 AND Status='Aberto') THEN 1 ELSE 0 END"; Add(cmd,"@companyId",companyId); Add(cmd,"@date",date.Date); return Convert.ToInt32(await cmd.ExecuteScalarAsync(cancellationToken))==1; }
+        finally { if(close) await cn.CloseAsync(); }
+    }
+
+    public async Task<AccountingPeriodClosingPreview?> GetPeriodClosingPreviewAsync(int companyId, int periodId, CancellationToken cancellationToken = default)
+    {
+        var cn=_dbContext.Database.GetDbConnection(); var close=cn.State!=ConnectionState.Open; if(close) await cn.OpenAsync(cancellationToken);
+        try {
+            int year,month; DateTime start,end; string status;
+            await using(var cmd=cn.CreateCommand()){cmd.CommandText="SELECT FiscalYear,Month,StartDate,EndDate,Status FROM dbo.AccountingPeriods WHERE Id=@id AND CompanyId=@companyId";Add(cmd,"@id",periodId);Add(cmd,"@companyId",companyId);await using var rd=await cmd.ExecuteReaderAsync(cancellationToken);if(!await rd.ReadAsync(cancellationToken))return null;year=rd.GetInt32(0);month=rd.GetInt32(1);start=rd.GetDateTime(2);end=rd.GetDateTime(3);status=rd.GetString(4);}
+            var checks=new List<AccountingPeriodClosingCheck>();
+            async Task<int> Count(string sql){await using var c=cn.CreateCommand();c.CommandText=sql;Add(c,"@companyId",companyId);Add(c,"@start",start);Add(c,"@end",end);return Convert.ToInt32(await c.ExecuteScalarAsync(cancellationToken));}
+            var drafts=await Count("SELECT COUNT(*) FROM dbo.AccountingEntries WHERE CompanyId=@companyId AND EntryDate BETWEEN @start AND @end AND Status='Rascunho'");
+            checks.Add(new("DRAFT_ENTRIES","Lançamentos em rascunho",true,drafts,drafts==0?"Sem lançamentos pendentes.":$"Existem {drafts} lançamento(s) em rascunho."));
+            var unbalanced=await Count("SELECT COUNT(*) FROM (SELECT e.Id FROM dbo.AccountingEntries e JOIN dbo.AccountingEntryLines l ON l.AccountingEntryId=e.Id WHERE e.CompanyId=@companyId AND e.EntryDate BETWEEN @start AND @end AND e.Status='Contabilizado' GROUP BY e.Id HAVING SUM(l.Debit)<>SUM(l.Credit)) X");
+            checks.Add(new("UNBALANCED","Lançamentos contabilizados desequilibrados",true,unbalanced,unbalanced==0?"Partidas dobradas validadas.":$"Existem {unbalanced} lançamento(s) desequilibrado(s)."));
+            return new(periodId,year,month,start,end,status,checks);
+        } finally { if(close) await cn.CloseAsync(); }
+    }
+
+    public async Task ClosePeriodAsync(int companyId,int periodId,int userId,string userName,CancellationToken cancellationToken=default)
+        => await ChangePeriodStatusAsync(companyId,periodId,"Fechado",userId,userName,"Fecho contabilístico do período",cancellationToken);
+    public async Task ReopenPeriodAsync(int companyId,int periodId,int userId,string userName,string reason,CancellationToken cancellationToken=default)
+        => await ChangePeriodStatusAsync(companyId,periodId,"Aberto",userId,userName,reason,cancellationToken);
+
+    private async Task ChangePeriodStatusAsync(int companyId,int periodId,string newStatus,int userId,string userName,string reason,CancellationToken ct)
+    {
+        var cn=_dbContext.Database.GetDbConnection();var close=cn.State!=ConnectionState.Open;if(close)await cn.OpenAsync(ct);await using var tx=await cn.BeginTransactionAsync(ct);
+        try{string old;await using(var q=cn.CreateCommand()){q.Transaction=tx;q.CommandText="SELECT Status FROM dbo.AccountingPeriods WITH (UPDLOCK,ROWLOCK) WHERE Id=@id AND CompanyId=@companyId";Add(q,"@id",periodId);Add(q,"@companyId",companyId);old=Convert.ToString(await q.ExecuteScalarAsync(ct))??throw new KeyNotFoundException("Período contabilístico não encontrado.");}
+        await using(var u=cn.CreateCommand()){u.Transaction=tx;u.CommandText="UPDATE dbo.AccountingPeriods SET Status=@status,UpdatedAt=SYSUTCDATETIME() WHERE Id=@id AND CompanyId=@companyId";Add(u,"@status",newStatus);Add(u,"@id",periodId);Add(u,"@companyId",companyId);await u.ExecuteNonQueryAsync(ct);}
+        await using(var h=cn.CreateCommand()){h.Transaction=tx;h.CommandText=@"INSERT INTO dbo.AccountingPeriodClosingHistory(CompanyId,AccountingPeriodId,Operation,PreviousStatus,NewStatus,UserId,UserName,Reason,CreatedAt) VALUES(@companyId,@id,@operation,@old,@new,@userId,@userName,@reason,SYSUTCDATETIME())";Add(h,"@companyId",companyId);Add(h,"@id",periodId);Add(h,"@operation",newStatus=="Fechado"?"Fecho":"Reabertura");Add(h,"@old",old);Add(h,"@new",newStatus);Add(h,"@userId",userId);Add(h,"@userName",userName);Add(h,"@reason",reason);await h.ExecuteNonQueryAsync(ct);}await tx.CommitAsync(ct);}catch{await tx.RollbackAsync(ct);throw;}finally{if(close)await cn.CloseAsync();}
+    }
+
+    public async Task<IReadOnlyList<AccountingPeriodClosingHistory>> GetPeriodClosingHistoryAsync(int companyId,int periodId,CancellationToken cancellationToken=default)
+    {
+        var list=new List<AccountingPeriodClosingHistory>();var cn=_dbContext.Database.GetDbConnection();var close=cn.State!=ConnectionState.Open;if(close)await cn.OpenAsync(cancellationToken);
+        try{await using var cmd=cn.CreateCommand();cmd.CommandText="SELECT Id,AccountingPeriodId,Operation,PreviousStatus,NewStatus,UserId,UserName,Reason,CreatedAt FROM dbo.AccountingPeriodClosingHistory WHERE CompanyId=@companyId AND AccountingPeriodId=@id ORDER BY CreatedAt DESC,Id DESC";Add(cmd,"@companyId",companyId);Add(cmd,"@id",periodId);await using var rd=await cmd.ExecuteReaderAsync(cancellationToken);while(await rd.ReadAsync(cancellationToken))list.Add(new(rd.GetInt32(0),rd.GetInt32(1),rd.GetString(2),rd.GetString(3),rd.GetString(4),rd.GetInt32(5),rd.GetString(6),rd.GetString(7),rd.GetDateTime(8)));return list;}finally{if(close)await cn.CloseAsync();}
+    }
+
     private static async Task<IReadOnlyList<AccountingEntryLine>> ListLinesAsync(DbConnection cn, int entryId, CancellationToken ct)
     {
         var list=new List<AccountingEntryLine>(); await using var cmd=cn.CreateCommand();
