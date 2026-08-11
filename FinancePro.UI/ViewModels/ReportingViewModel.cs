@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
 using FinancePro.Platform.Reporting;
@@ -73,7 +72,7 @@ public sealed class ReportingViewModel : ViewModelBase
     private async Task PrintAsync()
     {
         if (_result is null) return;
-        var filePath = Path.Combine(Path.GetTempPath(), $"FinancePro-{SafeFileName(_result.Title)}-{DateTime.Now:yyyyMMddHHmmss}.html");
+        var filePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"FinancePro-{SafeFileName(_result.Title)}-{DateTime.Now:yyyyMMddHHmmss}.html");
         await _service.ExportHtmlAsync(_result, filePath);
         Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
         Message = "RelatÃ³rio aberto em modo de impressÃ£o. Utilize Imprimir ou Guardar como PDF no navegador.";
@@ -81,7 +80,7 @@ public sealed class ReportingViewModel : ViewModelBase
 
     private static string SafeFileName(string value)
     {
-        var invalid = Path.GetInvalidFileNameChars();
+        var invalid = System.IO.Path.GetInvalidFileNameChars();
         return string.Concat(value.Select(c => invalid.Contains(c) || char.IsWhiteSpace(c) ? '-' : c)).Trim('-');
     }
 
