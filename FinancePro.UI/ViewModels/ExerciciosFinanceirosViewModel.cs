@@ -23,9 +23,14 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
     private bool _aGuardar;
     private string _motivoReabertura = string.Empty;
     private string _resumoFecho = string.Empty;
+    private int? _contaResultadoId, _contaResultadosTransitadosId;
+    private ContaFechoAnualDto? _contaClassificacao;
+    private string _classificacaoSelecionada = "Ativo";
 
     public ObservableCollection<ExercicioFinanceiroDto> Exercicios { get; } = new();
     public ObservableCollection<EmpresaListItemDto> Empresas { get; } = new();
+    public ObservableCollection<ContaFechoAnualDto> ContasFecho { get; } = new();
+    public IReadOnlyList<string> ClassificacoesConta { get; } = ["Ativo","Passivo","PatrimonioLiquido","Receita","Despesa"];
     public string Pesquisa { get => _pesquisa; set => SetProperty(ref _pesquisa, value); }
     public ExercicioFinanceiroDto? Selecionado { get => _selecionado; set => SetProperty(ref _selecionado, value); }
     public int EmpresaId { get => _empresaId; set => SetProperty(ref _empresaId, value); }
@@ -38,6 +43,10 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
     public string MotivoReabertura { get => _motivoReabertura; set => SetProperty(ref _motivoReabertura, value); }
     public string ResumoFecho { get => _resumoFecho; set => SetProperty(ref _resumoFecho, value); }
+    public int? ContaResultadoId { get => _contaResultadoId; set => SetProperty(ref _contaResultadoId, value); }
+    public int? ContaResultadosTransitadosId { get => _contaResultadosTransitadosId; set => SetProperty(ref _contaResultadosTransitadosId, value); }
+    public ContaFechoAnualDto? ContaClassificacao { get => _contaClassificacao; set { if(SetProperty(ref _contaClassificacao,value) && value is not null && !string.IsNullOrWhiteSpace(value.Classificacao)) ClassificacaoSelecionada=value.Classificacao; } }
+    public string ClassificacaoSelecionada { get => _classificacaoSelecionada; set => SetProperty(ref _classificacaoSelecionada, value); }
 
     public ICommand PesquisarCommand { get; }
     public ICommand NovoCommand { get; }
@@ -47,6 +56,8 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
     public ICommand ValidarFechoCommand { get; }
     public ICommand EncerrarExercicioCommand { get; }
     public ICommand ReabrirExercicioCommand { get; }
+    public ICommand GuardarConfiguracaoFechoCommand { get; }
+    public ICommand GuardarClassificacaoContaCommand { get; }
 
     public ExerciciosFinanceirosViewModel(IExercicioFinanceiroService service, IEmpresaService empresaService)
     {
@@ -60,6 +71,8 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
         ValidarFechoCommand = new AsyncRelayCommand(_ => ValidarFechoAsync(), _ => Selecionado is not null);
         EncerrarExercicioCommand = new AsyncRelayCommand(_ => EncerrarExercicioAsync(), _ => Selecionado is not null);
         ReabrirExercicioCommand = new AsyncRelayCommand(_ => ReabrirExercicioAsync(), _ => Selecionado is not null);
+        GuardarConfiguracaoFechoCommand = new AsyncRelayCommand(_ => GuardarConfiguracaoFechoAsync(), _ => Selecionado is not null);
+        GuardarClassificacaoContaCommand = new AsyncRelayCommand(_ => GuardarClassificacaoContaAsync(), _ => Selecionado is not null && ContaClassificacao is not null);
         _ = InicializarAsync();
     }
 
@@ -89,6 +102,7 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
         Padrao = Selecionado.Padrao;
         Encerrado = Selecionado.Encerrado;
         Mensagem = "Exercício carregado para edição.";
+        _ = CarregarConfiguracaoFechoAsync();
     }
 
     private async Task GuardarAsync()
@@ -139,6 +153,20 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
         catch (Exception ex) { Mensagem = ex.Message; }
     }
 
+
+    private async Task CarregarConfiguracaoFechoAsync()
+    {
+        if(Selecionado is null)return;
+        try{var contas=await _service.ListarContasFechoAsync(Selecionado.EmpresaId);ContasFecho.Clear();foreach(var c in contas)ContasFecho.Add(c);var cfg=await _service.ObterConfiguracaoFechoAsync(Selecionado.EmpresaId);ContaResultadoId=cfg.ContaResultadoId;ContaResultadosTransitadosId=cfg.ContaResultadosTransitadosId;}catch(Exception ex){Mensagem=ex.Message;}
+    }
+    private async Task GuardarConfiguracaoFechoAsync()
+    {
+        if(Selecionado is null)return;try{await _service.GuardarConfiguracaoFechoAsync(new(Selecionado.EmpresaId,ContaResultadoId,ContaResultadosTransitadosId));Mensagem="Configuração de fecho anual guardada.";await ValidarFechoAsync();}catch(Exception ex){Mensagem=ex.Message;}
+    }
+    private async Task GuardarClassificacaoContaAsync()
+    {
+        if(Selecionado is null||ContaClassificacao is null)return;try{await _service.GuardarClassificacaoContaAsync(Selecionado.EmpresaId,ContaClassificacao.Id,ClassificacaoSelecionada);Mensagem="Classificação contabilística guardada.";await CarregarConfiguracaoFechoAsync();}catch(Exception ex){Mensagem=ex.Message;}
+    }
     private void Limpar()
     {
         _idEdicao = 0;

@@ -22,3 +22,9 @@ public sealed record FechoAnualPreviewDto(int ExercicioId, int EmpresaId, int An
 }
 
 public sealed record FechoAnualHistoricoDto(int Id, int ExercicioId, string Operacao, int UtilizadorId, string UtilizadorNome, string Motivo, DateTime CriadoEm);
+
+public sealed record ContaFechoAnualDto(int Id, string Codigo, string Nome, string Natureza, string Classificacao)
+{
+    public string Descricao => $"{Codigo} · {Nome}";
+}
+public sealed record ConfiguracaoFechoAnualDto(int EmpresaId, int? ContaResultadoId, int? ContaResultadosTransitadosId);

@@ -11,4 +11,8 @@ public interface IExercicioFinanceiroService
     Task EncerrarAsync(int id, int utilizadorId, string utilizadorNome);
     Task ReabrirAsync(int id, int utilizadorId, string utilizadorNome, string motivo);
     Task<IReadOnlyList<FechoAnualHistoricoDto>> ObterHistoricoFechoAsync(int id);
+    Task<IReadOnlyList<ContaFechoAnualDto>> ListarContasFechoAsync(int empresaId);
+    Task<ConfiguracaoFechoAnualDto> ObterConfiguracaoFechoAsync(int empresaId);
+    Task GuardarConfiguracaoFechoAsync(ConfiguracaoFechoAnualDto configuracao);
+    Task GuardarClassificacaoContaAsync(int empresaId, int contaId, string classificacao);
 }

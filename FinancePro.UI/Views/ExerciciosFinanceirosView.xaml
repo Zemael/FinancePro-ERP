@@ -112,7 +112,16 @@
      <Button Content="Carregar selecionado" Command="{Binding EditarCommand}" Style="{StaticResource FP.SecondaryButton}" HorizontalAlignment="Stretch" Margin="0,10,0,0"/>
      <Border Height="1" Background="{StaticResource FP.Border}" Margin="0,22"/>
      <TextBlock Text="Fecho Anual" Style="{StaticResource FP.SectionTitle}" Margin="0,0,0,10"/>
-     <TextBlock Text="Valide todos os períodos antes de encerrar o exercício." Foreground="{StaticResource FP.TextMuted}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,10"/>
+     <TextBlock Text="Conta de Resultado do Exercício" Style="{StaticResource FP.FieldLabel}"/>
+     <ComboBox ItemsSource="{Binding ContasFecho}" DisplayMemberPath="Descricao" SelectedValuePath="Id" SelectedValue="{Binding ContaResultadoId}" Height="36" Margin="0,0,0,8"/>
+     <TextBlock Text="Conta de Resultados Transitados" Style="{StaticResource FP.FieldLabel}"/>
+     <ComboBox ItemsSource="{Binding ContasFecho}" DisplayMemberPath="Descricao" SelectedValuePath="Id" SelectedValue="{Binding ContaResultadosTransitadosId}" Height="36" Margin="0,0,0,8"/>
+     <Button Content="Guardar contas de fecho" Command="{Binding GuardarConfiguracaoFechoCommand}" Style="{StaticResource FP.SecondaryButton}" HorizontalAlignment="Stretch" Margin="0,0,0,12"/>
+     <TextBlock Text="Classificar conta movimentada" Style="{StaticResource FP.FieldLabel}"/>
+     <ComboBox ItemsSource="{Binding ContasFecho}" DisplayMemberPath="Descricao" SelectedItem="{Binding ContaClassificacao}" Height="36" Margin="0,0,0,6"/>
+     <ComboBox ItemsSource="{Binding ClassificacoesConta}" SelectedItem="{Binding ClassificacaoSelecionada}" Height="36" Margin="0,0,0,6"/>
+     <Button Content="Guardar classificação" Command="{Binding GuardarClassificacaoContaCommand}" Style="{StaticResource FP.SecondaryButton}" HorizontalAlignment="Stretch" Margin="0,0,0,12"/>
+     <TextBlock Text="Valide todos os períodos, contas e saldos antes de encerrar o exercício." Foreground="{StaticResource FP.TextMuted}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,10"/>
      <Button Content="Validar Fecho" Command="{Binding ValidarFechoCommand}" Style="{StaticResource FP.SecondaryButton}" HorizontalAlignment="Stretch"/>
      <TextBlock Text="{Binding ResumoFecho}" Foreground="{StaticResource FP.Text}" FontSize="10" TextWrapping="Wrap" Margin="0,10,0,10"/>
      <Button Content="Encerrar Exercício" Command="{Binding EncerrarExercicioCommand}" Style="{StaticResource FP.PrimaryButton}" HorizontalAlignment="Stretch"/>
