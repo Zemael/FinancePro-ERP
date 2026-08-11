@@ -101,6 +101,9 @@
     <Style x:Key="FPComboBox" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
         <Setter Property="MinHeight" Value="34"/>
         <Setter Property="Foreground" Value="#1F2937"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="#D1DCE8"/>
+        <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
     <Style x:Key="FPDataGrid" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">

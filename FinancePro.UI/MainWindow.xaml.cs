@@ -25,6 +25,7 @@ using FinancePro.Platform.Reporting;
 using FinancePro.Platform.Documents;
 using FinancePro.Platform.Administration;
 using FinancePro.Platform.Accounting;
+using FinancePro.Platform.Consolidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinancePro.UI;
@@ -98,6 +99,8 @@ public partial class MainWindow : Window
     private void Administracao_Click(object sender, RoutedEventArgs e) => MostrarAdministracao();
 
     private void Contabilidade_Click(object sender, RoutedEventArgs e) => MostrarContabilidade();
+
+    private void Consolidacao_Click(object sender, RoutedEventArgs e) => MostrarConsolidacao();
 
     private void Tema_Click(object sender, RoutedEventArgs e) => GestorTema.Alternar();
 
@@ -221,6 +224,7 @@ public partial class MainWindow : Window
         BtnRelatorios.Visibility = Visibility.Visible;
         BtnAdministracao.Visibility = Visibility.Visible;
         BtnContabilidade.Visibility = Visibility.Visible;
+        BtnConsolidacao.Visibility = Visibility.Visible;
     }
 
     private static Visibility Visibilidade(string modulo) =>
@@ -335,6 +339,17 @@ public partial class MainWindow : Window
         ConteudoHost.Content = new AccountingView
         {
             DataContext = new AccountingViewModel(service, masterData, _utilizador.EmpresaId, _utilizador.UtilizadorId, _utilizador.NomeCompleto)
+        };
+    }
+
+    private void MostrarConsolidacao()
+    {
+        DestacarItemAtivo(BtnConsolidacao);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IConsolidationService>();
+        ConteudoHost.Content = new ConsolidationView
+        {
+            DataContext = new ConsolidationViewModel(service, _utilizador.UtilizadorId, _utilizador.NomeCompleto)
         };
     }
 
