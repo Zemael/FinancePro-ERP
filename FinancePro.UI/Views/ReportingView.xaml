@@ -4,18 +4,23 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
         <StackPanel>
             <Grid Margin="0,0,0,16">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Text="Central de Relatórios" FontSize="22" FontWeight="SemiBold" Foreground="#0E4C5E"/>
-                    <TextBlock Text="Gere, pré-visualize e exporte informação financeira e operacional." Foreground="#667085" Margin="0,4,0,0"/>
+                    <TextBlock Text="Relatórios financeiros, contabilísticos, fiscais e operacionais numa única área." Foreground="#667085" Margin="0,4,0,0"/>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Exportar CSV" Command="{Binding ExportCommand}" Style="{StaticResource BaseButton}" Padding="18,8"/>
+                <Button Grid.Column="1" Content="Imprimir / PDF" Command="{Binding PrintCommand}" Style="{StaticResource BaseButton}" Padding="18,8"/>
+                <Button Grid.Column="3" Content="Exportar CSV" Command="{Binding ExportCommand}" Style="{StaticResource BaseButton}" Padding="18,8"/>
             </Grid>
 
             <Border Style="{StaticResource FP.Card}" Margin="0,0,0,16">
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                    <StackPanel><TextBlock Text="Relatório" FontWeight="SemiBold"/><ComboBox ItemsSource="{Binding Reports}" SelectedItem="{Binding SelectedReport}" DisplayMemberPath="Name" Margin="0,6,0,0"/></StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Relatório" FontWeight="SemiBold"/>
+                        <ComboBox ItemsSource="{Binding Reports}" SelectedItem="{Binding SelectedReport}" DisplayMemberPath="Name" Margin="0,6,0,0"/>
+                        <TextBlock Text="{Binding SelectedReportDescription}" Foreground="#667085" FontSize="11" Margin="2,5,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
                     <StackPanel Grid.Column="2"><TextBlock Text="Data inicial" FontWeight="SemiBold"/><DatePicker SelectedDate="{Binding From}" Margin="0,6,0,0"/></StackPanel>
                     <StackPanel Grid.Column="4"><TextBlock Text="Data final" FontWeight="SemiBold"/><DatePicker SelectedDate="{Binding To}" Margin="0,6,0,0"/></StackPanel>
                     <Button Grid.Column="6" Content="Gerar relatório" Command="{Binding GenerateCommand}" Style="{StaticResource BaseButton}" Padding="18,8" VerticalAlignment="Bottom"/>
@@ -29,7 +34,11 @@
 
             <Border Style="{StaticResource FP.Card}">
                 <StackPanel>
-                    <TextBlock Text="Pré-visualização" FontSize="16" FontWeight="SemiBold" Foreground="#0E4C5E" Margin="0,0,0,10"/>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBlock Text="Pré-visualização" FontSize="16" FontWeight="SemiBold" Foreground="#0E4C5E"/>
+                        <TextBlock Grid.Column="1" Text="Máximo de 250 linhas no ecrã" Foreground="#98A2B3" FontSize="11" VerticalAlignment="Center"/>
+                    </Grid>
                     <DataGrid ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="420">
                         <DataGrid.Columns><DataGridTextColumn Header="Dados" Binding="{Binding Summary}" Width="*"/></DataGrid.Columns>
                     </DataGrid>
