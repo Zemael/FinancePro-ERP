@@ -1,4 +1,4 @@
-<UserControl x:Class="FinancePro.UI.Views.DocumentsView"
+﻿<UserControl x:Class="FinancePro.UI.Views.DocumentsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid Background="{StaticResource FP.PageBackground}">
@@ -32,7 +32,7 @@
                                 <DataTemplate>
                                     <StackPanel Margin="0,0,0,12">
                                         <TextBlock Text="{Binding Label}" FontWeight="SemiBold" Foreground="#344054" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" MinHeight="36" Padding="9,6" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                        <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" MinHeight="40" Padding="9,6" TextWrapping="Wrap" AcceptsReturn="True"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

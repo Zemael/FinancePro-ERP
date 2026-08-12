@@ -16,3 +16,5 @@ obj/
 ## Configurações locais com segredos
 appsettings.Development.json
 appsettings.Local.json
+*.bak
+TestResults/

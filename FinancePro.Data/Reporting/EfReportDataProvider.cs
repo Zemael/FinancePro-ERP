@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using FinancePro.Data.Context;
 using FinancePro.Platform.Reporting;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +10,9 @@ public sealed class EfReportDataProvider : IReportDataProvider
     private readonly FinanceProDbContext _db;
     public EfReportDataProvider(FinanceProDbContext db) => _db = db;
 
-    public Task<ReportResult> GenerateAsync(ReportRequest request, CancellationToken cancellationToken = default) =>
-        request.ReportKey.ToLowerInvariant() switch
+    public async Task<ReportResult> GenerateAsync(ReportRequest request, CancellationToken cancellationToken = default)
+    {
+        var result = await (request.ReportKey.ToLowerInvariant() switch
         {
             "receivables" => ReceivablesAsync(request, cancellationToken),
             "payables" => PayablesAsync(request, cancellationToken),
@@ -25,7 +26,21 @@ public sealed class EfReportDataProvider : IReportDataProvider
             "accounting-balance-sheet" => BalanceSheetAsync(request, cancellationToken),
             "accounting-cash-flow" => CashFlowAsync(request, cancellationToken),
             _ => throw new ArgumentOutOfRangeException(nameof(request), "Relatório não suportado.")
+        });
+
+        var company = await _db.Empresas.AsNoTracking()
+            .Where(x => x.Id == request.CompanyId)
+            .Select(x => new { x.Nome, x.NIF })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return result with
+        {
+            CompanyName = company?.Nome ?? string.Empty,
+            CompanyTaxNumber = company?.NIF ?? string.Empty,
+            PeriodFrom = request.From.Date,
+            PeriodTo = request.To.Date
         };
+    }
 
     private async Task<ReportResult> ReceivablesAsync(ReportRequest request, CancellationToken ct)
     {

@@ -32,6 +32,8 @@ public sealed class ReportingViewModel : ViewModelBase
     public ICommand GenerateCommand { get; }
     public ICommand ExportCommand { get; }
     public ICommand PrintCommand { get; }
+    public ICommand ExportExcelCommand { get; }
+    public ICommand ExportPdfCommand { get; }
 
     public ReportingViewModel(IReportingService service, int companyId)
     {
@@ -41,6 +43,8 @@ public sealed class ReportingViewModel : ViewModelBase
         GenerateCommand = new AsyncRelayCommand(_ => GenerateAsync(), _ => SelectedReport is not null);
         ExportCommand = new AsyncRelayCommand(_ => ExportAsync(), _ => _result is not null && _result.RowCount > 0);
         PrintCommand = new AsyncRelayCommand(_ => PrintAsync(), _ => _result is not null && _result.RowCount > 0);
+        ExportExcelCommand = new AsyncRelayCommand(_ => ExportExcelAsync(), _ => _result is not null && _result.RowCount > 0);
+        ExportPdfCommand = new AsyncRelayCommand(_ => ExportPdfAsync(), _ => _result is not null && _result.RowCount > 0);
     }
 
     private async Task GenerateAsync()
@@ -67,6 +71,24 @@ public sealed class ReportingViewModel : ViewModelBase
         if (dialog.ShowDialog() != true) return;
         await _service.ExportCsvAsync(_result, dialog.FileName);
         Message = "RelatÃ³rio exportado com sucesso.";
+    }
+
+    private async Task ExportExcelAsync()
+    {
+        if (_result is null) return;
+        var dialog = new SaveFileDialog { Filter = "Excel (*.xlsx)|*.xlsx", FileName = $"{SafeFileName(_result.Title)}-{DateTime.Now:yyyyMMdd-HHmm}.xlsx" };
+        if (dialog.ShowDialog() != true) return;
+        await _service.ExportExcelAsync(_result, dialog.FileName);
+        Message = "Relatório Excel exportado com sucesso.";
+    }
+
+    private async Task ExportPdfAsync()
+    {
+        if (_result is null) return;
+        var dialog = new SaveFileDialog { Filter = "PDF (*.pdf)|*.pdf", FileName = $"{SafeFileName(_result.Title)}-{DateTime.Now:yyyyMMdd-HHmm}.pdf" };
+        if (dialog.ShowDialog() != true) return;
+        await _service.ExportPdfAsync(_result, dialog.FileName);
+        Message = "Relatório PDF exportado com sucesso.";
     }
 
     private async Task PrintAsync()

@@ -21,7 +21,7 @@
         <Setter Property="Background" Value="{StaticResource FP.Surface}"/>
         <Setter Property="BorderBrush" Value="{StaticResource FP.Border}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="18"/>
     </Style>
 
@@ -30,7 +30,7 @@
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="18,10"/>
-        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Height" Value="40"/>
     </Style>
 
     <Style x:Key="FP.SecondaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
@@ -40,7 +40,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="16,9"/>
-        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Height" Value="40"/>
     </Style>
 
     <Style x:Key="FP.IconButton" TargetType="Button" BasedOn="{StaticResource FP.SecondaryButton}">

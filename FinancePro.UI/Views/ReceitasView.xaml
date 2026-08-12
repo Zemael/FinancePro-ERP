@@ -1,4 +1,4 @@
-<UserControl x:Class="FinancePro.UI.Views.ReceitasView"
+﻿<UserControl x:Class="FinancePro.UI.Views.ReceitasView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -45,7 +45,7 @@
                                FontSize="12" Foreground="#595959" TextWrapping="Wrap"/>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Atualizar" Command="{Binding AtualizarCommand}"
-                        MinWidth="100" Height="34" VerticalAlignment="Top" Margin="16,0,0,0"
+                        MinWidth="100" Height="40" VerticalAlignment="Top" Margin="16,0,0,0"
                         Style="{StaticResource BaseButton}"/>
             </Grid>
 

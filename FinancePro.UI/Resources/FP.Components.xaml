@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- FinancePro UI Framework: reusable visual primitives. -->
@@ -55,7 +55,7 @@
     </Style>
 
     <Style x:Key="FPPrimaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
-        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Height" Value="40"/>
         <Setter Property="MinWidth" Value="96"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
@@ -65,7 +65,7 @@
         <Setter Property="Foreground" Value="{DynamicResource TealDarkBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource TealLightBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Height" Value="40"/>
         <Setter Property="MinWidth" Value="96"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
@@ -73,7 +73,7 @@
     <Style x:Key="FPDangerButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
         <Setter Property="Background" Value="#C62828"/>
         <Setter Property="Foreground" Value="White"/>
-        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Height" Value="40"/>
         <Setter Property="MinWidth" Value="96"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
@@ -85,21 +85,21 @@
     </Style>
 
     <Style x:Key="FPTextBox" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Height" Value="40"/>
         <Setter Property="Foreground" Value="#1F2937"/>
         <Setter Property="CaretBrush" Value="{DynamicResource TealDarkBrush}"/>
         <Setter Property="SelectionBrush" Value="{DynamicResource TealLightBrush}"/>
     </Style>
 
     <Style x:Key="FPPasswordBox" TargetType="PasswordBox" BasedOn="{StaticResource {x:Type PasswordBox}}">
-        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Height" Value="40"/>
         <Setter Property="Foreground" Value="#1F2937"/>
         <Setter Property="CaretBrush" Value="{DynamicResource TealDarkBrush}"/>
         <Setter Property="SelectionBrush" Value="{DynamicResource TealLightBrush}"/>
     </Style>
 
     <Style x:Key="FPComboBox" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
-        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Height" Value="40"/>
         <Setter Property="Foreground" Value="#1F2937"/>
         <Setter Property="Background" Value="White"/>
         <Setter Property="BorderBrush" Value="#D1DCE8"/>

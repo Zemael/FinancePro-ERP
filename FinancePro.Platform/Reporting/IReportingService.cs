@@ -1,4 +1,4 @@
-namespace FinancePro.Platform.Reporting;
+﻿namespace FinancePro.Platform.Reporting;
 
 public interface IReportDataProvider
 {
@@ -11,4 +11,6 @@ public interface IReportingService
     Task<ReportResult> GenerateAsync(ReportRequest request, CancellationToken cancellationToken = default);
     Task ExportCsvAsync(ReportResult report, string filePath, CancellationToken cancellationToken = default);
     Task ExportHtmlAsync(ReportResult report, string filePath, CancellationToken cancellationToken = default);
+    Task ExportExcelAsync(ReportResult report, string filePath, CancellationToken cancellationToken = default);
+    Task ExportPdfAsync(ReportResult report, string filePath, CancellationToken cancellationToken = default);
 }

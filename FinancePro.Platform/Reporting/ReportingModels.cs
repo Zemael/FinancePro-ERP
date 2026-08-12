@@ -1,17 +1,18 @@
-namespace FinancePro.Platform.Reporting;
+﻿namespace FinancePro.Platform.Reporting;
 
 public sealed record ReportDefinition(string Key, string Name, string Description);
-
 public sealed record ReportRequest(int CompanyId, string ReportKey, DateTime From, DateTime To);
-
 public sealed record ReportColumn(string Key, string Header);
-
 public sealed record ReportRow(IReadOnlyDictionary<string, object?> Values);
 
 public sealed record ReportResult(
     string Title,
     IReadOnlyList<ReportColumn> Columns,
-    IReadOnlyList<ReportRow> Rows)
+    IReadOnlyList<ReportRow> Rows,
+    string CompanyName = "",
+    string CompanyTaxNumber = "",
+    DateTime? PeriodFrom = null,
+    DateTime? PeriodTo = null)
 {
     public int RowCount => Rows.Count;
 }

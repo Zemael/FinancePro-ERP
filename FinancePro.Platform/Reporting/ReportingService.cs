@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
 using System.Text;
 
@@ -82,6 +82,12 @@ public sealed class ReportingService : IReportingService
         sb.Append("</tbody></table></body></html>");
         await File.WriteAllTextAsync(filePath, sb.ToString(), new UTF8Encoding(false), cancellationToken);
     }
+
+    public Task ExportExcelAsync(ReportResult report, string filePath, CancellationToken cancellationToken = default)
+        => ProfessionalReportExporter.ExportExcelAsync(report, filePath, cancellationToken);
+
+    public Task ExportPdfAsync(ReportResult report, string filePath, CancellationToken cancellationToken = default)
+        => ProfessionalReportExporter.ExportPdfAsync(report, filePath, cancellationToken);
 
     private static string Format(object? value) => value switch
     {

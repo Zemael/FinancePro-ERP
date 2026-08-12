@@ -1,16 +1,18 @@
-<UserControl x:Class="FinancePro.UI.Views.ReportingView"
+﻿<UserControl x:Class="FinancePro.UI.Views.ReportingView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
         <StackPanel>
             <Grid Margin="0,0,0,16">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Text="Central de Relatórios" FontSize="22" FontWeight="SemiBold" Foreground="#0E4C5E"/>
                     <TextBlock Text="Relatórios financeiros, contabilísticos, fiscais e operacionais numa única área." Foreground="#667085" Margin="0,4,0,0"/>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Imprimir / PDF" Command="{Binding PrintCommand}" Style="{StaticResource BaseButton}" Padding="18,8"/>
-                <Button Grid.Column="3" Content="Exportar CSV" Command="{Binding ExportCommand}" Style="{StaticResource BaseButton}" Padding="18,8"/>
+                <Button Grid.Column="1" Content="Imprimir" Command="{Binding PrintCommand}" Style="{StaticResource BaseButton}" Padding="16,8"/>
+                <Button Grid.Column="3" Content="Exportar PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource BaseButton}" Padding="16,8"/>
+                <Button Grid.Column="5" Content="Exportar Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource BaseButton}" Padding="16,8"/>
+                <Button Grid.Column="7" Content="CSV" Command="{Binding ExportCommand}" Style="{StaticResource BaseButton}" Padding="16,8"/>
             </Grid>
 
             <Border Style="{StaticResource FP.Card}" Margin="0,0,0,16">
