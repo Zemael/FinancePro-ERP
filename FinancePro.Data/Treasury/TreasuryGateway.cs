@@ -37,4 +37,7 @@ public sealed class TreasuryGateway : ITreasuryGateway
 
     public Task<IReadOnlyList<TreasuryForecastItemDto>> ListarPrevisaoAsync(int empresaId, int dias = 30) =>
         _service.ListarPrevisaoAsync(empresaId, dias);
+
+    public Task<IReadOnlyList<TreasuryAgingDto>> ObterAgingAsync(int empresaId) =>
+        _service.ObterAgingAsync(empresaId);
 }

@@ -8,6 +8,8 @@ public class Fornecedor : EntityBase
     public string? Telefone { get; set; }
     public string? Email { get; set; }
     public string? Morada { get; set; }
+    public int PrazoPagamentoDias { get; set; } = 30;
+    public decimal Avaliacao { get; set; } = 5m;
 
     public int EmpresaId { get; set; }
     public Empresa Empresa { get; set; } = null!;

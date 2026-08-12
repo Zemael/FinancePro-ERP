@@ -68,6 +68,14 @@ public sealed class ExpenseApplicationService
         catch (Exception ex) { return Result.Fail(ex.Message); }
     }
 
+    public async Task<Result> RegistarPagamentoParcialAsync(int contaPagarId, decimal valor, string origemTipo, int origemId, DateTime dataPagamento)
+    {
+        if (contaPagarId <= 0 || valor <= 0) return Result.Fail("Conta e valor de pagamento devem ser válidos.");
+        if (origemId <= 0 || origemTipo is not ("Caixa" or "ContaBancaria")) return Result.Fail("Selecione uma origem válida.");
+        try { await _gateway.RegistarPagamentoParcialAsync(contaPagarId, valor, origemTipo, origemId, dataPagamento); return Result.Ok("Pagamento registado. O saldo da conta foi atualizado."); }
+        catch (Exception ex) { return Result.Fail(ex.Message); }
+    }
+
     public async Task<Result> CancelarAsync(int contaPagarId)
     {
         if (contaPagarId <= 0) return Result.Fail("Conta a pagar inválida.");

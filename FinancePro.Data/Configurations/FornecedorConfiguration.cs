@@ -11,6 +11,7 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
         builder.ToTable("Fornecedores");
         builder.Property(f => f.Nome).IsRequired().HasMaxLength(150);
         builder.Property(f => f.NIF).HasMaxLength(30);
+        builder.Property(f => f.Avaliacao).HasColumnType("decimal(3,2)");
 
         builder.HasOne(f => f.Empresa)
             .WithMany(e => e.Fornecedores)

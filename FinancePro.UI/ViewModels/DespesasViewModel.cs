@@ -27,6 +27,7 @@ public class DespesasViewModel : ViewModelBase
     private OpcaoOrigemDto? _origemPagamentoSelecionada;
     private DateTime _dataPagamento = DateTime.Today;
     private bool _aProcessarPagamento;
+    private string _valorPagamentoTexto = string.Empty;
 
     public string Descricao { get => _descricao; set => SetProperty(ref _descricao, value); }
     public string ValorTexto { get => _valorTexto; set => SetProperty(ref _valorTexto, value); }
@@ -41,6 +42,7 @@ public class DespesasViewModel : ViewModelBase
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
     public bool ACarregar { get => _aCarregar; set => SetProperty(ref _aCarregar, value); }
     public DateTime DataPagamento { get => _dataPagamento; set => SetProperty(ref _dataPagamento, value); }
+    public string ValorPagamentoTexto { get => _valorPagamentoTexto; set => SetProperty(ref _valorPagamentoTexto, value); }
     public bool AProcessarPagamento { get => _aProcessarPagamento; set => SetProperty(ref _aProcessarPagamento, value); }
     public OpcaoOrigemDto? OrigemPagamentoSelecionada { get => _origemPagamentoSelecionada; set => SetProperty(ref _origemPagamentoSelecionada, value); }
 
@@ -158,11 +160,10 @@ public class DespesasViewModel : ViewModelBase
         AProcessarPagamento = true;
         try
         {
-            var resultado = await _service.RegistarPagamentoAsync(
-                conta.Id,
-                OrigemPagamentoSelecionada.Tipo,
-                OrigemPagamentoSelecionada.Id,
-                DataPagamento);
+            var valor = conta.SaldoAberto;
+            if (!string.IsNullOrWhiteSpace(ValorPagamentoTexto) && (!decimal.TryParse(ValorPagamentoTexto, out valor) || valor <= 0)) { MensagemErro = "Indique um valor de pagamento válido."; return; }
+            var resultado = await _service.RegistarPagamentoParcialAsync(
+                conta.Id, valor, OrigemPagamentoSelecionada.Tipo, OrigemPagamentoSelecionada.Id, DataPagamento);
 
             if (resultado.IsFailure) { MensagemErro = string.Join(" ", resultado.Errors); return; }
             await CarregarContasAsync();

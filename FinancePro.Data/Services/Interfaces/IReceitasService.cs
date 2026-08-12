@@ -10,5 +10,6 @@ public interface IReceitasService
     Task<IReadOnlyList<OpcaoOrigemDto>> ListarOrigensAsync(int empresaId);
     Task CriarAsync(NovaContaReceberDto dto);
     Task RegistarRecebimentoAsync(int contaReceberId, string origemTipo, int origemId, DateTime dataRecebimento);
+    Task RegistarRecebimentoParcialAsync(int contaReceberId, decimal valor, string origemTipo, int origemId, DateTime dataRecebimento);
     Task CancelarAsync(int contaReceberId);
 }

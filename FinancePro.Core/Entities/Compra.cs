@@ -14,6 +14,13 @@ public class Compra : EntityBase
     public PrioridadeCompra Prioridade { get; set; } = PrioridadeCompra.Normal;
     public EstadoCompra Estado { get; set; } = EstadoCompra.Pendente;
     public decimal ValorTotal { get; set; }
+    public string? NumeroCotacao { get; set; }
+    public DateTime? DataCotacao { get; set; }
+    public string? NumeroOrdemCompra { get; set; }
+    public DateTime? DataOrdemCompra { get; set; }
+    public DateTime? DataRececao { get; set; }
+    public DateTime? DataFatura { get; set; }
+    public int PrazoPagamentoDias { get; set; } = 30;
 
     public int? FornecedorId { get; set; }
     public Fornecedor? Fornecedor { get; set; }

@@ -47,9 +47,13 @@ public class CompraViewModel : ViewModelBase
     public ObservableCollection<CompraListItemDto> Compras { get; } = new();
 
     public ICommand CriarCommand { get; }
+    public ICommand CotarCommand { get; }
     public ICommand AprovarCommand { get; }
     public ICommand RejeitarCommand { get; }
     public ICommand CancelarCommand { get; }
+    public ICommand EmitirOrdemCommand { get; }
+    public ICommand ReceberCommand { get; }
+    public ICommand FaturarCommand { get; }
     public ICommand AtualizarCommand { get; }
 
     public CompraViewModel(PurchasingApplicationService service, int empresaId)
@@ -58,9 +62,13 @@ public class CompraViewModel : ViewModelBase
         _empresaId = empresaId;
 
         CriarCommand = new AsyncRelayCommand(_ => CriarAsync(), _ => !AGuardar);
+        CotarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.CotarAsync), _ => !AProcessarAcao);
         AprovarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.AprovarAsync), _ => !AProcessarAcao);
         RejeitarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.RejeitarAsync), _ => !AProcessarAcao);
         CancelarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.CancelarAsync), _ => !AProcessarAcao);
+        EmitirOrdemCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.EmitirOrdemAsync), _ => !AProcessarAcao);
+        ReceberCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.ReceberAsync), _ => !AProcessarAcao);
+        FaturarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.FaturarAsync), _ => !AProcessarAcao);
         AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync(), _ => !ACarregar);
 
         _ = CarregarAsync();

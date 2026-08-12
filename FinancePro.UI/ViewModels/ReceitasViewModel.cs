@@ -25,6 +25,7 @@ public class ReceitasViewModel : ViewModelBase
     private bool _aGuardar;
     private bool _aCarregar;
     private DateTime _dataRecebimento = DateTime.Today;
+    private string _valorRecebimentoTexto = string.Empty;
     private OpcaoOrigemDto? _origemRecebimentoSelecionada;
 
     public string Descricao { get => _descricao; set => SetProperty(ref _descricao, value); }
@@ -39,6 +40,7 @@ public class ReceitasViewModel : ViewModelBase
     public string MensagemSucesso { get => _mensagemSucesso; set => SetProperty(ref _mensagemSucesso, value); }
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
     public bool ACarregar { get => _aCarregar; set => SetProperty(ref _aCarregar, value); }
+    public string ValorRecebimentoTexto { get => _valorRecebimentoTexto; set => SetProperty(ref _valorRecebimentoTexto, value); }
     public DateTime DataRecebimento { get => _dataRecebimento; set => SetProperty(ref _dataRecebimento, value); }
 
     public OpcaoOrigemDto? OrigemRecebimentoSelecionada { get => _origemRecebimentoSelecionada; set => SetProperty(ref _origemRecebimentoSelecionada, value); }
@@ -154,11 +156,10 @@ public class ReceitasViewModel : ViewModelBase
             return;
         }
 
-        var resultado = await _service.RegistarRecebimentoAsync(
-            conta.Id,
-            OrigemRecebimentoSelecionada.Tipo,
-            OrigemRecebimentoSelecionada.Id,
-            DataRecebimento);
+        var valor = conta.SaldoAberto;
+        if (!string.IsNullOrWhiteSpace(ValorRecebimentoTexto) && (!decimal.TryParse(ValorRecebimentoTexto, out valor) || valor <= 0)) { MensagemErro = "Indique um valor de recebimento válido."; return; }
+        var resultado = await _service.RegistarRecebimentoParcialAsync(
+            conta.Id, valor, OrigemRecebimentoSelecionada.Tipo, OrigemRecebimentoSelecionada.Id, DataRecebimento);
 
         if (resultado.IsFailure) { MensagemErro = string.Join(" ", resultado.Errors); return; }
         await CarregarContasAsync();

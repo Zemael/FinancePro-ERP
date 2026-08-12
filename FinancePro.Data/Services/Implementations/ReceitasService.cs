@@ -35,6 +35,7 @@ public class ReceitasService : IReceitasService
             Codigo = c.Codigo,
             Descricao = c.Descricao,
             Valor = c.Valor,
+            ValorLiquidado = c.ValorLiquidado,
             DataEmissao = c.DataEmissao,
             DataVencimento = c.DataVencimento,
             DataRecebimento = c.DataRecebimento,
@@ -42,9 +43,8 @@ public class ReceitasService : IReceitasService
             CategoriaNome = c.Categoria?.Nome,
             FormaPagamento = c.FormaPagamento,
             CentroCusto = c.CentroCusto,
-            EstadoExibicao = c.Estado == EstadoConta.Pendente && c.DataVencimento.Date < hoje
-                ? "Atrasado"
-                : c.Estado.ToString(),
+            EstadoExibicao = c.Estado == EstadoConta.Pendente && c.ValorLiquidado > 0 ? "Parcial" :
+                c.Estado == EstadoConta.Pendente && c.DataVencimento.Date < hoje ? "Atrasado" : c.Estado.ToString(),
             PodeReceber = c.Estado == EstadoConta.Pendente,
             PodeCancelar = c.Estado == EstadoConta.Pendente
         }).ToList();
@@ -163,6 +163,7 @@ public class ReceitasService : IReceitasService
             EmpresaId = conta.EmpresaId
         });
 
+        conta.ValorLiquidado = conta.Valor;
         conta.Estado = EstadoConta.Recebido;
         conta.DataRecebimento = dataRecebimento;
         conta.MovimentoId = movimentoId;
@@ -170,6 +171,20 @@ public class ReceitasService : IReceitasService
 
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
+    }
+
+
+    public async Task RegistarRecebimentoParcialAsync(int contaReceberId, decimal valor, string origemTipo, int origemId, DateTime dataRecebimento)
+    {
+        var conta = await _context.ContasReceber.SingleOrDefaultAsync(c => c.Id == contaReceberId)
+            ?? throw new InvalidOperationException("Conta a receber não encontrada.");
+        if (conta.Estado != EstadoConta.Pendente) throw new InvalidOperationException("Esta conta já não está pendente.");
+        var saldo = conta.Valor - conta.ValorLiquidado;
+        if (valor <= 0 || valor > saldo) throw new InvalidOperationException($"O valor deve ser maior que zero e não pode exceder o saldo de {saldo:N2}.");
+        var movimentoId = await _tesourariaService.RegistarMovimentoAsync(new NovoMovimentoDto { Data=dataRecebimento, Descricao=$"Recebimento {conta.Codigo}: {conta.Descricao}", Valor=valor, Tipo=TipoCategoria.Receita, TipoOperacao=TipoOperacao.Entrada, FormaPagamento=conta.FormaPagamento, CentroCusto=conta.CentroCusto, CategoriaId=conta.CategoriaId, CaixaId=origemTipo=="Caixa"?origemId:null, ContaBancariaId=origemTipo=="ContaBancaria"?origemId:null, ClienteId=conta.ClienteId, EmpresaId=conta.EmpresaId });
+        conta.ValorLiquidado += valor; conta.MovimentoId = movimentoId; conta.DataAtualizacao=DateTime.UtcNow;
+        if (conta.ValorLiquidado >= conta.Valor) { conta.Estado=EstadoConta.Recebido; conta.DataRecebimento=dataRecebimento; }
+        await _context.SaveChangesAsync();
     }
 
     public async Task CancelarAsync(int contaReceberId)

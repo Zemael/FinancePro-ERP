@@ -79,6 +79,7 @@ public class TesourariaViewModel : ViewModelBase
     public TreasuryOverviewDto Resumo { get => _resumo; private set => SetProperty(ref _resumo, value); }
     public bool ACarregarResumo { get => _aCarregarResumo; private set => SetProperty(ref _aCarregarResumo, value); }
     public ObservableCollection<TreasuryForecastItemDto> Previsao { get; } = new();
+    public ObservableCollection<TreasuryAgingDto> Aging { get; } = new();
 
     public ObservableCollection<MovimentoListItemDto> Movimentos { get; } = new();
 
@@ -153,6 +154,11 @@ public class TesourariaViewModel : ViewModelBase
             if (previsao.IsFailure) { MensagemErro = string.Join(" ", previsao.Errors); return; }
             Previsao.Clear();
             foreach (var item in previsao.Value ?? Array.Empty<TreasuryForecastItemDto>()) Previsao.Add(item);
+
+            var aging = await _service.ObterAgingAsync(_empresaId);
+            if (aging.IsFailure) { MensagemErro = string.Join(" ", aging.Errors); return; }
+            Aging.Clear();
+            foreach (var faixa in aging.Value ?? Array.Empty<TreasuryAgingDto>()) Aging.Add(faixa);
         }
         finally { ACarregarResumo = false; }
     }

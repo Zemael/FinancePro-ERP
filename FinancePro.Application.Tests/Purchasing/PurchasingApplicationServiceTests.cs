@@ -68,8 +68,12 @@ public sealed class PurchasingApplicationServiceTests
             return Task.CompletedTask;
         }
 
+        public Task CotarAsync(int compraId) => Task.CompletedTask;
         public Task AprovarAsync(int compraId) => Task.CompletedTask;
         public Task RejeitarAsync(int compraId) => Task.CompletedTask;
         public Task CancelarAsync(int compraId) => Task.CompletedTask;
+        public Task EmitirOrdemAsync(int compraId) => Task.CompletedTask;
+        public Task ReceberAsync(int compraId) => Task.CompletedTask;
+        public Task FaturarAsync(int compraId) => Task.CompletedTask;
     }
 }

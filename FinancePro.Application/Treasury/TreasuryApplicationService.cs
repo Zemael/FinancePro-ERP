@@ -79,6 +79,13 @@ public sealed class TreasuryApplicationService
         catch (Exception ex) { return Result<IReadOnlyList<TreasuryForecastItemDto>>.Fail(ex.Message); }
     }
 
+    public async Task<Result<IReadOnlyList<TreasuryAgingDto>>> ObterAgingAsync(int empresaId)
+    {
+        if (empresaId <= 0) return Result<IReadOnlyList<TreasuryAgingDto>>.Fail("Empresa inválida.");
+        try { return Result<IReadOnlyList<TreasuryAgingDto>>.Ok(await _gateway.ObterAgingAsync(empresaId)); }
+        catch (Exception ex) { return Result<IReadOnlyList<TreasuryAgingDto>>.Fail(ex.Message); }
+    }
+
     public async Task<Result> MarcarConciliadoAsync(int movimentoId, bool conciliado)
     {
         if (movimentoId <= 0) return Result.Fail("Movimento inválido.");

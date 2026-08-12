@@ -39,6 +39,7 @@ public sealed class RevenueApplicationServiceTests
         public Task<IReadOnlyList<OpcaoOrigemDto>> ListarOrigensAsync(int empresaId) => Task.FromResult<IReadOnlyList<OpcaoOrigemDto>>(Array.Empty<OpcaoOrigemDto>());
         public Task CriarAsync(NovaContaReceberDto dto) => Task.CompletedTask;
         public Task RegistarRecebimentoAsync(int contaReceberId, string origemTipo, int origemId, DateTime dataRecebimento) => Task.CompletedTask;
+        public Task RegistarRecebimentoParcialAsync(int contaReceberId, decimal valor, string origemTipo, int origemId, DateTime dataRecebimento) => Task.CompletedTask;
         public Task CancelarAsync(int contaReceberId) => Task.CompletedTask;
     }
 }

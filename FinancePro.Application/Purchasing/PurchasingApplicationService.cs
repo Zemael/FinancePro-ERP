@@ -59,6 +59,8 @@ public sealed class PurchasingApplicationService
         }
     }
 
+    public Task<Result> CotarAsync(int compraId) => ExecutarAcaoAsync(compraId, _gateway.CotarAsync, "Cotação registada.");
+
     public Task<Result> AprovarAsync(int compraId) => ExecutarAcaoAsync(
         compraId,
         _gateway.AprovarAsync,
@@ -73,6 +75,10 @@ public sealed class PurchasingApplicationService
         compraId,
         _gateway.CancelarAsync,
         "Pedido de compra cancelado.");
+
+    public Task<Result> EmitirOrdemAsync(int compraId) => ExecutarAcaoAsync(compraId, _gateway.EmitirOrdemAsync, "Ordem de compra emitida.");
+    public Task<Result> ReceberAsync(int compraId) => ExecutarAcaoAsync(compraId, _gateway.ReceberAsync, "Receção registada.");
+    public Task<Result> FaturarAsync(int compraId) => ExecutarAcaoAsync(compraId, _gateway.FaturarAsync, "Fatura registada e conta a pagar criada.");
 
     private static IReadOnlyList<string> Validar(NovaCompraDto dto)
     {

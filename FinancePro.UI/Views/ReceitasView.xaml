@@ -120,7 +120,7 @@
             <Grid Margin="0,20,0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="410"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="Contas a Receber" FontSize="14" FontWeight="Bold" Foreground="#0E4C5E" VerticalAlignment="Center"/>
                 <Grid Grid.Column="1">
@@ -128,6 +128,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="140"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Receber para:" Style="{StaticResource Rotulo}"/>
@@ -147,6 +149,7 @@
                         <TextBlock Text="Data" Style="{StaticResource Rotulo}"/>
                         <DatePicker SelectedDate="{Binding DataRecebimento}"/>
                     </StackPanel>
+                    <StackPanel Grid.Column="4"><TextBlock Text="Valor a receber" Style="{StaticResource Rotulo}"/><TextBox Text="{Binding ValorRecebimentoTexto, UpdateSourceTrigger=PropertyChanged}"/></StackPanel>
                 </Grid>
             </Grid>
 
@@ -166,7 +169,10 @@
                         <DataGridTextColumn Header="Cliente" Binding="{Binding ClienteNome}" Width="120"/>
                         <DataGridTextColumn Header="Categoria" Binding="{Binding CategoriaNome}" Width="110"/>
                         <DataGridTextColumn Header="Vencimento" Binding="{Binding DataVencimento, StringFormat=dd/MM/yyyy}" Width="90"/>
-                        <DataGridTextColumn Header="Valor" Binding="{Binding Valor, Converter={StaticResource ValorMoeda}}" Width="120"/>
+                        <DataGridTextColumn Header="Valor" Binding="{Binding Valor, Converter={StaticResource ValorMoeda}}" Width="105"/>
+                        <DataGridTextColumn Header="Recebido" Binding="{Binding ValorLiquidado, Converter={StaticResource ValorMoeda}}" Width="105"/>
+                        <DataGridTextColumn Header="Saldo" Binding="{Binding SaldoAberto, Converter={StaticResource ValorMoeda}}" Width="105"/>
+                        <DataGridTextColumn Header="Atraso" Binding="{Binding DiasAtraso, StringFormat={}{0} d}" Width="65"/>
                         <DataGridTemplateColumn Header="Estado" Width="80">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

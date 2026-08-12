@@ -39,6 +39,7 @@ public sealed class ExpenseApplicationServiceTests
         public Task<IReadOnlyList<OpcaoOrigemDto>> ListarOrigensAsync(int empresaId) => Task.FromResult<IReadOnlyList<OpcaoOrigemDto>>(Array.Empty<OpcaoOrigemDto>());
         public Task CriarAsync(NovaContaPagarDto dto) => Task.CompletedTask;
         public Task RegistarPagamentoAsync(int contaPagarId, string origemTipo, int origemId, DateTime dataPagamento) => Task.CompletedTask;
+        public Task RegistarPagamentoParcialAsync(int contaPagarId, decimal valor, string origemTipo, int origemId, DateTime dataPagamento) => Task.CompletedTask;
         public Task CancelarAsync(int contaPagarId) => Task.CompletedTask;
     }
 }

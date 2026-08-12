@@ -11,6 +11,7 @@ public class ContaReceber : EntityBase
     public string Codigo { get; set; } = string.Empty;
     public string Descricao { get; set; } = string.Empty;
     public decimal Valor { get; set; }
+    public decimal ValorLiquidado { get; set; }
     public DateTime DataEmissao { get; set; }
     public DateTime DataVencimento { get; set; }
     public EstadoConta Estado { get; set; } = EstadoConta.Pendente;

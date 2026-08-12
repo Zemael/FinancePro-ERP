@@ -321,7 +321,9 @@ public class TesourariaService : ITesourariaService
     {
         var hoje = DateTime.Today;
         var limite7 = hoje.AddDays(7);
+        var limite15 = hoje.AddDays(15);
         var limite30 = hoje.AddDays(30);
+        var limite60 = hoje.AddDays(60);
 
         var caixas = await _context.Caixas.Where(x => x.EmpresaId == empresaId && x.Ativo).ToListAsync();
         var contas = await _context.ContasBancarias.Where(x => x.EmpresaId == empresaId && x.Ativo).ToListAsync();
@@ -335,21 +337,29 @@ public class TesourariaService : ITesourariaService
         var receber = _context.ContasReceber.Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente);
         var pagar = _context.ContasPagar.Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente);
 
-        var aReceber = await receber.SumAsync(x => (decimal?)x.Valor) ?? 0m;
-        var aPagar = await pagar.SumAsync(x => (decimal?)x.Valor) ?? 0m;
-        var receberAtrasado = await receber.Where(x => x.DataVencimento < hoje).SumAsync(x => (decimal?)x.Valor) ?? 0m;
-        var pagarAtrasado = await pagar.Where(x => x.DataVencimento < hoje).SumAsync(x => (decimal?)x.Valor) ?? 0m;
-        var receber7 = await receber.Where(x => x.DataVencimento >= hoje && x.DataVencimento <= limite7).SumAsync(x => (decimal?)x.Valor) ?? 0m;
-        var pagar7 = await pagar.Where(x => x.DataVencimento >= hoje && x.DataVencimento <= limite7).SumAsync(x => (decimal?)x.Valor) ?? 0m;
-        var receber30 = await receber.Where(x => x.DataVencimento <= limite30).SumAsync(x => (decimal?)x.Valor) ?? 0m;
-        var pagar30 = await pagar.Where(x => x.DataVencimento <= limite30).SumAsync(x => (decimal?)x.Valor) ?? 0m;
+        var aReceber = await receber.SumAsync(x => (decimal?)(x.Valor - x.ValorLiquidado)) ?? 0m;
+        var aPagar = await pagar.SumAsync(x => (decimal?)(x.Valor - x.ValorLiquidado)) ?? 0m;
+        var receberAtrasado = await receber.Where(x => x.DataVencimento < hoje).SumAsync(x => (decimal?)(x.Valor - x.ValorLiquidado)) ?? 0m;
+        var pagarAtrasado = await pagar.Where(x => x.DataVencimento < hoje).SumAsync(x => (decimal?)(x.Valor - x.ValorLiquidado)) ?? 0m;
+        var receber7 = await receber.Where(x => x.DataVencimento >= hoje && x.DataVencimento <= limite7).SumAsync(x => (decimal?)(x.Valor - x.ValorLiquidado)) ?? 0m;
+        var pagar7 = await pagar.Where(x => x.DataVencimento >= hoje && x.DataVencimento <= limite7).SumAsync(x => (decimal?)(x.Valor - x.ValorLiquidado)) ?? 0m;
+        async Task<decimal> ReceberAte(DateTime limite) => await receber.Where(x => x.DataVencimento <= limite).SumAsync(x => (decimal?)(x.Valor - x.ValorLiquidado)) ?? 0m;
+        async Task<decimal> PagarAte(DateTime limite) => await pagar.Where(x => x.DataVencimento <= limite).SumAsync(x => (decimal?)(x.Valor - x.ValorLiquidado)) ?? 0m;
+        var saldo = totalCaixa + totalBancos;
+        var previsao7 = saldo + await ReceberAte(limite7) - await PagarAte(limite7);
+        var previsao15 = saldo + await ReceberAte(limite15) - await PagarAte(limite15);
+        var previsao30 = saldo + await ReceberAte(limite30) - await PagarAte(limite30);
+        var previsao60 = saldo + await ReceberAte(limite60) - await PagarAte(limite60);
+        var inadimplencia = aReceber <= 0 ? 0 : Math.Round(receberAtrasado / aReceber * 100m, 1);
+        var risco = previsao30 < 0 ? "Crítico" : previsao7 < 0 || pagarAtrasado > saldo ? "Elevado" : previsao15 < saldo * 0.20m ? "Moderado" : "Baixo";
 
         return new TreasuryOverviewDto
         {
             TotalCaixa = totalCaixa, TotalBancos = totalBancos, SaldoDisponivel = totalCaixa + totalBancos,
             AReceberPendente = aReceber, APagarPendente = aPagar, AReceberAtrasado = receberAtrasado, APagarAtrasado = pagarAtrasado,
             ReceberProximos7Dias = receber7, PagarProximos7Dias = pagar7,
-            Previsao30Dias = totalCaixa + totalBancos + receber30 - pagar30,
+            Previsao7Dias = previsao7, Previsao15Dias = previsao15, Previsao30Dias = previsao30, Previsao60Dias = previsao60,
+            InadimplenciaPercentual = inadimplencia, RiscoLiquidez = risco,
             TitulosReceberAtrasados = await receber.CountAsync(x => x.DataVencimento < hoje),
             TitulosPagarAtrasados = await pagar.CountAsync(x => x.DataVencimento < hoje)
         };
@@ -362,14 +372,30 @@ public class TesourariaService : ITesourariaService
         var entradas = await _context.ContasReceber
             .Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente && x.DataVencimento <= limite)
             .Include(x => x.Cliente)
-            .Select(x => new TreasuryForecastItemDto { Data=x.DataVencimento, Tipo="Receber", Descricao=x.Descricao, Entidade=x.Cliente != null ? x.Cliente.Nome : string.Empty, Entrada=x.Valor, Atrasado=x.DataVencimento < hoje })
+            .Select(x => new TreasuryForecastItemDto { Data=x.DataVencimento, Tipo="Receber", Descricao=x.Descricao, Entidade=x.Cliente != null ? x.Cliente.Nome : string.Empty, Entrada=x.Valor - x.ValorLiquidado, Atrasado=x.DataVencimento < hoje })
             .ToListAsync();
         var saidas = await _context.ContasPagar
             .Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente && x.DataVencimento <= limite)
             .Include(x => x.Fornecedor)
-            .Select(x => new TreasuryForecastItemDto { Data=x.DataVencimento, Tipo="Pagar", Descricao=x.Descricao, Entidade=x.Fornecedor != null ? x.Fornecedor.Nome : string.Empty, Saida=x.Valor, Atrasado=x.DataVencimento < hoje })
+            .Select(x => new TreasuryForecastItemDto { Data=x.DataVencimento, Tipo="Pagar", Descricao=x.Descricao, Entidade=x.Fornecedor != null ? x.Fornecedor.Nome : string.Empty, Saida=x.Valor - x.ValorLiquidado, Atrasado=x.DataVencimento < hoje })
             .ToListAsync();
         return entradas.Concat(saidas).OrderBy(x => x.Data).ThenBy(x => x.Tipo).ToList();
+    }
+
+    public async Task<IReadOnlyList<TreasuryAgingDto>> ObterAgingAsync(int empresaId)
+    {
+        var hoje = DateTime.Today;
+        var receber = await _context.ContasReceber.Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente)
+            .Select(x => new { x.DataVencimento, Saldo = x.Valor - x.ValorLiquidado }).ToListAsync();
+        var pagar = await _context.ContasPagar.Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente)
+            .Select(x => new { x.DataVencimento, Saldo = x.Valor - x.ValorLiquidado }).ToListAsync();
+        var faixas = new (string Nome, int Min, int Max)[] { ("A vencer", int.MinValue, -1), ("Vence hoje / 30 dias", 0, 30), ("31–60 dias", 31, 60), ("61–90 dias", 61, 90), ("Mais de 90 dias", 91, int.MaxValue) };
+        return faixas.Select(f => new TreasuryAgingDto
+        {
+            Faixa = f.Nome,
+            AReceber = receber.Where(x => { var d=(hoje-x.DataVencimento.Date).Days; return d >= f.Min && d <= f.Max; }).Sum(x => x.Saldo),
+            APagar = pagar.Where(x => { var d=(hoje-x.DataVencimento.Date).Days; return d >= f.Min && d <= f.Max; }).Sum(x => x.Saldo)
+        }).ToList();
     }
 
 }

@@ -12,6 +12,7 @@ public class ContaReceberConfiguration : IEntityTypeConfiguration<ContaReceber>
         builder.Property(c => c.Codigo).HasMaxLength(20);
         builder.Property(c => c.Descricao).IsRequired().HasMaxLength(200);
         builder.Property(c => c.Valor).HasColumnType("decimal(18,2)");
+        builder.Property(c => c.ValorLiquidado).HasColumnType("decimal(18,2)");
         builder.Property(c => c.Estado).HasConversion<string>().HasMaxLength(20);
         builder.Property(c => c.FormaPagamento).HasMaxLength(50);
         builder.Property(c => c.CentroCusto).HasMaxLength(100);

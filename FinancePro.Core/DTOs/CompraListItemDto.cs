@@ -12,8 +12,14 @@ public class CompraListItemDto
     public string Prioridade { get; set; } = string.Empty;
     public string Estado { get; set; } = string.Empty;
     public decimal ValorTotal { get; set; }
+    public string? NumeroCotacao { get; set; }
+    public string? NumeroOrdemCompra { get; set; }
 
+    public bool PodeCotar { get; set; }
     public bool PodeAprovar { get; set; }
     public bool PodeRejeitar { get; set; }
     public bool PodeCancelar { get; set; }
+    public bool PodeEmitirOrdem { get; set; }
+    public bool PodeReceber { get; set; }
+    public bool PodeFaturar { get; set; }
 }

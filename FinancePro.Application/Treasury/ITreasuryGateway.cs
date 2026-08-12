@@ -13,4 +13,5 @@ public interface ITreasuryGateway
     Task MarcarConciliadoAsync(int movimentoId, bool conciliado);
     Task<TreasuryOverviewDto> ObterResumoAsync(int empresaId);
     Task<IReadOnlyList<TreasuryForecastItemDto>> ListarPrevisaoAsync(int empresaId, int dias = 30);
+    Task<IReadOnlyList<TreasuryAgingDto>> ObterAgingAsync(int empresaId);
 }

@@ -10,5 +10,6 @@ public interface IDespesasService
     Task<IReadOnlyList<OpcaoOrigemDto>> ListarOrigensAsync(int empresaId);
     Task CriarAsync(NovaContaPagarDto dto);
     Task RegistarPagamentoAsync(int contaPagarId, string origemTipo, int origemId, DateTime dataPagamento);
+    Task RegistarPagamentoParcialAsync(int contaPagarId, decimal valor, string origemTipo, int origemId, DateTime dataPagamento);
     Task CancelarAsync(int contaPagarId);
 }

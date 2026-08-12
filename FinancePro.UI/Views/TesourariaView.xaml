@@ -43,7 +43,7 @@
                     <StackPanel><TextBlock Text="A PAGAR" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding Resumo.APagarPendente, Converter={StaticResource ValorMoeda}}" FontSize="19" FontWeight="SemiBold" Foreground="#B42318"/><TextBlock Text="{Binding Resumo.TitulosPagarAtrasados, StringFormat={}{0} título(s) atrasado(s)}" FontSize="9.5" Foreground="#B54708"/></StackPanel>
                 </Border>
                 <Border Grid.Column="6" Style="{StaticResource Cartao}">
-                    <StackPanel><TextBlock Text="PREVISÃO 30 DIAS" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding Resumo.Previsao30Dias, Converter={StaticResource ValorMoeda}}" FontSize="19" FontWeight="SemiBold" Foreground="#156082"/><TextBlock Text="Saldo + recebimentos - pagamentos" FontSize="9.5" Foreground="#777"/></StackPanel>
+                    <StackPanel><TextBlock Text="PREVISÃO 30 DIAS" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding Resumo.Previsao30Dias, Converter={StaticResource ValorMoeda}}" FontSize="19" FontWeight="SemiBold" Foreground="#156082"/><TextBlock Text="{Binding Resumo.RiscoLiquidez, StringFormat=Risco de liquidez: {0}}" FontSize="9.5" Foreground="#777"/></StackPanel>
                 </Border>
             </Grid>
 
@@ -59,6 +59,13 @@
                         <Border Grid.Column="2" Background="#FFF6F4" CornerRadius="8" Padding="12"><StackPanel><TextBlock Text="Pagar em 7 dias" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding Resumo.PagarProximos7Dias, Converter={StaticResource ValorMoeda}}" FontSize="14" Foreground="#B42318"/></StackPanel></Border>
                         <Border Grid.Column="4" Background="#FFF8E8" CornerRadius="8" Padding="12"><StackPanel><TextBlock Text="Vencido líquido" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding Resumo.AReceberAtrasado, Converter={StaticResource ValorMoeda}}" FontSize="14" Foreground="#B54708"/><TextBlock Text="A receber vencido" FontSize="9.5" Foreground="#777"/></StackPanel></Border>
                     </Grid>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="#F7FAFC" CornerRadius="8" Padding="10"><StackPanel><TextBlock Text="7 DIAS" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding Resumo.Previsao7Dias, Converter={StaticResource ValorMoeda}}"/></StackPanel></Border>
+                        <Border Grid.Column="2" Background="#F7FAFC" CornerRadius="8" Padding="10"><StackPanel><TextBlock Text="15 DIAS" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding Resumo.Previsao15Dias, Converter={StaticResource ValorMoeda}}"/></StackPanel></Border>
+                        <Border Grid.Column="4" Background="#F7FAFC" CornerRadius="8" Padding="10"><StackPanel><TextBlock Text="60 DIAS" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding Resumo.Previsao60Dias, Converter={StaticResource ValorMoeda}}"/></StackPanel></Border>
+                        <Border Grid.Column="6" Background="#FFF8E8" CornerRadius="8" Padding="10"><StackPanel><TextBlock Text="INADIMPLÊNCIA" Style="{StaticResource Rotulo}"/><TextBlock Text="{Binding Resumo.InadimplenciaPercentual, StringFormat={}{0:N1}%}" Foreground="#B54708"/></StackPanel></Border>
+                    </Grid>
                     <DataGrid ItemsSource="{Binding Previsao}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="32" BorderThickness="0" MaxHeight="220">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Vencimento" Binding="{Binding Data, StringFormat=dd/MM/yyyy}" Width="95"/>
@@ -67,6 +74,15 @@
                             <DataGridTextColumn Header="Entidade" Binding="{Binding Entidade}" Width="150"/>
                             <DataGridTextColumn Header="Entrada" Binding="{Binding Entrada, Converter={StaticResource ValorMoeda}}" Width="110"/>
                             <DataGridTextColumn Header="Saída" Binding="{Binding Saida, Converter={StaticResource ValorMoeda}}" Width="110"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock Text="Aging financeiro" FontSize="12" FontWeight="SemiBold" Foreground="#0E4C5E" Margin="0,14,0,6"/>
+                    <DataGrid ItemsSource="{Binding Aging}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="30" BorderThickness="0" MaxHeight="190">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Faixa" Binding="{Binding Faixa}" Width="*"/>
+                            <DataGridTextColumn Header="A receber" Binding="{Binding AReceber, Converter={StaticResource ValorMoeda}}" Width="140"/>
+                            <DataGridTextColumn Header="A pagar" Binding="{Binding APagar, Converter={StaticResource ValorMoeda}}" Width="140"/>
+                            <DataGridTextColumn Header="Líquido" Binding="{Binding Liquido, Converter={StaticResource ValorMoeda}}" Width="140"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>

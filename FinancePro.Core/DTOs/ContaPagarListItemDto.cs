@@ -6,6 +6,9 @@ public class ContaPagarListItemDto
     public string Codigo { get; set; } = string.Empty;
     public string Descricao { get; set; } = string.Empty;
     public decimal Valor { get; set; }
+    public decimal ValorLiquidado { get; set; }
+    public decimal SaldoAberto => Math.Max(0, Valor - ValorLiquidado);
+    public int DiasAtraso => SaldoAberto > 0 && DataVencimento.Date < DateTime.Today ? (DateTime.Today - DataVencimento.Date).Days : 0;
     public DateTime DataEmissao { get; set; }
     public DateTime DataVencimento { get; set; }
     public DateTime? DataPagamento { get; set; }

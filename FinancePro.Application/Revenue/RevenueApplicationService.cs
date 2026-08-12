@@ -68,6 +68,14 @@ public sealed class RevenueApplicationService
         catch (Exception ex) { return Result.Fail(ex.Message); }
     }
 
+    public async Task<Result> RegistarRecebimentoParcialAsync(int contaReceberId, decimal valor, string origemTipo, int origemId, DateTime dataRecebimento)
+    {
+        if (contaReceberId <= 0 || valor <= 0) return Result.Fail("Conta e valor de recebimento devem ser válidos.");
+        if (origemId <= 0 || origemTipo is not ("Caixa" or "ContaBancaria")) return Result.Fail("Selecione uma origem válida.");
+        try { await _gateway.RegistarRecebimentoParcialAsync(contaReceberId, valor, origemTipo, origemId, dataRecebimento); return Result.Ok("Recebimento registado. O saldo da conta foi atualizado."); }
+        catch (Exception ex) { return Result.Fail(ex.Message); }
+    }
+
     public async Task<Result> CancelarAsync(int contaReceberId)
     {
         if (contaReceberId <= 0) return Result.Fail("Conta a receber inválida.");

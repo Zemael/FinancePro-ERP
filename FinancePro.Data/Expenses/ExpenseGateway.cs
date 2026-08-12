@@ -20,5 +20,7 @@ public sealed class ExpenseGateway : IExpenseGateway
     public Task CriarAsync(NovaContaPagarDto dto) => _service.CriarAsync(dto);
     public Task RegistarPagamentoAsync(int contaPagarId, string origemTipo, int origemId, DateTime dataPagamento) =>
         _service.RegistarPagamentoAsync(contaPagarId, origemTipo, origemId, dataPagamento);
+    public Task RegistarPagamentoParcialAsync(int contaPagarId, decimal valor, string origemTipo, int origemId, DateTime dataPagamento) =>
+        _service.RegistarPagamentoParcialAsync(contaPagarId, valor, origemTipo, origemId, dataPagamento);
     public Task CancelarAsync(int contaPagarId) => _service.CancelarAsync(contaPagarId);
 }

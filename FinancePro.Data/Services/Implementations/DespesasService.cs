@@ -35,6 +35,7 @@ public class DespesasService : IDespesasService
             Codigo = c.Codigo,
             Descricao = c.Descricao,
             Valor = c.Valor,
+            ValorLiquidado = c.ValorLiquidado,
             DataEmissao = c.DataEmissao,
             DataVencimento = c.DataVencimento,
             DataPagamento = c.DataPagamento,
@@ -42,9 +43,9 @@ public class DespesasService : IDespesasService
             CategoriaNome = c.Categoria?.Nome,
             FormaPagamento = c.FormaPagamento,
             CentroCusto = c.CentroCusto,
-            EstadoExibicao = c.Estado == EstadoConta.Pendente && c.DataVencimento.Date < hoje
-                ? "Atrasado"
-                : (c.Estado == EstadoConta.Recebido ? "Paga" : c.Estado.ToString()),
+            EstadoExibicao = c.Estado == EstadoConta.Pendente && c.ValorLiquidado > 0 ? "Parcial" :
+                c.Estado == EstadoConta.Pendente && c.DataVencimento.Date < hoje ? "Atrasado" :
+                (c.Estado == EstadoConta.Recebido ? "Paga" : c.Estado.ToString()),
             PodePagar = c.Estado == EstadoConta.Pendente,
             PodeCancelar = c.Estado == EstadoConta.Pendente
         }).ToList();
@@ -162,6 +163,7 @@ public class DespesasService : IDespesasService
             EmpresaId = conta.EmpresaId
         });
 
+        conta.ValorLiquidado = conta.Valor;
         conta.Estado = EstadoConta.Recebido; // Neste contexto, Recebido representa Paga.
         conta.DataPagamento = dataPagamento;
         conta.MovimentoId = movimentoId;
@@ -169,6 +171,20 @@ public class DespesasService : IDespesasService
 
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
+    }
+
+
+    public async Task RegistarPagamentoParcialAsync(int contaPagarId, decimal valor, string origemTipo, int origemId, DateTime dataPagamento)
+    {
+        var conta = await _context.ContasPagar.SingleOrDefaultAsync(c => c.Id == contaPagarId)
+            ?? throw new InvalidOperationException("Conta a pagar não encontrada.");
+        if (conta.Estado != EstadoConta.Pendente) throw new InvalidOperationException("Esta conta já não está pendente.");
+        var saldo = conta.Valor - conta.ValorLiquidado;
+        if (valor <= 0 || valor > saldo) throw new InvalidOperationException($"O valor deve ser maior que zero e não pode exceder o saldo de {saldo:N2}.");
+        var movimentoId = await _tesourariaService.RegistarMovimentoAsync(new NovoMovimentoDto { Data=dataPagamento, Descricao=$"Pagamento {conta.Codigo}: {conta.Descricao}", Valor=valor, Tipo=TipoCategoria.Despesa, TipoOperacao=TipoOperacao.Saida, FormaPagamento=conta.FormaPagamento, CentroCusto=conta.CentroCusto, CategoriaId=conta.CategoriaId, CaixaId=origemTipo=="Caixa"?origemId:null, ContaBancariaId=origemTipo=="ContaBancaria"?origemId:null, EmpresaId=conta.EmpresaId });
+        conta.ValorLiquidado += valor; conta.MovimentoId = movimentoId; conta.DataAtualizacao=DateTime.UtcNow;
+        if (conta.ValorLiquidado >= conta.Valor) { conta.Estado=EstadoConta.Recebido; conta.DataPagamento=dataPagamento; }
+        await _context.SaveChangesAsync();
     }
 
     public async Task CancelarAsync(int contaPagarId)

@@ -17,6 +17,8 @@ public class CompraConfiguration : IEntityTypeConfiguration<Compra>
         builder.Property(c => c.Prioridade).HasConversion<string>().HasMaxLength(20);
         builder.Property(c => c.Estado).HasConversion<string>().HasMaxLength(20);
         builder.Property(c => c.ValorTotal).HasColumnType("decimal(18,2)");
+        builder.Property(c => c.NumeroCotacao).HasMaxLength(30);
+        builder.Property(c => c.NumeroOrdemCompra).HasMaxLength(30);
 
         builder.HasOne(c => c.Fornecedor).WithMany().HasForeignKey(c => c.FornecedorId).OnDelete(DeleteBehavior.SetNull);
         builder.HasOne(c => c.Empresa).WithMany().HasForeignKey(c => c.EmpresaId).OnDelete(DeleteBehavior.Restrict);
