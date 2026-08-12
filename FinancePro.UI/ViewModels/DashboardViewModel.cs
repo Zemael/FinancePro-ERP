@@ -10,6 +10,7 @@ public class DashboardViewModel : ViewModelBase
 {
     private readonly IDashboardService _dashboardService;
     private readonly int _empresaId;
+    private readonly int _utilizadorId;
 
     private bool _aCarregar;
     private string _empresaNome = string.Empty;
@@ -28,6 +29,13 @@ public class DashboardViewModel : ViewModelBase
     private int _obrigacoesFiscaisProximas;
     private int _obrigacoesFiscaisCumpridas;
     private decimal _taxaConformidadeFiscal;
+    private decimal _execucaoOrcamentalPercentual;
+    private decimal _valorPatrimonio;
+    private int _bensAtivos;
+    private int _bensEmManutencao;
+    private int _workflowPendentes;
+    private int _workflowAtrasados;
+    private int _workflowUrgentes;
 
     private string _termoPesquisa = string.Empty;
     private bool _resultadosPesquisaVisiveis;
@@ -49,6 +57,13 @@ public class DashboardViewModel : ViewModelBase
     public int ObrigacoesFiscaisProximas { get => _obrigacoesFiscaisProximas; set => SetProperty(ref _obrigacoesFiscaisProximas, value); }
     public int ObrigacoesFiscaisCumpridas { get => _obrigacoesFiscaisCumpridas; set => SetProperty(ref _obrigacoesFiscaisCumpridas, value); }
     public decimal TaxaConformidadeFiscal { get => _taxaConformidadeFiscal; set => SetProperty(ref _taxaConformidadeFiscal, value); }
+    public decimal ExecucaoOrcamentalPercentual { get => _execucaoOrcamentalPercentual; set => SetProperty(ref _execucaoOrcamentalPercentual, value); }
+    public decimal ValorPatrimonio { get => _valorPatrimonio; set => SetProperty(ref _valorPatrimonio, value); }
+    public int BensAtivos { get => _bensAtivos; set => SetProperty(ref _bensAtivos, value); }
+    public int BensEmManutencao { get => _bensEmManutencao; set => SetProperty(ref _bensEmManutencao, value); }
+    public int WorkflowPendentes { get => _workflowPendentes; set => SetProperty(ref _workflowPendentes, value); }
+    public int WorkflowAtrasados { get => _workflowAtrasados; set => SetProperty(ref _workflowAtrasados, value); }
+    public int WorkflowUrgentes { get => _workflowUrgentes; set => SetProperty(ref _workflowUrgentes, value); }
 
     public string TermoPesquisa
     {
@@ -83,10 +98,11 @@ public class DashboardViewModel : ViewModelBase
     public ICommand NovaTransferenciaCommand { get; }
     public ICommand RecarregarCommand { get; }
 
-    public DashboardViewModel(IDashboardService dashboardService, int empresaId, string nomeUtilizador)
+    public DashboardViewModel(IDashboardService dashboardService, int empresaId, int utilizadorId, string nomeUtilizador)
     {
         _dashboardService = dashboardService;
         _empresaId = empresaId;
+        _utilizadorId = utilizadorId;
         NomeUtilizador = string.IsNullOrWhiteSpace(nomeUtilizador) ? "Utilizador" : nomeUtilizador;
 
         NovoMovimentoCommand = new AsyncRelayCommand(_ => { NavegarPedido?.Invoke("Tesouraria"); return Task.CompletedTask; });
@@ -107,7 +123,7 @@ public class DashboardViewModel : ViewModelBase
         MensagemErro = string.Empty;
         try
         {
-            var resumo = await _dashboardService.ObterResumoAsync(_empresaId);
+            var resumo = await _dashboardService.ObterResumoAsync(_empresaId, _utilizadorId);
 
             EmpresaNome = resumo.EmpresaNome;
             Exercicio = resumo.Exercicio;
@@ -122,6 +138,13 @@ public class DashboardViewModel : ViewModelBase
             ObrigacoesFiscaisProximas = resumo.ObrigacoesFiscaisProximas;
             ObrigacoesFiscaisCumpridas = resumo.ObrigacoesFiscaisCumpridas;
             TaxaConformidadeFiscal = resumo.TaxaConformidadeFiscal;
+            ExecucaoOrcamentalPercentual = resumo.ExecucaoOrcamentalPercentual;
+            ValorPatrimonio = resumo.ValorPatrimonio;
+            BensAtivos = resumo.BensAtivos;
+            BensEmManutencao = resumo.BensEmManutencao;
+            WorkflowPendentes = resumo.WorkflowPendentes;
+            WorkflowAtrasados = resumo.WorkflowAtrasados;
+            WorkflowUrgentes = resumo.WorkflowUrgentes;
             UltimaAtualizacao = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
 
             MovimentosRecentes.Clear();

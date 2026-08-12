@@ -64,6 +64,21 @@ public sealed class TreasuryApplicationService
         catch (Exception ex) { return Result.Fail(ex.Message); }
     }
 
+    public async Task<Result<TreasuryOverviewDto>> ObterResumoAsync(int empresaId)
+    {
+        if (empresaId <= 0) return Result<TreasuryOverviewDto>.Fail("Empresa inválida.");
+        try { return Result<TreasuryOverviewDto>.Ok(await _gateway.ObterResumoAsync(empresaId)); }
+        catch (Exception ex) { return Result<TreasuryOverviewDto>.Fail(ex.Message); }
+    }
+
+    public async Task<Result<IReadOnlyList<TreasuryForecastItemDto>>> ListarPrevisaoAsync(int empresaId, int dias = 30)
+    {
+        if (empresaId <= 0) return Result<IReadOnlyList<TreasuryForecastItemDto>>.Fail("Empresa inválida.");
+        if (dias is < 1 or > 365) return Result<IReadOnlyList<TreasuryForecastItemDto>>.Fail("O horizonte deve estar entre 1 e 365 dias.");
+        try { return Result<IReadOnlyList<TreasuryForecastItemDto>>.Ok(await _gateway.ListarPrevisaoAsync(empresaId, dias)); }
+        catch (Exception ex) { return Result<IReadOnlyList<TreasuryForecastItemDto>>.Fail(ex.Message); }
+    }
+
     public async Task<Result> MarcarConciliadoAsync(int movimentoId, bool conciliado)
     {
         if (movimentoId <= 0) return Result.Fail("Movimento inválido.");

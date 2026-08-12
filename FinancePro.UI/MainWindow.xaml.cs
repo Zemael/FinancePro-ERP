@@ -1,4 +1,4 @@
-using FinancePro.Application.MasterData.Currencies;
+﻿using FinancePro.Application.MasterData.Currencies;
 using FinancePro.Application.MasterData.Banking;
 using FinancePro.Application.Budget;
 using FinancePro.Application.Expenses;
@@ -31,10 +31,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace FinancePro.UI;
 
 /// <summary>
-/// Janela principal (shell) pós-login: barra superior com o utilizador
-/// ligado, navegação lateral e uma área de conteúdo que troca entre os
-/// módulos. Só Dashboard e Tesouraria estão ativos (Etapa 5); os
-/// restantes módulos aparecem como "brevemente" até serem desenvolvidos.
+/// Janela principal (shell) pÃ³s-login: barra superior com o utilizador
+/// ligado, navegaÃ§Ã£o lateral e uma Ã¡rea de conteÃºdo que troca entre os
+/// mÃ³dulos. SÃ³ Dashboard e Tesouraria estÃ£o ativos (Etapa 5); os
+/// restantes mÃ³dulos aparecem como "brevemente" atÃ© serem desenvolvidos.
 /// </summary>
 public partial class MainWindow : Window
 {
@@ -49,7 +49,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _utilizador = utilizador;
-        UsuarioTexto.Text = $"{utilizador.NomeCompleto} · {utilizador.PerfilNome}";
+        UsuarioTexto.Text = $"{utilizador.NomeCompleto} Â· {utilizador.PerfilNome}";
 
         AplicarPermissoesMenu();
         MostrarDashboard();
@@ -104,8 +104,8 @@ public partial class MainWindow : Window
 
     private void Tema_Click(object sender, RoutedEventArgs e) => GestorTema.Alternar();
 
-    /// <summary>Mantém o item do módulo atual sempre destacado a teal na
-    /// barra lateral — antes só havia destaque temporário ao passar o rato.</summary>
+    /// <summary>MantÃ©m o item do mÃ³dulo atual sempre destacado a teal na
+    /// barra lateral â€” antes sÃ³ havia destaque temporÃ¡rio ao passar o rato.</summary>
     private void DestacarItemAtivo(Button item)
     {
         if (_itemNavAtivo is not null)
@@ -122,7 +122,7 @@ public partial class MainWindow : Window
         DestacarItemAtivo(BtnDashboard);
         TrocarScope();
         var dashboardService = _scopeAtual!.ServiceProvider.GetRequiredService<IDashboardService>();
-        var viewModel = new DashboardViewModel(dashboardService, _utilizador.EmpresaId, _utilizador.NomeCompleto);
+        var viewModel = new DashboardViewModel(dashboardService, _utilizador.EmpresaId, _utilizador.UtilizadorId, _utilizador.NomeCompleto);
         viewModel.NavegarPedido += modulo =>
         {
             switch (modulo)
@@ -371,12 +371,13 @@ public partial class MainWindow : Window
         ConteudoHost.Content = new ConfiguracoesView { DataContext = viewModel };
     }
 
-    /// <summary>Cada módulo recebe o seu próprio scope de DI (e portanto o seu
-    /// próprio DbContext), fechado assim que se troca de módulo.</summary>
+    /// <summary>Cada mÃ³dulo recebe o seu prÃ³prio scope de DI (e portanto o seu
+    /// prÃ³prio DbContext), fechado assim que se troca de mÃ³dulo.</summary>
     private void TrocarScope()
     {
         _scopeAtual?.Dispose();
         _scopeAtual = App.Services.CreateScope();
     }
 }
+
 

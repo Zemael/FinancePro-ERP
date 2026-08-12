@@ -316,4 +316,60 @@ public class TesourariaService : ITesourariaService
                 $"(saldo atual {saldoAtual:#,##0} FCFA, insuficiente para {valorASubtrair:#,##0} FCFA).");
         }
     }
+
+    public async Task<TreasuryOverviewDto> ObterResumoAsync(int empresaId)
+    {
+        var hoje = DateTime.Today;
+        var limite7 = hoje.AddDays(7);
+        var limite30 = hoje.AddDays(30);
+
+        var caixas = await _context.Caixas.Where(x => x.EmpresaId == empresaId && x.Ativo).ToListAsync();
+        var contas = await _context.ContasBancarias.Where(x => x.EmpresaId == empresaId && x.Ativo).ToListAsync();
+        var movimentos = await _context.Movimentos.Where(x => x.EmpresaId == empresaId).ToListAsync();
+
+        decimal SaldoCaixa(int id, decimal inicial) => inicial + movimentos.Where(m => m.CaixaId == id).Sum(m => m.Tipo == TipoCategoria.Receita ? m.Valor : -m.Valor);
+        decimal SaldoBanco(int id, decimal inicial) => inicial + movimentos.Where(m => m.ContaBancariaId == id).Sum(m => m.Tipo == TipoCategoria.Receita ? m.Valor : -m.Valor);
+        var totalCaixa = caixas.Sum(x => SaldoCaixa(x.Id, x.SaldoInicial));
+        var totalBancos = contas.Sum(x => SaldoBanco(x.Id, x.SaldoInicial));
+
+        var receber = _context.ContasReceber.Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente);
+        var pagar = _context.ContasPagar.Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente);
+
+        var aReceber = await receber.SumAsync(x => (decimal?)x.Valor) ?? 0m;
+        var aPagar = await pagar.SumAsync(x => (decimal?)x.Valor) ?? 0m;
+        var receberAtrasado = await receber.Where(x => x.DataVencimento < hoje).SumAsync(x => (decimal?)x.Valor) ?? 0m;
+        var pagarAtrasado = await pagar.Where(x => x.DataVencimento < hoje).SumAsync(x => (decimal?)x.Valor) ?? 0m;
+        var receber7 = await receber.Where(x => x.DataVencimento >= hoje && x.DataVencimento <= limite7).SumAsync(x => (decimal?)x.Valor) ?? 0m;
+        var pagar7 = await pagar.Where(x => x.DataVencimento >= hoje && x.DataVencimento <= limite7).SumAsync(x => (decimal?)x.Valor) ?? 0m;
+        var receber30 = await receber.Where(x => x.DataVencimento <= limite30).SumAsync(x => (decimal?)x.Valor) ?? 0m;
+        var pagar30 = await pagar.Where(x => x.DataVencimento <= limite30).SumAsync(x => (decimal?)x.Valor) ?? 0m;
+
+        return new TreasuryOverviewDto
+        {
+            TotalCaixa = totalCaixa, TotalBancos = totalBancos, SaldoDisponivel = totalCaixa + totalBancos,
+            AReceberPendente = aReceber, APagarPendente = aPagar, AReceberAtrasado = receberAtrasado, APagarAtrasado = pagarAtrasado,
+            ReceberProximos7Dias = receber7, PagarProximos7Dias = pagar7,
+            Previsao30Dias = totalCaixa + totalBancos + receber30 - pagar30,
+            TitulosReceberAtrasados = await receber.CountAsync(x => x.DataVencimento < hoje),
+            TitulosPagarAtrasados = await pagar.CountAsync(x => x.DataVencimento < hoje)
+        };
+    }
+
+    public async Task<IReadOnlyList<TreasuryForecastItemDto>> ListarPrevisaoAsync(int empresaId, int dias = 30)
+    {
+        var hoje = DateTime.Today;
+        var limite = hoje.AddDays(dias);
+        var entradas = await _context.ContasReceber
+            .Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente && x.DataVencimento <= limite)
+            .Include(x => x.Cliente)
+            .Select(x => new TreasuryForecastItemDto { Data=x.DataVencimento, Tipo="Receber", Descricao=x.Descricao, Entidade=x.Cliente != null ? x.Cliente.Nome : string.Empty, Entrada=x.Valor, Atrasado=x.DataVencimento < hoje })
+            .ToListAsync();
+        var saidas = await _context.ContasPagar
+            .Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente && x.DataVencimento <= limite)
+            .Include(x => x.Fornecedor)
+            .Select(x => new TreasuryForecastItemDto { Data=x.DataVencimento, Tipo="Pagar", Descricao=x.Descricao, Entidade=x.Fornecedor != null ? x.Fornecedor.Nome : string.Empty, Saida=x.Valor, Atrasado=x.DataVencimento < hoje })
+            .ToListAsync();
+        return entradas.Concat(saidas).OrderBy(x => x.Data).ThenBy(x => x.Tipo).ToList();
+    }
+
 }

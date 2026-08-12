@@ -19,9 +19,21 @@ public class DashboardResumoDto
     public decimal Resultado => TotalReceitas - TotalDespesas;
     public decimal MargemPercentual => TotalReceitas > 0 ? Math.Round(Resultado / TotalReceitas * 100, 1) : 0;
 
-    // Orçamento / Património — módulos ainda não construídos, ficam a placeholder
-    public bool OrcamentoDisponivel => false;
-    public bool PatrimonioDisponivel => false;
+    // Orçamento (dados reais do orçamento aprovado/ativo do exercício)
+    public decimal OrcamentoPrevistoDespesas { get; set; }
+    public decimal OrcamentoRealizadoDespesas { get; set; }
+    public decimal ExecucaoOrcamentalPercentual => OrcamentoPrevistoDespesas > 0
+        ? Math.Round(OrcamentoRealizadoDespesas / OrcamentoPrevistoDespesas * 100, 1) : 0;
+
+    // Património (dados reais)
+    public int BensAtivos { get; set; }
+    public int BensEmManutencao { get; set; }
+    public decimal ValorPatrimonio { get; set; }
+
+    // Workflow (tarefas do utilizador atual)
+    public int WorkflowPendentes { get; set; }
+    public int WorkflowAtrasados { get; set; }
+    public int WorkflowUrgentes { get; set; }
 
     // Conformidade fiscal
     public int ObrigacoesFiscaisAtrasadas { get; set; }

@@ -24,6 +24,8 @@ public class TesourariaViewModel : ViewModelBase
     private string _centroCusto = string.Empty;
     private string _mensagemErro = string.Empty;
     private bool _aGuardar;
+    private TreasuryOverviewDto _resumo = new();
+    private bool _aCarregarResumo;
 
     public DateTime Data { get => _data; set => SetProperty(ref _data, value); }
     public string Descricao { get => _descricao; set => SetProperty(ref _descricao, value); }
@@ -74,10 +76,15 @@ public class TesourariaViewModel : ViewModelBase
     public string MensagemErro { get => _mensagemErro; set => SetProperty(ref _mensagemErro, value); }
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
 
+    public TreasuryOverviewDto Resumo { get => _resumo; private set => SetProperty(ref _resumo, value); }
+    public bool ACarregarResumo { get => _aCarregarResumo; private set => SetProperty(ref _aCarregarResumo, value); }
+    public ObservableCollection<TreasuryForecastItemDto> Previsao { get; } = new();
+
     public ObservableCollection<MovimentoListItemDto> Movimentos { get; } = new();
 
     public ICommand RegistarCommand { get; }
     public ICommand AlternarConciliadoCommand { get; }
+    public ICommand AtualizarResumoCommand { get; }
 
     public TesourariaViewModel(TreasuryApplicationService service, int empresaId)
     {
@@ -85,6 +92,7 @@ public class TesourariaViewModel : ViewModelBase
         _empresaId = empresaId;
         RegistarCommand = new AsyncRelayCommand(_ => RegistarAsync(), _ => !AGuardar);
         AlternarConciliadoCommand = new AsyncRelayCommand(AlternarConciliadoAsync);
+        AtualizarResumoCommand = new AsyncRelayCommand(_ => CarregarResumoAsync(), _ => !ACarregarResumo);
         _ = CarregarAsync();
     }
 
@@ -103,6 +111,7 @@ public class TesourariaViewModel : ViewModelBase
 
         await CarregarCategoriasAsync();
         await CarregarMovimentosAsync();
+        await CarregarResumoAsync();
     }
 
     private async Task CarregarCategoriasAsync()
@@ -129,6 +138,23 @@ public class TesourariaViewModel : ViewModelBase
         {
             Movimentos.Add(movimento);
         }
+    }
+
+    private async Task CarregarResumoAsync()
+    {
+        ACarregarResumo = true;
+        try
+        {
+            var resumo = await _service.ObterResumoAsync(_empresaId);
+            if (resumo.IsFailure) { MensagemErro = string.Join(" ", resumo.Errors); return; }
+            Resumo = resumo.Value ?? new TreasuryOverviewDto();
+
+            var previsao = await _service.ListarPrevisaoAsync(_empresaId, 30);
+            if (previsao.IsFailure) { MensagemErro = string.Join(" ", previsao.Errors); return; }
+            Previsao.Clear();
+            foreach (var item in previsao.Value ?? Array.Empty<TreasuryForecastItemDto>()) Previsao.Add(item);
+        }
+        finally { ACarregarResumo = false; }
     }
 
     private async Task RegistarAsync()
@@ -204,6 +230,7 @@ public class TesourariaViewModel : ViewModelBase
             ValorTexto = string.Empty;
 
             await CarregarMovimentosAsync();
+            await CarregarResumoAsync();
         }
         catch (Exception ex)
         {

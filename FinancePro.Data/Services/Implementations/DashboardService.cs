@@ -15,7 +15,7 @@ public class DashboardService : IDashboardService
         _context = context;
     }
 
-    public async Task<DashboardResumoDto> ObterResumoAsync(int empresaId)
+    public async Task<DashboardResumoDto> ObterResumoAsync(int empresaId, int utilizadorId)
     {
         var empresa = await _context.Empresas.FindAsync(empresaId);
 
@@ -118,6 +118,77 @@ public class DashboardService : IDashboardService
         }
 
 
+        // KPIs executivos: orçamento, património e workflow. As consultas são
+        // agregadas no SQL Server para evitar carregar coleções inteiras em memória.
+        var anoAtual = DateTime.Today.Year;
+        var orcamentoId = await _context.Orcamentos
+            .Where(o => o.EmpresaId == empresaId && o.Ano == anoAtual &&
+                        (o.Estado == EstadoOrcamento.Aprovado || o.Estado == EstadoOrcamento.Encerrado))
+            .OrderByDescending(o => o.Id)
+            .Select(o => (int?)o.Id)
+            .FirstOrDefaultAsync();
+
+        var orcamentoPrevistoDespesas = 0m;
+        var orcamentoRealizadoDespesas = 0m;
+        if (orcamentoId.HasValue)
+        {
+            orcamentoPrevistoDespesas = await _context.OrcamentoDetalhes
+                .Where(d => d.OrcamentoId == orcamentoId.Value && d.Tipo == TipoCategoria.Despesa)
+                .SumAsync(d => (decimal?)d.ValorPrevisto) ?? 0m;
+
+            var contasDespesa = await _context.OrcamentoDetalhes
+                .Where(d => d.OrcamentoId == orcamentoId.Value && d.Tipo == TipoCategoria.Despesa)
+                .Select(d => d.PlanoContasId).Distinct().ToListAsync();
+
+            orcamentoRealizadoDespesas = await _context.Movimentos
+                .Where(m => m.EmpresaId == empresaId && m.Data.Year == anoAtual &&
+                            m.Tipo == TipoCategoria.Despesa && operacoesReais.Contains(m.TipoOperacao) &&
+                            m.Categoria != null && m.Categoria.PlanoContasId.HasValue &&
+                            contasDespesa.Contains(m.Categoria.PlanoContasId.Value))
+                .SumAsync(m => (decimal?)m.Valor) ?? 0m;
+        }
+
+        var bensAtivos = await _context.Bens.CountAsync(b => b.EmpresaId == empresaId && b.Estado == EstadoBem.Ativo);
+        var bensEmManutencao = await _context.Bens.CountAsync(b => b.EmpresaId == empresaId && b.Estado == EstadoBem.EmManutencao);
+        var valorPatrimonio = await _context.Bens
+            .Where(b => b.EmpresaId == empresaId && b.Estado != EstadoBem.Abatido && b.Estado != EstadoBem.Vendido)
+            .SumAsync(b => (decimal?)b.ValorAquisicao) ?? 0m;
+
+        var workflowPendentes = 0;
+        var workflowAtrasados = 0;
+        var workflowUrgentes = 0;
+        try
+        {
+            var connection = _context.Database.GetDbConnection();
+            var shouldClose = connection.State != System.Data.ConnectionState.Open;
+            if (shouldClose) await connection.OpenAsync();
+            try
+            {
+                await using var command = connection.CreateCommand();
+                command.CommandText = @"SELECT
+    SUM(CASE WHEN Status=0 THEN 1 ELSE 0 END),
+    SUM(CASE WHEN Status=0 AND DueAt IS NOT NULL AND DueAt < SYSUTCDATETIME() THEN 1 ELSE 0 END),
+    SUM(CASE WHEN Status=0 AND Priority >= 2 THEN 1 ELSE 0 END)
+FROM dbo.WorkflowTasks WHERE CompanyId=@companyId AND AssignedUserId=@userId";
+                var companyParameter = command.CreateParameter();
+                companyParameter.ParameterName = "@companyId"; companyParameter.Value = empresaId; command.Parameters.Add(companyParameter);
+                var userParameter = command.CreateParameter();
+                userParameter.ParameterName = "@userId"; userParameter.Value = utilizadorId; command.Parameters.Add(userParameter);
+                await using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    workflowPendentes = reader.IsDBNull(0) ? 0 : Convert.ToInt32(reader.GetValue(0));
+                    workflowAtrasados = reader.IsDBNull(1) ? 0 : Convert.ToInt32(reader.GetValue(1));
+                    workflowUrgentes = reader.IsDBNull(2) ? 0 : Convert.ToInt32(reader.GetValue(2));
+                }
+            }
+            finally { if (shouldClose) await connection.CloseAsync(); }
+        }
+        catch (System.Data.Common.DbException) { }
+
+        if (workflowAtrasados > 0) alertas.Add(new AlertaDto { Severidade = "Critico", Mensagem = $"{workflowAtrasados} tarefa(s) de workflow em atraso" });
+        if (bensEmManutencao > 0) alertas.Add(new AlertaDto { Severidade = "Aviso", Mensagem = $"{bensEmManutencao} bem(ns) em manutenção" });
+
         var fiscalAtrasadas = 0;
         var fiscalProximas = 0;
         var fiscalCumpridas = 0;
@@ -186,7 +257,15 @@ FROM dbo.FiscalObligations WHERE CompanyId=@companyId";
             ObrigacoesFiscaisAtrasadas = fiscalAtrasadas,
             ObrigacoesFiscaisProximas = fiscalProximas,
             ObrigacoesFiscaisCumpridas = fiscalCumpridas,
-            TaxaConformidadeFiscal = taxaConformidadeFiscal
+            TaxaConformidadeFiscal = taxaConformidadeFiscal,
+            OrcamentoPrevistoDespesas = orcamentoPrevistoDespesas,
+            OrcamentoRealizadoDespesas = orcamentoRealizadoDespesas,
+            BensAtivos = bensAtivos,
+            BensEmManutencao = bensEmManutencao,
+            ValorPatrimonio = valorPatrimonio,
+            WorkflowPendentes = workflowPendentes,
+            WorkflowAtrasados = workflowAtrasados,
+            WorkflowUrgentes = workflowUrgentes
         };
     }
 

@@ -31,4 +31,10 @@ public sealed class TreasuryGateway : ITreasuryGateway
 
     public Task MarcarConciliadoAsync(int movimentoId, bool conciliado) =>
         _service.MarcarConciliadoAsync(movimentoId, conciliado);
+
+    public Task<TreasuryOverviewDto> ObterResumoAsync(int empresaId) =>
+        _service.ObterResumoAsync(empresaId);
+
+    public Task<IReadOnlyList<TreasuryForecastItemDto>> ListarPrevisaoAsync(int empresaId, int dias = 30) =>
+        _service.ListarPrevisaoAsync(empresaId, dias);
 }

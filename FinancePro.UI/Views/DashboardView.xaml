@@ -70,6 +70,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Greeting -->
@@ -139,8 +140,36 @@
                 <Border Style="{StaticResource Card}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" Background="#F4ECFF" CornerRadius="9"><TextBlock Text="%" Foreground="#7C3AED" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1"><TextBlock Text="TOTAL DISPONÍVEL" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding TotalDisponivel, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock Text="Caixa + contas bancárias" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel></Grid></Border>
             </UniformGrid>
 
+            <!-- Executive KPIs: real data, loaded with the dashboard summary -->
+            <UniformGrid Grid.Row="2" Columns="4" Margin="0,0,0,14">
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" Background="#F4ECFF" CornerRadius="9"><TextBlock Text="%" Foreground="#7C3AED" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Grid.Column="1"><TextBlock Text="EXECUÇÃO ORÇAMENTAL" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding ExecucaoOrcamentalPercentual, StringFormat={}{0:N1}%}" Style="{StaticResource KpiValue}"/><TextBlock Text="Despesas realizadas / previstas" Style="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel>
+                    </Grid>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" Background="#EAFBF3" CornerRadius="9"><TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" Foreground="#16A34A" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Grid.Column="1"><TextBlock Text="PATRIMÓNIO ATIVO" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding ValorPatrimonio, Converter={StaticResource ValorMoeda}}" Style="{StaticResource KpiValue}"/><TextBlock FontSize="11" Foreground="#64748B" Margin="0,5,0,0"><Run Text="Bens ativos: "/><Run Text="{Binding BensAtivos}"/><Run Text=" · Manutenção: "/><Run Text="{Binding BensEmManutencao}"/></TextBlock></StackPanel>
+                    </Grid>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" Background="#FFF7E8" CornerRadius="9"><TextBlock Text="&#xE73A;" FontFamily="Segoe MDL2 Assets" Foreground="#D97706" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Grid.Column="1"><TextBlock Text="WORKFLOW PENDENTE" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding WorkflowPendentes}" Style="{StaticResource KpiValue}"/><TextBlock FontSize="11" Foreground="#64748B" Margin="0,5,0,0"><Run Text="Atrasados: "/><Run Text="{Binding WorkflowAtrasados}"/><Run Text=" · Urgentes: "/><Run Text="{Binding WorkflowUrgentes}"/></TextBlock></StackPanel>
+                    </Grid>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" Background="#EAF2FF" CornerRadius="9"><TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" Foreground="#2F6FED" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Grid.Column="1"><TextBlock Text="CONFORMIDADE FISCAL" Style="{StaticResource KpiLabel}"/><TextBlock Text="{Binding TaxaConformidadeFiscal, StringFormat={}{0:N1}%}" Style="{StaticResource KpiValue}"/><TextBlock FontSize="11" Foreground="#64748B" Margin="0,5,0,0"><Run Text="Atrasadas: "/><Run Text="{Binding ObrigacoesFiscaisAtrasadas}"/><Run Text=" · Próx. 7 dias: "/><Run Text="{Binding ObrigacoesFiscaisProximas}"/></TextBlock></StackPanel>
+                    </Grid>
+                </Border>
+            </UniformGrid>
+
             <!-- Quick actions -->
-            <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,0,0,14">
+            <Border Grid.Row="3" Style="{StaticResource Card}" Margin="0,0,0,14">
                 <StackPanel>
                     <TextBlock Text="Ações rápidas" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/>
                     <WrapPanel>
@@ -156,7 +185,7 @@
             </Border>
 
             <!-- Main panels -->
-            <Grid Grid.Row="3" Margin="0,0,0,14">
+            <Grid Grid.Row="4" Margin="0,0,0,14">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="1.45*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="0.8*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="0.72*"/></Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Style="{StaticResource Card}">
@@ -205,7 +234,7 @@
             </Grid>
 
             <!-- Bottom panels -->
-            <Grid Grid.Row="4">
+            <Grid Grid.Row="5">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="1*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="1*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="0.85*"/></Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Style="{StaticResource Card}"><StackPanel><Grid Margin="0,0,0,10"><TextBlock Text="Pendências (contas a receber)" Style="{StaticResource SectionTitle}"/><TextBlock Text="Ver todas" HorizontalAlignment="Right" Foreground="#2F6FED" FontSize="10"/></Grid><DataGrid ItemsSource="{Binding Pendencias}" AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal" MinHeight="105"><DataGrid.Columns><DataGridTextColumn Header="Descrição" Binding="{Binding Descricao}" Width="*"/><DataGridTextColumn Header="Vence" Binding="{Binding DataVencimento, StringFormat=dd/MM}" Width="65"/><DataGridTextColumn Header="Valor" Binding="{Binding Valor, Converter={StaticResource ValorMoeda}}" Width="100"/></DataGrid.Columns></DataGrid><TextBlock Text="Nenhuma pendência encontrada" Style="{StaticResource Muted}" Margin="8,12,0,0" Visibility="{Binding Pendencias, Converter={StaticResource ColecaoVaziaParaVisibilidade}}"/></StackPanel></Border>
                 <Border Grid.Column="2" Style="{StaticResource Card}"><StackPanel><Grid Margin="0,0,0,10"><TextBlock Text="Movimentos recentes" Style="{StaticResource SectionTitle}"/><TextBlock Text="Ver todos" HorizontalAlignment="Right" Foreground="#2F6FED" FontSize="10"/></Grid><ItemsControl ItemsSource="{Binding MovimentosRecentes}"><ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding Descricao}" FontSize="11"/><TextBlock Grid.Column="1" Text="{Binding Valor, Converter={StaticResource ValorMoeda}}" FontSize="11" FontWeight="SemiBold"/></Grid></DataTemplate></ItemsControl.ItemTemplate></ItemsControl><TextBlock Text="Sem movimentos registados" Style="{StaticResource Muted}" Margin="8,12,0,0" Visibility="{Binding MovimentosRecentes, Converter={StaticResource ColecaoVaziaParaVisibilidade}}"/></StackPanel></Border>

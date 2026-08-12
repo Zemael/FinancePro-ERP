@@ -11,4 +11,6 @@ public interface ITreasuryGateway
     Task<int> RegistarMovimentoAsync(NovoMovimentoDto dto);
     Task RegistarTransferenciaAsync(NovaTransferenciaDto dto);
     Task MarcarConciliadoAsync(int movimentoId, bool conciliado);
+    Task<TreasuryOverviewDto> ObterResumoAsync(int empresaId);
+    Task<IReadOnlyList<TreasuryForecastItemDto>> ListarPrevisaoAsync(int empresaId, int dias = 30);
 }

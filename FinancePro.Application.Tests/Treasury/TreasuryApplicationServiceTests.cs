@@ -40,6 +40,14 @@ public sealed class TreasuryApplicationServiceTests
         Assert.True(result.IsFailure);
     }
 
+    [Fact]
+    public async Task ObterResumo_DeveFalhar_QuandoEmpresaInvalida()
+    {
+        var service = new TreasuryApplicationService(new FakeGateway());
+        var result = await service.ObterResumoAsync(0);
+        Assert.True(result.IsFailure);
+    }
+
     private sealed class FakeGateway : ITreasuryGateway
     {
         public Task<IReadOnlyList<MovimentoListItemDto>> ListarMovimentosAsync(int empresaId, int maxRegistos = 100) => Task.FromResult<IReadOnlyList<MovimentoListItemDto>>(Array.Empty<MovimentoListItemDto>());
@@ -48,5 +56,7 @@ public sealed class TreasuryApplicationServiceTests
         public Task<int> RegistarMovimentoAsync(NovoMovimentoDto dto) => Task.FromResult(1);
         public Task RegistarTransferenciaAsync(NovaTransferenciaDto dto) => Task.CompletedTask;
         public Task MarcarConciliadoAsync(int movimentoId, bool conciliado) => Task.CompletedTask;
+        public Task<TreasuryOverviewDto> ObterResumoAsync(int empresaId) => Task.FromResult(new TreasuryOverviewDto());
+        public Task<IReadOnlyList<TreasuryForecastItemDto>> ListarPrevisaoAsync(int empresaId, int dias = 30) => Task.FromResult<IReadOnlyList<TreasuryForecastItemDto>>(Array.Empty<TreasuryForecastItemDto>());
     }
 }
