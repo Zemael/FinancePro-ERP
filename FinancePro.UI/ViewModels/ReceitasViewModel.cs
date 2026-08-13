@@ -44,20 +44,23 @@ public class ReceitasViewModel : ViewModelBase
     public string ValorRecebimentoTexto { get => _valorRecebimentoTexto; set => SetProperty(ref _valorRecebimentoTexto, value); }
     public DateTime DataRecebimento { get => _dataRecebimento; set => SetProperty(ref _dataRecebimento, value); }
 
+    public string NotaValor { get => _notaValor; set => SetProperty(ref _notaValor,value); }
+    public string NotaMotivo { get => _notaMotivo; set => SetProperty(ref _notaMotivo,value); }
+    private string _notaValor = string.Empty; private string _notaMotivo = string.Empty;
     public OpcaoOrigemDto? OrigemRecebimentoSelecionada { get => _origemRecebimentoSelecionada; set => SetProperty(ref _origemRecebimentoSelecionada, value); }
-    public ContaReceberListItemDto? ContaSelecionada {get=>_contaSelecionada;set{if(SetProperty(ref _contaSelecionada,value)) _=CarregarItensAsync();}} public ProdutoStockDto? ProdutoItemSelecionado{get=>_produtoItemSelecionado;set=>SetProperty(ref _produtoItemSelecionado,value);} public string QuantidadeItem{get=>_quantidadeItem;set=>SetProperty(ref _quantidadeItem,value);} public string PrecoItem{get=>_precoItem;set=>SetProperty(ref _precoItem,value);} public string DescontoItem{get=>_descontoItem;set=>SetProperty(ref _descontoItem,value);} public string IvaItem{get=>_ivaItem;set=>SetProperty(ref _ivaItem,value);}
+    public ContaReceberListItemDto? ContaSelecionada {get=>_contaSelecionada;set{if(SetProperty(ref _contaSelecionada,value)){_=CarregarItensAsync();_=CarregarDocumentosAsync();}}} public ProdutoStockDto? ProdutoItemSelecionado{get=>_produtoItemSelecionado;set=>SetProperty(ref _produtoItemSelecionado,value);} public string QuantidadeItem{get=>_quantidadeItem;set=>SetProperty(ref _quantidadeItem,value);} public string PrecoItem{get=>_precoItem;set=>SetProperty(ref _precoItem,value);} public string DescontoItem{get=>_descontoItem;set=>SetProperty(ref _descontoItem,value);} public string IvaItem{get=>_ivaItem;set=>SetProperty(ref _ivaItem,value);}
 
     public ObservableCollection<ClienteOpcaoDto> Clientes { get; } = new();
     public ObservableCollection<CategoriaOpcaoDto> Categorias { get; } = new();
     public ObservableCollection<OpcaoOrigemDto> Origens { get; } = new();
-    public ObservableCollection<ContaReceberListItemDto> Contas { get; } = new(); public ObservableCollection<ProdutoStockDto> ProdutosItens{get;}=new(); public ObservableCollection<DocumentoItemDto> Itens{get;}=new();
+    public ObservableCollection<ContaReceberListItemDto> Contas { get; } = new(); public ObservableCollection<ProdutoStockDto> ProdutosItens{get;}=new(); public ObservableCollection<DocumentoItemDto> Itens{get;}=new(); public ObservableCollection<DocumentoFiscalDto> DocumentosFiscais{get;}=new();
 
     public ICommand CriarCommand { get; }
     public ICommand AprovarCommand { get; }
     public ICommand FaturarCommand { get; }
     public ICommand ReceberCommand { get; }
     public ICommand CancelarCommand { get; }
-    public ICommand AtualizarCommand { get; } public ICommand AdicionarItemCommand{get;} public ICommand RemoverItemCommand{get;}
+    public ICommand AtualizarCommand { get; } public ICommand AdicionarItemCommand{get;} public ICommand RemoverItemCommand{get;} public ICommand NotaCreditoCommand{get;} public ICommand NotaDebitoCommand{get;}
 
     public ReceitasViewModel(RevenueApplicationService service, int empresaId)
     {
@@ -69,7 +72,7 @@ public class ReceitasViewModel : ViewModelBase
         FaturarCommand = new AsyncRelayCommand(FaturarAsync);
         ReceberCommand = new AsyncRelayCommand(ReceberAsync);
         CancelarCommand = new AsyncRelayCommand(CancelarAsync);
-        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync(), _ => !ACarregar); AdicionarItemCommand=new AsyncRelayCommand(_=>AdicionarItemAsync()); RemoverItemCommand=new AsyncRelayCommand(p=>RemoverItemAsync(p));
+        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync(), _ => !ACarregar); AdicionarItemCommand=new AsyncRelayCommand(_=>AdicionarItemAsync()); RemoverItemCommand=new AsyncRelayCommand(p=>RemoverItemAsync(p)); NotaCreditoCommand=new AsyncRelayCommand(_=>EmitirNotaAsync("Credito")); NotaDebitoCommand=new AsyncRelayCommand(_=>EmitirNotaAsync("Debito"));
 
         _ = CarregarAsync();
     }
@@ -204,6 +207,9 @@ public class ReceitasViewModel : ViewModelBase
     private async Task CarregarItensAsync(){Itens.Clear();if(ContaSelecionada is null)return;var r=await _service.ListarItensAsync(ContaSelecionada.Id);if(r.IsFailure){MensagemErro=string.Join(" ",r.Errors);return;}foreach(var x in r.Value??Array.Empty<DocumentoItemDto>())Itens.Add(x);}
     private async Task AdicionarItemAsync(){LimparMensagens();if(ContaSelecionada is null||ProdutoItemSelecionado is null){MensagemErro="Selecione a proposta e o produto.";return;}if(!decimal.TryParse(QuantidadeItem,out var q)||!decimal.TryParse(PrecoItem,out var p)||!decimal.TryParse(DescontoItem,out var d)||!decimal.TryParse(IvaItem,out var i)){MensagemErro="Valores do item inválidos.";return;}var res=await _service.AdicionarItemAsync(new NovoDocumentoItemDto{DocumentoId=ContaSelecionada.Id,ProdutoId=ProdutoItemSelecionado.Id,Quantidade=q,PrecoUnitario=p,DescontoPercentual=d,IvaPercentual=i});if(res.IsFailure){MensagemErro=string.Join(" ",res.Errors);return;}await CarregarItensAsync();await CarregarContasAsync();MensagemSucesso=res.Message??"Item adicionado.";}
     private async Task RemoverItemAsync(object? p){if(p is not DocumentoItemDto item)return;var res=await _service.RemoverItemAsync(item.Id);if(res.IsFailure){MensagemErro=string.Join(" ",res.Errors);return;}await CarregarItensAsync();await CarregarContasAsync();}
+
+    private async Task CarregarDocumentosAsync(){DocumentosFiscais.Clear();if(ContaSelecionada is null)return;var r=await _service.ListarDocumentosAsync(ContaSelecionada.Id);if(r.IsFailure){MensagemErro=string.Join(" ",r.Errors);return;}foreach(var x in r.Value??Array.Empty<DocumentoFiscalDto>())DocumentosFiscais.Add(x);}
+    private async Task EmitirNotaAsync(string tipo){LimparMensagens();if(ContaSelecionada is null){MensagemErro="Selecione uma fatura.";return;}if(!decimal.TryParse(NotaValor,out var valor)||valor<=0){MensagemErro="Indique um valor válido para a nota.";return;}var r=await _service.EmitirNotaAsync(new NovaNotaFiscalDto{ContaReceberId=ContaSelecionada.Id,Tipo=tipo,Valor=valor,Motivo=NotaMotivo});if(r.IsFailure){MensagemErro=string.Join(" ",r.Errors);return;}NotaValor=string.Empty;NotaMotivo=string.Empty;await CarregarDocumentosAsync();MensagemSucesso=r.Message??"Documento fiscal emitido.";}
 
     private void LimparMensagens()
     {

@@ -124,6 +124,7 @@ public partial class App : System.Windows.Application
         services.AddScoped<IAdministrationMasterDataService, AdministrationMasterDataService>();
         services.AddScoped<IAccountingStore, SqlAccountingStore>();
         services.AddScoped<IAccountingService, AccountingService>();
+        services.AddScoped<IAutomaticAccountingRulesService, AutomaticAccountingRulesService>();
         services.AddScoped<IConsolidationStore, SqlConsolidationStore>();
         services.AddScoped<IConsolidationService, ConsolidationService>();
 

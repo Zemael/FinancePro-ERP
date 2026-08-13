@@ -62,6 +62,8 @@ public sealed class RevenueApplicationServiceTests
         public Task AdicionarItemAsync(NovoDocumentoItemDto dto) => Task.CompletedTask;
 
         public Task RemoverItemAsync(int itemId) => Task.CompletedTask;
+        public Task<IReadOnlyList<DocumentoFiscalDto>> ListarDocumentosAsync(int contaReceberId) => Task.FromResult<IReadOnlyList<DocumentoFiscalDto>>(Array.Empty<DocumentoFiscalDto>());
+        public Task EmitirNotaAsync(NovaNotaFiscalDto dto) => Task.CompletedTask;
     }
 }
 

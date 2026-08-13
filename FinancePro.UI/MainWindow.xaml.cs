@@ -347,9 +347,10 @@ public partial class MainWindow : Window
         TrocarScope();
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<IAccountingService>();
         var masterData = _scopeAtual.ServiceProvider.GetRequiredService<IAdministrationMasterDataService>();
+        var automaticRules = _scopeAtual.ServiceProvider.GetRequiredService<IAutomaticAccountingRulesService>();
         ConteudoHost.Content = new AccountingView
         {
-            DataContext = new AccountingViewModel(service, masterData, _utilizador.EmpresaId, _utilizador.UtilizadorId, _utilizador.NomeCompleto)
+            DataContext = new AccountingViewModel(service, masterData, automaticRules, _utilizador.EmpresaId, _utilizador.UtilizadorId, _utilizador.NomeCompleto)
         };
     }
 

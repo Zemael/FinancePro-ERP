@@ -117,4 +117,20 @@ public sealed class RevenueApplicationService
     public async Task<Result<IReadOnlyList<DocumentoItemDto>>> ListarItensAsync(int documentoId){ try{return Result<IReadOnlyList<DocumentoItemDto>>.Ok(await _gateway.ListarItensAsync(documentoId));}catch(Exception ex){return Result<IReadOnlyList<DocumentoItemDto>>.Fail(ex.Message);} }
     public async Task<Result> AdicionarItemAsync(NovoDocumentoItemDto dto){ try{await _gateway.AdicionarItemAsync(dto); return Result.Ok("Item adicionado e total recalculado.");}catch(Exception ex){return Result.Fail(ex.Message);} }
     public async Task<Result> RemoverItemAsync(int itemId){ try{await _gateway.RemoverItemAsync(itemId); return Result.Ok("Item removido e total recalculado.");}catch(Exception ex){return Result.Fail(ex.Message);} }
+    public async Task<Result<IReadOnlyList<DocumentoFiscalDto>>> ListarDocumentosAsync(int contaReceberId)
+    {
+        if (contaReceberId <= 0) return Result<IReadOnlyList<DocumentoFiscalDto>>.Fail("Documento inválido.");
+        try { return Result<IReadOnlyList<DocumentoFiscalDto>>.Ok(await _gateway.ListarDocumentosAsync(contaReceberId)); }
+        catch (Exception ex) { return Result<IReadOnlyList<DocumentoFiscalDto>>.Fail(ex.Message); }
+    }
+
+    public async Task<Result> EmitirNotaAsync(NovaNotaFiscalDto dto)
+    {
+        if (dto.ContaReceberId <= 0 || dto.Valor <= 0) return Result.Fail("Documento e valor devem ser válidos.");
+        if (dto.Tipo is not ("Credito" or "Debito")) return Result.Fail("Tipo de nota inválido.");
+        if (string.IsNullOrWhiteSpace(dto.Motivo)) return Result.Fail("Indique o motivo da nota.");
+        try { await _gateway.EmitirNotaAsync(dto); return Result.Ok($"Nota de {dto.Tipo.ToLowerInvariant()} emitida."); }
+        catch (Exception ex) { return Result.Fail(ex.Message); }
+    }
+
 }

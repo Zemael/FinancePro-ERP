@@ -2,6 +2,7 @@ using FinancePro.Core.DTOs;
 using FinancePro.Core.Entities;
 using FinancePro.Core.Enums;
 using FinancePro.Data.Context;
+using FinancePro.Data.Accounting;
 using FinancePro.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -170,6 +171,7 @@ public class DespesasService : IDespesasService
         conta.DataAtualizacao = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+        await AutomaticAccountingPoster.TryPostAsync(_context, conta.EmpresaId, "COMPRA_PAGAMENTO", movimentoId, dataPagamento, $"PAG-{movimentoId:D6}", conta.Codigo, $"Pagamento {conta.Codigo}", conta.Valor);
         await transaction.CommitAsync();
     }
 
@@ -185,6 +187,7 @@ public class DespesasService : IDespesasService
         conta.ValorLiquidado += valor; conta.MovimentoId = movimentoId; conta.DataAtualizacao=DateTime.UtcNow;
         if (conta.ValorLiquidado >= conta.Valor) { conta.Estado=EstadoConta.Recebido; conta.DataPagamento=dataPagamento; }
         await _context.SaveChangesAsync();
+        await AutomaticAccountingPoster.TryPostAsync(_context, conta.EmpresaId, "COMPRA_PAGAMENTO", movimentoId, dataPagamento, $"PAG-{movimentoId:D6}", conta.Codigo, $"Pagamento parcial {conta.Codigo}", valor);
     }
 
     public async Task CancelarAsync(int contaPagarId)

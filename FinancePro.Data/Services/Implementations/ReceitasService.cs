@@ -2,8 +2,10 @@ using FinancePro.Core.DTOs;
 using FinancePro.Core.Entities;
 using FinancePro.Core.Enums;
 using FinancePro.Data.Context;
+using FinancePro.Data.Accounting;
 using FinancePro.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FinancePro.Services.Implementations;
 
@@ -177,6 +179,10 @@ public class ReceitasService : IReceitasService
         conta.DataAtualizacao = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+        var reciboSeq = 1 + await ContarDocumentosAsync(conta.EmpresaId, "Recibo");
+        var reciboNumero = $"REC-{dataRecebimento:yyyy}-{reciboSeq:D5}";
+        await _context.Database.ExecuteSqlInterpolatedAsync($@"INSERT INTO dbo.DocumentosFiscais (ContaReceberId,EmpresaId,Tipo,Numero,DataEmissao,BaseTributavel,ValorIva,Total,Estado,DocumentoOrigem) VALUES ({conta.Id},{conta.EmpresaId},{"Recibo"},{reciboNumero},{dataRecebimento},{conta.Valor},{0m},{conta.Valor},{"Emitido"},{conta.NumeroFatura})");
+        await AutomaticAccountingPoster.TryPostAsync(_context, conta.EmpresaId, "VENDA_RECEBIMENTO", movimentoId, dataRecebimento, reciboNumero, conta.NumeroFatura ?? conta.Codigo, $"Recebimento {conta.Codigo}", conta.Valor);
         await transaction.CommitAsync();
     }
 
@@ -193,6 +199,10 @@ public class ReceitasService : IReceitasService
         conta.ValorLiquidado += valor; conta.MovimentoId = movimentoId; conta.DataAtualizacao=DateTime.UtcNow;
         if (conta.ValorLiquidado >= conta.Valor) { conta.Estado=EstadoConta.Recebido; conta.DataRecebimento=dataRecebimento; }
         await _context.SaveChangesAsync();
+        var reciboSeq = 1 + await ContarDocumentosAsync(conta.EmpresaId, "Recibo");
+        var reciboNumero = $"REC-{dataRecebimento:yyyy}-{reciboSeq:D5}";
+        await _context.Database.ExecuteSqlInterpolatedAsync($@"INSERT INTO dbo.DocumentosFiscais (ContaReceberId,EmpresaId,Tipo,Numero,DataEmissao,BaseTributavel,ValorIva,Total,Estado,DocumentoOrigem) VALUES ({conta.Id},{conta.EmpresaId},{"Recibo"},{reciboNumero},{dataRecebimento},{valor},{0m},{valor},{"Emitido"},{conta.NumeroFatura})");
+        await AutomaticAccountingPoster.TryPostAsync(_context, conta.EmpresaId, "VENDA_RECEBIMENTO", movimentoId, dataRecebimento, reciboNumero, conta.NumeroFatura ?? conta.Codigo, $"Recebimento parcial {conta.Codigo}", valor);
     }
 
 
@@ -222,7 +232,12 @@ public class ReceitasService : IReceitasService
         await using var tx = await _context.Database.BeginTransactionAsync();
         foreach(var i in itens){ i.Produto.StockAtual-=i.Quantidade; i.Produto.DataAtualizacao=DateTime.UtcNow; _context.MovimentosStock.Add(new MovimentoStock{EmpresaId=conta.EmpresaId,ProdutoId=i.ProdutoId,Tipo=TipoMovimentoStock.Saida,Quantidade=i.Quantidade,CustoUnitario=i.Produto.CustoMedio,SaldoApos=i.Produto.StockAtual,DocumentoReferencia=conta.NumeroFatura,Observacao="Saída automática por faturação"}); }
         conta.ComercialEstado = "Faturada"; conta.DataFaturacao = DateTime.UtcNow; conta.DataAtualizacao = DateTime.UtcNow;
-        await _context.SaveChangesAsync(); await tx.CommitAsync();
+        var baseTributavel = itens.Sum(x => x.Subtotal);
+        var valorIva = itens.Sum(x => x.ValorIva);
+        await _context.Database.ExecuteSqlInterpolatedAsync($@"INSERT INTO dbo.DocumentosFiscais (ContaReceberId,EmpresaId,Tipo,Numero,DataEmissao,BaseTributavel,ValorIva,Total,Estado) VALUES ({conta.Id},{conta.EmpresaId},{"Fatura"},{conta.NumeroFatura},{DateTime.UtcNow},{baseTributavel},{valorIva},{conta.Valor},{"Emitido"})");
+        await _context.SaveChangesAsync();
+        await AutomaticAccountingPoster.TryPostAsync(_context, conta.EmpresaId, "VENDA_FATURA", conta.Id, conta.DataFaturacao.Value, conta.NumeroFatura, conta.Codigo, $"Fatura de venda {conta.NumeroFatura}", conta.Valor);
+        await tx.CommitAsync();
     }
 
     public async Task CancelarAsync(int contaReceberId)
@@ -239,4 +254,52 @@ public class ReceitasService : IReceitasService
         conta.DataAtualizacao = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IReadOnlyList<DocumentoFiscalDto>> ListarDocumentosAsync(int contaReceberId)
+    {
+        var result = new List<DocumentoFiscalDto>();
+        var conn = _context.Database.GetDbConnection();
+        var mustClose = conn.State != System.Data.ConnectionState.Open;
+        if (mustClose) await conn.OpenAsync();
+        try
+        {
+            await using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT Id,ContaReceberId,Tipo,Numero,DataEmissao,BaseTributavel,ValorIva,Total,Estado,DocumentoOrigem,Motivo FROM dbo.DocumentosFiscais WHERE ContaReceberId=@id ORDER BY DataEmissao DESC,Id DESC";
+            if (_context.Database.CurrentTransaction is not null) cmd.Transaction = _context.Database.CurrentTransaction.GetDbTransaction();
+            var par = cmd.CreateParameter(); par.ParameterName="@id"; par.Value=contaReceberId; cmd.Parameters.Add(par);
+            await using var r = await cmd.ExecuteReaderAsync();
+            while(await r.ReadAsync()) result.Add(new DocumentoFiscalDto { Id=r.GetInt32(0), ContaReceberId=r.GetInt32(1), Tipo=r.GetString(2), Numero=r.GetString(3), DataEmissao=r.GetDateTime(4), BaseTributavel=r.GetDecimal(5), ValorIva=r.GetDecimal(6), Total=r.GetDecimal(7), Estado=r.GetString(8), DocumentoOrigem=r.IsDBNull(9)?null:r.GetString(9), Motivo=r.IsDBNull(10)?null:r.GetString(10) });
+        }
+        finally { if(mustClose) await conn.CloseAsync(); }
+        return result;
+    }
+
+    public async Task EmitirNotaAsync(NovaNotaFiscalDto dto)
+    {
+        var conta = await _context.ContasReceber.SingleOrDefaultAsync(x=>x.Id==dto.ContaReceberId) ?? throw new InvalidOperationException("Fatura não encontrada.");
+        if(conta.ComercialEstado!="Faturada" || string.IsNullOrWhiteSpace(conta.NumeroFatura)) throw new InvalidOperationException("Só é possível emitir notas para faturas emitidas.");
+        if(dto.Tipo == "Credito" && dto.Valor > conta.Valor) throw new InvalidOperationException("A nota de crédito não pode exceder o valor atual da fatura.");
+        var tipo = dto.Tipo == "Credito" ? "NotaCredito" : "NotaDebito";
+        var seq = 1 + await ContarDocumentosAsync(conta.EmpresaId, tipo);
+        var prefix = dto.Tipo == "Credito" ? "NC" : "ND";
+        var numero = $"{prefix}-{DateTime.Today:yyyy}-{seq:D5}";
+        var itens = await _context.VendaItens.Where(x=>x.ContaReceberId==conta.Id).ToListAsync();
+        var ivaOriginal = itens.Sum(x=>x.ValorIva); var totalOriginal = itens.Sum(x=>x.Total);
+        var ivaNota = totalOriginal > 0 ? Math.Round(dto.Valor * ivaOriginal / totalOriginal, 2) : 0m;
+        var baseNota = dto.Valor - ivaNota;
+        await using var tx = await _context.Database.BeginTransactionAsync();
+        await _context.Database.ExecuteSqlInterpolatedAsync($@"INSERT INTO dbo.DocumentosFiscais (ContaReceberId,EmpresaId,Tipo,Numero,DataEmissao,BaseTributavel,ValorIva,Total,Estado,DocumentoOrigem,Motivo) VALUES ({conta.Id},{conta.EmpresaId},{tipo},{numero},{DateTime.UtcNow},{baseNota},{ivaNota},{dto.Valor},{"Emitido"},{conta.NumeroFatura},{dto.Motivo.Trim()})");
+        conta.Valor += dto.Tipo == "Credito" ? -dto.Valor : dto.Valor;
+        if(conta.ValorLiquidado > conta.Valor) conta.ValorLiquidado = conta.Valor;
+        conta.DataAtualizacao = DateTime.UtcNow;
+        await _context.SaveChangesAsync(); await tx.CommitAsync();
+    }
+
+    private async Task<int> ContarDocumentosAsync(int empresaId, string tipo)
+    {
+        var conn = _context.Database.GetDbConnection(); var mustClose=conn.State!=System.Data.ConnectionState.Open; if(mustClose) await conn.OpenAsync();
+        try { await using var cmd=conn.CreateCommand(); if (_context.Database.CurrentTransaction is not null) cmd.Transaction = _context.Database.CurrentTransaction.GetDbTransaction(); cmd.CommandText="SELECT COUNT(*) FROM dbo.DocumentosFiscais WHERE EmpresaId=@e AND Tipo=@t"; var e=cmd.CreateParameter();e.ParameterName="@e";e.Value=empresaId;cmd.Parameters.Add(e);var t=cmd.CreateParameter();t.ParameterName="@t";t.Value=tipo;cmd.Parameters.Add(t);return Convert.ToInt32(await cmd.ExecuteScalarAsync()); }
+        finally { if(mustClose) await conn.CloseAsync(); }
+    }
+
 }

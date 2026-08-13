@@ -2,6 +2,7 @@ using FinancePro.Core.DTOs;
 using FinancePro.Core.Entities;
 using FinancePro.Core.Enums;
 using FinancePro.Data.Context;
+using FinancePro.Data.Accounting;
 using FinancePro.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -150,6 +151,7 @@ public class CompraService : ICompraService
         }
         compra.DataFatura = DateTime.Today; compra.Estado = EstadoCompra.Faturado; compra.DataAtualizacao = DateTime.UtcNow;
         await _context.SaveChangesAsync();
+        await AutomaticAccountingPoster.TryPostAsync(_context, compra.EmpresaId, "COMPRA_FATURA", compra.Id, compra.DataFatura.Value, codigo, compra.NumeroOrdemCompra ?? compra.NumeroPedido, $"Fatura de compra {compra.NumeroOrdemCompra ?? compra.NumeroPedido}", compra.ValorTotal);
     }
 
 

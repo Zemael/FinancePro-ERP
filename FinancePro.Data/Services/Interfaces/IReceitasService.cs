@@ -18,4 +18,6 @@ public interface IReceitasService
     Task<IReadOnlyList<DocumentoItemDto>> ListarItensAsync(int contaReceberId);
     Task AdicionarItemAsync(NovoDocumentoItemDto dto);
     Task RemoverItemAsync(int itemId);
+    Task<IReadOnlyList<DocumentoFiscalDto>> ListarDocumentosAsync(int contaReceberId);
+    Task EmitirNotaAsync(NovaNotaFiscalDto dto);
 }

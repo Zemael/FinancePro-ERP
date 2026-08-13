@@ -217,6 +217,28 @@
                 <DataGrid ItemsSource="{Binding Itens}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,12,0,0" Height="170"><DataGrid.Columns><DataGridTextColumn Header="Produto" Binding="{Binding ProdutoNome}" Width="*"/><DataGridTextColumn Header="Qtd." Binding="{Binding Quantidade}" Width="70"/><DataGridTextColumn Header="Preço" Binding="{Binding PrecoUnitario}" Width="90"/><DataGridTextColumn Header="Desc.%" Binding="{Binding DescontoPercentual}" Width="70"/><DataGridTextColumn Header="IVA%" Binding="{Binding IvaPercentual}" Width="60"/><DataGridTextColumn Header="Total" Binding="{Binding Total}" Width="100"/><DataGridTemplateColumn Header="" Width="80"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Remover" Style="{StaticResource BotaoLink}" Foreground="#C00000" Command="{Binding DataContext.RemoverItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns></DataGrid>
             </StackPanel></Border>
 
+            <TextBlock Text="Documentos fiscais" FontSize="13" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,20,0,10"/>
+            <Border Style="{StaticResource Cartao}"><StackPanel>
+                <Grid Margin="0,0,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="120"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="110"/><ColumnDefinition Width="10"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" Text="{Binding NotaValor}" ToolTip="Valor da nota"/>
+                    <TextBox Grid.Column="2" Text="{Binding NotaMotivo}" ToolTip="Motivo da nota"/>
+                    <Button Grid.Column="4" Content="Nota crédito" Style="{StaticResource BotaoSecundario}" Command="{Binding NotaCreditoCommand}"/>
+                    <Button Grid.Column="6" Content="Nota débito" Style="{StaticResource BotaoSecundario}" Command="{Binding NotaDebitoCommand}"/>
+                </Grid>
+                <DataGrid ItemsSource="{Binding DocumentosFiscais}" AutoGenerateColumns="False" IsReadOnly="True" Height="180">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="110"/>
+                        <DataGridTextColumn Header="Número" Binding="{Binding Numero}" Width="140"/>
+                        <DataGridTextColumn Header="Data" Binding="{Binding DataEmissao, StringFormat=dd/MM/yyyy}" Width="90"/>
+                        <DataGridTextColumn Header="Base" Binding="{Binding BaseTributavel, Converter={StaticResource ValorMoeda}}" Width="110"/>
+                        <DataGridTextColumn Header="IVA" Binding="{Binding ValorIva, Converter={StaticResource ValorMoeda}}" Width="100"/>
+                        <DataGridTextColumn Header="Total" Binding="{Binding Total, Converter={StaticResource ValorMoeda}}" Width="110"/>
+                        <DataGridTextColumn Header="Origem" Binding="{Binding DocumentoOrigem}" Width="130"/>
+                        <DataGridTextColumn Header="Motivo" Binding="{Binding Motivo}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel></Border>
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>
