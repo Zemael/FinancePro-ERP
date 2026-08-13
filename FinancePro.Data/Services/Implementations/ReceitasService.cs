@@ -195,6 +195,13 @@ public class ReceitasService : IReceitasService
         await _context.SaveChangesAsync();
     }
 
+
+    public async Task<IReadOnlyList<ProdutoStockDto>> ListarProdutosAsync(int empresaId) => await _context.Produtos.AsNoTracking().Where(x=>x.EmpresaId==empresaId&&x.Ativo).OrderBy(x=>x.Nome).Select(x=>new ProdutoStockDto{Id=x.Id,Codigo=x.Codigo,Nome=x.Nome,Unidade=x.Unidade,StockAtual=x.StockAtual,CustoMedio=x.CustoMedio}).ToListAsync();
+    public async Task<IReadOnlyList<DocumentoItemDto>> ListarItensAsync(int contaReceberId) => await _context.VendaItens.AsNoTracking().Include(x=>x.Produto).Where(x=>x.ContaReceberId==contaReceberId).OrderBy(x=>x.Id).Select(x=>new DocumentoItemDto{Id=x.Id,ProdutoId=x.ProdutoId,ProdutoCodigo=x.Produto.Codigo,ProdutoNome=x.Produto.Nome,Unidade=x.Produto.Unidade,Quantidade=x.Quantidade,PrecoUnitario=x.PrecoUnitario,DescontoPercentual=x.DescontoPercentual,IvaPercentual=x.IvaPercentual,Subtotal=x.Quantidade*x.PrecoUnitario*(1-x.DescontoPercentual/100m),ValorIva=x.Quantidade*x.PrecoUnitario*(1-x.DescontoPercentual/100m)*x.IvaPercentual/100m,Total=x.Quantidade*x.PrecoUnitario*(1-x.DescontoPercentual/100m)*(1+x.IvaPercentual/100m)}).ToListAsync();
+    public async Task AdicionarItemAsync(NovoDocumentoItemDto d){ var conta=await _context.ContasReceber.FindAsync(d.DocumentoId)??throw new InvalidOperationException("Proposta não encontrada."); if(conta.ComercialEstado=="Faturada"||conta.Estado==EstadoConta.Cancelado) throw new InvalidOperationException("Não é possível alterar itens após faturação/cancelamento."); if(d.Quantidade<=0||d.PrecoUnitario<0||d.DescontoPercentual<0||d.DescontoPercentual>100||d.IvaPercentual<0) throw new InvalidOperationException("Valores do item inválidos."); if(!await _context.Produtos.AnyAsync(x=>x.Id==d.ProdutoId&&x.EmpresaId==conta.EmpresaId&&x.Ativo)) throw new InvalidOperationException("Produto inválido."); _context.VendaItens.Add(new VendaItem{ContaReceberId=conta.Id,ProdutoId=d.ProdutoId,Quantidade=d.Quantidade,PrecoUnitario=d.PrecoUnitario,DescontoPercentual=d.DescontoPercentual,IvaPercentual=d.IvaPercentual}); await _context.SaveChangesAsync(); await RecalcularVendaAsync(conta.Id); }
+    public async Task RemoverItemAsync(int itemId){ var item=await _context.VendaItens.Include(x=>x.ContaReceber).FirstOrDefaultAsync(x=>x.Id==itemId)??throw new InvalidOperationException("Item não encontrado."); if(item.ContaReceber.ComercialEstado=="Faturada") throw new InvalidOperationException("Faturas emitidas não podem ter itens removidos."); var id=item.ContaReceberId; _context.VendaItens.Remove(item); await _context.SaveChangesAsync(); await RecalcularVendaAsync(id); }
+    private async Task RecalcularVendaAsync(int id){ var c=await _context.ContasReceber.FindAsync(id)??throw new InvalidOperationException("Proposta não encontrada."); var itens=await _context.VendaItens.Where(x=>x.ContaReceberId==id).ToListAsync(); c.Valor=itens.Sum(x=>x.Total); c.DataAtualizacao=DateTime.UtcNow; await _context.SaveChangesAsync(); }
+
     public async Task AprovarPropostaAsync(int contaReceberId)
     {
         var conta = await _context.ContasReceber.FindAsync(contaReceberId) ?? throw new InvalidOperationException("Proposta não encontrada.");
@@ -207,9 +214,15 @@ public class ReceitasService : IReceitasService
     {
         var conta = await _context.ContasReceber.FindAsync(contaReceberId) ?? throw new InvalidOperationException("Proposta não encontrada.");
         if (conta.ComercialEstado != "Aprovada") throw new InvalidOperationException("A proposta deve estar aprovada antes da faturação.");
+        var itens = await _context.VendaItens.Include(x=>x.Produto).Where(x=>x.ContaReceberId==conta.Id).ToListAsync();
+        if(itens.Count==0) throw new InvalidOperationException("Adicione pelo menos um produto antes da faturação.");
+        foreach(var i in itens) if(i.Produto.StockAtual < i.Quantidade) throw new InvalidOperationException($"Stock insuficiente para {i.Produto.Nome}.");
         var numero = 1 + await _context.ContasReceber.CountAsync(c => c.EmpresaId == conta.EmpresaId && c.NumeroFatura != null);
-        conta.NumeroFatura = $"FAT-{DateTime.Today:yyyy}-{numero:D5}"; conta.ComercialEstado = "Faturada"; conta.DataFaturacao = DateTime.UtcNow; conta.DataAtualizacao = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
+        conta.NumeroFatura = $"FAT-{DateTime.Today:yyyy}-{numero:D5}";
+        await using var tx = await _context.Database.BeginTransactionAsync();
+        foreach(var i in itens){ i.Produto.StockAtual-=i.Quantidade; i.Produto.DataAtualizacao=DateTime.UtcNow; _context.MovimentosStock.Add(new MovimentoStock{EmpresaId=conta.EmpresaId,ProdutoId=i.ProdutoId,Tipo=TipoMovimentoStock.Saida,Quantidade=i.Quantidade,CustoUnitario=i.Produto.CustoMedio,SaldoApos=i.Produto.StockAtual,DocumentoReferencia=conta.NumeroFatura,Observacao="Saída automática por faturação"}); }
+        conta.ComercialEstado = "Faturada"; conta.DataFaturacao = DateTime.UtcNow; conta.DataAtualizacao = DateTime.UtcNow;
+        await _context.SaveChangesAsync(); await tx.CommitAsync();
     }
 
     public async Task CancelarAsync(int contaReceberId)

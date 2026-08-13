@@ -25,6 +25,8 @@ public class Compra : EntityBase
     public int? FornecedorId { get; set; }
     public Fornecedor? Fornecedor { get; set; }
 
+    public ICollection<CompraItem> Itens { get; set; } = new List<CompraItem>();
+
     public int EmpresaId { get; set; }
     public Empresa Empresa { get; set; } = null!;
 }

@@ -14,4 +14,8 @@ public interface IRevenueGateway
     Task AprovarPropostaAsync(int contaReceberId);
     Task FaturarAsync(int contaReceberId);
     Task CancelarAsync(int contaReceberId);
+    Task<IReadOnlyList<ProdutoStockDto>> ListarProdutosAsync(int empresaId);
+    Task<IReadOnlyList<DocumentoItemDto>> ListarItensAsync(int documentoId);
+    Task AdicionarItemAsync(NovoDocumentoItemDto dto);
+    Task RemoverItemAsync(int itemId);
 }

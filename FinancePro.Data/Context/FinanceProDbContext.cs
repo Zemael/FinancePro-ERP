@@ -1,4 +1,4 @@
-﻿using FinancePro.Core.Entities;
+using FinancePro.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinancePro.Data.Context;
@@ -34,6 +34,8 @@ public class FinanceProDbContext : DbContext
     public DbSet<Bem> Bens => Set<Bem>();
     public DbSet<Produto> Produtos => Set<Produto>();
     public DbSet<MovimentoStock> MovimentosStock => Set<MovimentoStock>();
+    public DbSet<CompraItem> CompraItens => Set<CompraItem>();
+    public DbSet<VendaItem> VendaItens => Set<VendaItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

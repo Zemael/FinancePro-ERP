@@ -112,4 +112,9 @@ public sealed class PurchasingApplicationService
             return Result.Fail(ex.Message);
         }
     }
+
+    public async Task<Result<IReadOnlyList<ProdutoStockDto>>> ListarProdutosAsync(int empresaId){ try{return Result<IReadOnlyList<ProdutoStockDto>>.Ok(await _gateway.ListarProdutosAsync(empresaId));}catch(Exception ex){return Result<IReadOnlyList<ProdutoStockDto>>.Fail(ex.Message);} }
+    public async Task<Result<IReadOnlyList<DocumentoItemDto>>> ListarItensAsync(int documentoId){ try{return Result<IReadOnlyList<DocumentoItemDto>>.Ok(await _gateway.ListarItensAsync(documentoId));}catch(Exception ex){return Result<IReadOnlyList<DocumentoItemDto>>.Fail(ex.Message);} }
+    public async Task<Result> AdicionarItemAsync(NovoDocumentoItemDto dto){ try{await _gateway.AdicionarItemAsync(dto); return Result.Ok("Item adicionado e total recalculado.");}catch(Exception ex){return Result.Fail(ex.Message);} }
+    public async Task<Result> RemoverItemAsync(int itemId){ try{await _gateway.RemoverItemAsync(itemId); return Result.Ok("Item removido e total recalculado.");}catch(Exception ex){return Result.Fail(ex.Message);} }
 }

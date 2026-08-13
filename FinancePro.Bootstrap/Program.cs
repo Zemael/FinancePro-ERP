@@ -1,4 +1,4 @@
-﻿using FinancePro.Core.Entities;
+using FinancePro.Core.Entities;
 using FinancePro.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +18,7 @@ await using var db = new FinanceProDbContext(options);
 if (!await db.Database.CanConnectAsync()) throw new InvalidOperationException("Não foi possível ligar à base FinancePro.");
 
 // Aplica a evolução v6.6 de forma idempotente pelo próprio .NET.
-foreach (var schemaName in new[] { "020_AccountingPeriodClosing.sql", "021_FiscalYearClosing.sql", "022_FiscalYearSettlement.sql", "023_AccountingConsolidation.sql", "024_AdvancedReceivablesPayables.sql", "025_AdvancedPurchasing.sql", "026_AdvancedCommercialRevenue.sql", "027_InventoryStock.sql" })
+foreach (var schemaName in new[] { "020_AccountingPeriodClosing.sql", "021_FiscalYearClosing.sql", "022_FiscalYearSettlement.sql", "023_AccountingConsolidation.sql", "024_AdvancedReceivablesPayables.sql", "025_AdvancedPurchasing.sql", "026_AdvancedCommercialRevenue.sql", "027_InventoryStock.sql", "028_DocumentLines.sql" })
 {
     var schemaPath = Path.Combine(root, "FinancePro.Data", "Scripts", "Schema", schemaName);
     if (!File.Exists(schemaPath)) continue;

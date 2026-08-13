@@ -161,7 +161,7 @@
                        Visibility="{Binding MensagemSucesso, Converter={StaticResource TextoParaVisibilidade}}"/>
 
             <Border Style="{StaticResource Cartao}" Padding="0">
-                <DataGrid ItemsSource="{Binding Contas}" AutoGenerateColumns="False" IsReadOnly="True"
+                <DataGrid ItemsSource="{Binding Contas}" SelectedItem="{Binding ContaSelecionada}" AutoGenerateColumns="False" IsReadOnly="True"
                           HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="36" BorderThickness="0">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Proposta" Binding="{Binding NumeroProposta}" Width="115"/>
@@ -208,6 +208,14 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
+
+            <TextBlock Text="Itens da proposta/fatura selecionada" FontSize="13" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,20,0,10"/>
+            <Border Style="{StaticResource Cartao}"><StackPanel>
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
+                    <ComboBox Grid.Column="0" ItemsSource="{Binding ProdutosItens}" SelectedItem="{Binding ProdutoItemSelecionado}" DisplayMemberPath="Nome"/><TextBox Grid.Column="2" Text="{Binding QuantidadeItem}" ToolTip="Quantidade"/><TextBox Grid.Column="4" Text="{Binding PrecoItem}" ToolTip="Preço unitário"/><TextBox Grid.Column="6" Text="{Binding DescontoItem}" ToolTip="Desconto %"/><TextBox Grid.Column="8" Text="{Binding IvaItem}" ToolTip="IVA %"/><Button Grid.Column="10" Content="Adicionar" Style="{StaticResource BotaoPrimario}" Command="{Binding AdicionarItemCommand}"/>
+                </Grid>
+                <DataGrid ItemsSource="{Binding Itens}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,12,0,0" Height="170"><DataGrid.Columns><DataGridTextColumn Header="Produto" Binding="{Binding ProdutoNome}" Width="*"/><DataGridTextColumn Header="Qtd." Binding="{Binding Quantidade}" Width="70"/><DataGridTextColumn Header="Preço" Binding="{Binding PrecoUnitario}" Width="90"/><DataGridTextColumn Header="Desc.%" Binding="{Binding DescontoPercentual}" Width="70"/><DataGridTextColumn Header="IVA%" Binding="{Binding IvaPercentual}" Width="60"/><DataGridTextColumn Header="Total" Binding="{Binding Total}" Width="100"/><DataGridTemplateColumn Header="" Width="80"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Remover" Style="{StaticResource BotaoLink}" Foreground="#C00000" Command="{Binding DataContext.RemoverItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns></DataGrid>
+            </StackPanel></Border>
 
         </StackPanel>
     </ScrollViewer>

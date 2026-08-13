@@ -1,4 +1,4 @@
-using FinancePro.Application.Purchasing;
+﻿using FinancePro.Application.Purchasing;
 using FinancePro.Core.DTOs;
 using Xunit;
 
@@ -15,7 +15,7 @@ public sealed class PurchasingApplicationServiceTests
         {
             EmpresaId = 1,
             Data = DateTime.Today,
-            Departamento = "Administração",
+            Departamento = "AdministraÃ§Ã£o",
             Comprador = "Zemael",
             ValorTotal = 1000m
         });
@@ -34,7 +34,7 @@ public sealed class PurchasingApplicationServiceTests
         {
             EmpresaId = 1,
             Data = DateTime.Today,
-            Departamento = "Administração",
+            Departamento = "AdministraÃ§Ã£o",
             Comprador = "Zemael",
             FornecedorId = 1,
             ValorTotal = 1000m
@@ -75,5 +75,16 @@ public sealed class PurchasingApplicationServiceTests
         public Task EmitirOrdemAsync(int compraId) => Task.CompletedTask;
         public Task ReceberAsync(int compraId) => Task.CompletedTask;
         public Task FaturarAsync(int compraId) => Task.CompletedTask;
+
+        public Task<IReadOnlyList<ProdutoStockDto>> ListarProdutosAsync(int empresaId) =>
+            Task.FromResult<IReadOnlyList<ProdutoStockDto>>([]);
+
+        public Task<IReadOnlyList<DocumentoItemDto>> ListarItensAsync(int documentoId) =>
+            Task.FromResult<IReadOnlyList<DocumentoItemDto>>([]);
+
+        public Task AdicionarItemAsync(NovoDocumentoItemDto dto) => Task.CompletedTask;
+
+        public Task RemoverItemAsync(int itemId) => Task.CompletedTask;
     }
 }
+

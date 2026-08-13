@@ -34,6 +34,8 @@ public class ContaReceber : EntityBase
     public int? MovimentoId { get; set; }
     public Movimento? Movimento { get; set; }
 
+    public ICollection<VendaItem> Itens { get; set; } = new List<VendaItem>();
+
     public int EmpresaId { get; set; }
     public Empresa Empresa { get; set; } = null!;
 }

@@ -14,4 +14,8 @@ public interface ICompraService
     Task EmitirOrdemAsync(int compraId);
     Task ReceberAsync(int compraId);
     Task FaturarAsync(int compraId);
+    Task<IReadOnlyList<ProdutoStockDto>> ListarProdutosAsync(int empresaId);
+    Task<IReadOnlyList<DocumentoItemDto>> ListarItensAsync(int compraId);
+    Task AdicionarItemAsync(NovoDocumentoItemDto dto);
+    Task RemoverItemAsync(int itemId);
 }

@@ -27,6 +27,7 @@ public class ReceitasViewModel : ViewModelBase
     private DateTime _dataRecebimento = DateTime.Today;
     private string _valorRecebimentoTexto = string.Empty;
     private OpcaoOrigemDto? _origemRecebimentoSelecionada;
+    private ContaReceberListItemDto? _contaSelecionada; private ProdutoStockDto? _produtoItemSelecionado; private string _quantidadeItem="1", _precoItem="", _descontoItem="0", _ivaItem="0";
 
     public string Descricao { get => _descricao; set => SetProperty(ref _descricao, value); }
     public string ValorTexto { get => _valorTexto; set => SetProperty(ref _valorTexto, value); }
@@ -44,18 +45,19 @@ public class ReceitasViewModel : ViewModelBase
     public DateTime DataRecebimento { get => _dataRecebimento; set => SetProperty(ref _dataRecebimento, value); }
 
     public OpcaoOrigemDto? OrigemRecebimentoSelecionada { get => _origemRecebimentoSelecionada; set => SetProperty(ref _origemRecebimentoSelecionada, value); }
+    public ContaReceberListItemDto? ContaSelecionada {get=>_contaSelecionada;set{if(SetProperty(ref _contaSelecionada,value)) _=CarregarItensAsync();}} public ProdutoStockDto? ProdutoItemSelecionado{get=>_produtoItemSelecionado;set=>SetProperty(ref _produtoItemSelecionado,value);} public string QuantidadeItem{get=>_quantidadeItem;set=>SetProperty(ref _quantidadeItem,value);} public string PrecoItem{get=>_precoItem;set=>SetProperty(ref _precoItem,value);} public string DescontoItem{get=>_descontoItem;set=>SetProperty(ref _descontoItem,value);} public string IvaItem{get=>_ivaItem;set=>SetProperty(ref _ivaItem,value);}
 
     public ObservableCollection<ClienteOpcaoDto> Clientes { get; } = new();
     public ObservableCollection<CategoriaOpcaoDto> Categorias { get; } = new();
     public ObservableCollection<OpcaoOrigemDto> Origens { get; } = new();
-    public ObservableCollection<ContaReceberListItemDto> Contas { get; } = new();
+    public ObservableCollection<ContaReceberListItemDto> Contas { get; } = new(); public ObservableCollection<ProdutoStockDto> ProdutosItens{get;}=new(); public ObservableCollection<DocumentoItemDto> Itens{get;}=new();
 
     public ICommand CriarCommand { get; }
     public ICommand AprovarCommand { get; }
     public ICommand FaturarCommand { get; }
     public ICommand ReceberCommand { get; }
     public ICommand CancelarCommand { get; }
-    public ICommand AtualizarCommand { get; }
+    public ICommand AtualizarCommand { get; } public ICommand AdicionarItemCommand{get;} public ICommand RemoverItemCommand{get;}
 
     public ReceitasViewModel(RevenueApplicationService service, int empresaId)
     {
@@ -67,7 +69,7 @@ public class ReceitasViewModel : ViewModelBase
         FaturarCommand = new AsyncRelayCommand(FaturarAsync);
         ReceberCommand = new AsyncRelayCommand(ReceberAsync);
         CancelarCommand = new AsyncRelayCommand(CancelarAsync);
-        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync(), _ => !ACarregar);
+        AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync(), _ => !ACarregar); AdicionarItemCommand=new AsyncRelayCommand(_=>AdicionarItemAsync()); RemoverItemCommand=new AsyncRelayCommand(p=>RemoverItemAsync(p));
 
         _ = CarregarAsync();
     }
@@ -78,6 +80,7 @@ public class ReceitasViewModel : ViewModelBase
         ACarregar = true;
         try
         {
+            var produtos=await _service.ListarProdutosAsync(_empresaId); if(produtos.IsSuccess){ProdutosItens.Clear(); foreach(var x in produtos.Value??Array.Empty<ProdutoStockDto>()) ProdutosItens.Add(x);}
             var clientes = await _service.ListarClientesAsync(_empresaId);
             if (clientes.IsFailure) { MensagemErro = string.Join(" ", clientes.Errors); return; }
             Clientes.Clear();
@@ -196,6 +199,11 @@ public class ReceitasViewModel : ViewModelBase
         await CarregarContasAsync();
         MensagemSucesso = resultado.Message ?? $"Conta {conta.Codigo} cancelada.";
     }
+
+
+    private async Task CarregarItensAsync(){Itens.Clear();if(ContaSelecionada is null)return;var r=await _service.ListarItensAsync(ContaSelecionada.Id);if(r.IsFailure){MensagemErro=string.Join(" ",r.Errors);return;}foreach(var x in r.Value??Array.Empty<DocumentoItemDto>())Itens.Add(x);}
+    private async Task AdicionarItemAsync(){LimparMensagens();if(ContaSelecionada is null||ProdutoItemSelecionado is null){MensagemErro="Selecione a proposta e o produto.";return;}if(!decimal.TryParse(QuantidadeItem,out var q)||!decimal.TryParse(PrecoItem,out var p)||!decimal.TryParse(DescontoItem,out var d)||!decimal.TryParse(IvaItem,out var i)){MensagemErro="Valores do item inválidos.";return;}var res=await _service.AdicionarItemAsync(new NovoDocumentoItemDto{DocumentoId=ContaSelecionada.Id,ProdutoId=ProdutoItemSelecionado.Id,Quantidade=q,PrecoUnitario=p,DescontoPercentual=d,IvaPercentual=i});if(res.IsFailure){MensagemErro=string.Join(" ",res.Errors);return;}await CarregarItensAsync();await CarregarContasAsync();MensagemSucesso=res.Message??"Item adicionado.";}
+    private async Task RemoverItemAsync(object? p){if(p is not DocumentoItemDto item)return;var res=await _service.RemoverItemAsync(item.Id);if(res.IsFailure){MensagemErro=string.Join(" ",res.Errors);return;}await CarregarItensAsync();await CarregarContasAsync();}
 
     private void LimparMensagens()
     {

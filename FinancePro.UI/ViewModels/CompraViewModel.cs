@@ -26,6 +26,7 @@ public class CompraViewModel : ViewModelBase
     private bool _aGuardar;
     private bool _aCarregar;
     private bool _aProcessarAcao;
+    private CompraListItemDto? _compraSelecionada; private ProdutoStockDto? _produtoItemSelecionado; private string _quantidadeItem="1"; private string _precoItem=""; private string _descontoItem="0"; private string _ivaItem="0";
 
     public DateTime Data { get => _data; set => SetProperty(ref _data, value); }
     public string Departamento { get => _departamento; set => SetProperty(ref _departamento, value); }
@@ -40,11 +41,14 @@ public class CompraViewModel : ViewModelBase
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
     public bool ACarregar { get => _aCarregar; set => SetProperty(ref _aCarregar, value); }
     public bool AProcessarAcao { get => _aProcessarAcao; set => SetProperty(ref _aProcessarAcao, value); }
+    public CompraListItemDto? CompraSelecionada { get=>_compraSelecionada; set { if(SetProperty(ref _compraSelecionada,value)) _=CarregarItensAsync(); } }
+    public ProdutoStockDto? ProdutoItemSelecionado {get=>_produtoItemSelecionado;set=>SetProperty(ref _produtoItemSelecionado,value);} public string QuantidadeItem {get=>_quantidadeItem;set=>SetProperty(ref _quantidadeItem,value);} public string PrecoItem {get=>_precoItem;set=>SetProperty(ref _precoItem,value);} public string DescontoItem {get=>_descontoItem;set=>SetProperty(ref _descontoItem,value);} public string IvaItem {get=>_ivaItem;set=>SetProperty(ref _ivaItem,value);}
 
     public IReadOnlyList<PrioridadeCompra> PrioridadesDisponiveis { get; } = Enum.GetValues<PrioridadeCompra>().ToList();
 
     public ObservableCollection<FornecedorOpcaoDto> Fornecedores { get; } = new();
     public ObservableCollection<CompraListItemDto> Compras { get; } = new();
+    public ObservableCollection<ProdutoStockDto> ProdutosItens { get; } = new(); public ObservableCollection<DocumentoItemDto> Itens { get; } = new();
 
     public ICommand CriarCommand { get; }
     public ICommand CotarCommand { get; }
@@ -55,6 +59,7 @@ public class CompraViewModel : ViewModelBase
     public ICommand ReceberCommand { get; }
     public ICommand FaturarCommand { get; }
     public ICommand AtualizarCommand { get; }
+    public ICommand AdicionarItemCommand {get;} public ICommand RemoverItemCommand {get;}
 
     public CompraViewModel(PurchasingApplicationService service, int empresaId)
     {
@@ -70,6 +75,7 @@ public class CompraViewModel : ViewModelBase
         ReceberCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.ReceberAsync), _ => !AProcessarAcao);
         FaturarCommand = new AsyncRelayCommand(p => ExecutarAcaoAsync(p, _service.FaturarAsync), _ => !AProcessarAcao);
         AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync(), _ => !ACarregar);
+        AdicionarItemCommand=new AsyncRelayCommand(_=>AdicionarItemAsync()); RemoverItemCommand=new AsyncRelayCommand(p=>RemoverItemAsync(p));
 
         _ = CarregarAsync();
     }
@@ -80,6 +86,7 @@ public class CompraViewModel : ViewModelBase
         ACarregar = true;
         try
         {
+            var produtos = await _service.ListarProdutosAsync(_empresaId); if(produtos.IsSuccess){ProdutosItens.Clear(); foreach(var x in produtos.Value ?? Array.Empty<ProdutoStockDto>()) ProdutosItens.Add(x);}
             var fornecedores = await _service.ListarFornecedoresAsync(_empresaId);
             if (fornecedores.IsFailure)
             {
@@ -181,6 +188,11 @@ public class CompraViewModel : ViewModelBase
             AProcessarAcao = false;
         }
     }
+
+
+    private async Task CarregarItensAsync(){ Itens.Clear(); if(CompraSelecionada is null)return; var r=await _service.ListarItensAsync(CompraSelecionada.Id); if(r.IsFailure){MensagemErro=string.Join(" ",r.Errors);return;} foreach(var x in r.Value??Array.Empty<DocumentoItemDto>()) Itens.Add(x); }
+    private async Task AdicionarItemAsync(){ LimparMensagens(); if(CompraSelecionada is null||ProdutoItemSelecionado is null){MensagemErro="Selecione o pedido e o produto.";return;} if(!decimal.TryParse(QuantidadeItem,out var q)||!decimal.TryParse(PrecoItem,out var p)||!decimal.TryParse(DescontoItem,out var d)||!decimal.TryParse(IvaItem,out var i)){MensagemErro="Valores do item inválidos.";return;} var res=await _service.AdicionarItemAsync(new NovoDocumentoItemDto{DocumentoId=CompraSelecionada.Id,ProdutoId=ProdutoItemSelecionado.Id,Quantidade=q,PrecoUnitario=p,DescontoPercentual=d,IvaPercentual=i}); if(res.IsFailure){MensagemErro=string.Join(" ",res.Errors);return;} await CarregarItensAsync(); await CarregarComprasAsync(); MensagemSucesso=res.Message??"Item adicionado."; }
+    private async Task RemoverItemAsync(object? p){ if(p is not DocumentoItemDto item)return; var res=await _service.RemoverItemAsync(item.Id); if(res.IsFailure){MensagemErro=string.Join(" ",res.Errors);return;} await CarregarItensAsync(); await CarregarComprasAsync(); }
 
     private void LimparFormulario()
     {

@@ -1,4 +1,4 @@
-using FinancePro.Application.Revenue;
+﻿using FinancePro.Application.Revenue;
 using FinancePro.Core.DTOs;
 using Xunit;
 
@@ -52,5 +52,16 @@ public sealed class RevenueApplicationServiceTests
         public Task AprovarPropostaAsync(int contaReceberId) => Task.CompletedTask;
         public Task FaturarAsync(int contaReceberId) => Task.CompletedTask;
         public Task CancelarAsync(int contaReceberId) => Task.CompletedTask;
+
+        public Task<IReadOnlyList<ProdutoStockDto>> ListarProdutosAsync(int empresaId) =>
+            Task.FromResult<IReadOnlyList<ProdutoStockDto>>(Array.Empty<ProdutoStockDto>());
+
+        public Task<IReadOnlyList<DocumentoItemDto>> ListarItensAsync(int documentoId) =>
+            Task.FromResult<IReadOnlyList<DocumentoItemDto>>(Array.Empty<DocumentoItemDto>());
+
+        public Task AdicionarItemAsync(NovoDocumentoItemDto dto) => Task.CompletedTask;
+
+        public Task RemoverItemAsync(int itemId) => Task.CompletedTask;
     }
 }
+

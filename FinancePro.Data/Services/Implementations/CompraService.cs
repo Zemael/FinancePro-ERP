@@ -129,8 +129,12 @@ public class CompraService : ICompraService
     {
         var compra = await ObterAsync(compraId);
         if (compra.Estado != EstadoCompra.OrdemEmitida) throw new InvalidOperationException("Só ordens emitidas podem ser recebidas.");
+        var itens = await _context.CompraItens.Include(x=>x.Produto).Where(x=>x.CompraId==compra.Id).ToListAsync();
+        if (itens.Count == 0) throw new InvalidOperationException("Adicione pelo menos um produto à ordem antes da receção.");
+        await using var tx = await _context.Database.BeginTransactionAsync();
+        foreach(var i in itens){ var referencia=compra.NumeroOrdemCompra ?? compra.NumeroPedido; if(await _context.MovimentosStock.AnyAsync(x=>x.ProdutoId==i.ProdutoId && x.DocumentoReferencia==referencia && x.Tipo==TipoMovimentoStock.Entrada)) continue; var novo=i.Produto.StockAtual+i.Quantidade; i.Produto.CustoMedio=novo==0?0:((i.Produto.StockAtual*i.Produto.CustoMedio)+(i.Quantidade*i.PrecoUnitario))/novo; i.Produto.StockAtual=novo; i.Produto.DataAtualizacao=DateTime.UtcNow; _context.MovimentosStock.Add(new MovimentoStock{EmpresaId=compra.EmpresaId,ProdutoId=i.ProdutoId,Tipo=TipoMovimentoStock.Entrada,Quantidade=i.Quantidade,CustoUnitario=i.PrecoUnitario,SaldoApos=i.Produto.StockAtual,DocumentoReferencia=referencia,Observacao="Receção automática de compra"}); }
         compra.DataRececao = DateTime.Today; compra.Estado = EstadoCompra.Recebido; compra.DataAtualizacao = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); await tx.CommitAsync();
     }
 
     public async Task FaturarAsync(int compraId)
@@ -147,6 +151,13 @@ public class CompraService : ICompraService
         compra.DataFatura = DateTime.Today; compra.Estado = EstadoCompra.Faturado; compra.DataAtualizacao = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }
+
+
+    public async Task<IReadOnlyList<ProdutoStockDto>> ListarProdutosAsync(int empresaId) => await _context.Produtos.AsNoTracking().Where(x=>x.EmpresaId==empresaId && x.Ativo).OrderBy(x=>x.Nome).Select(x=>new ProdutoStockDto{Id=x.Id,Codigo=x.Codigo,Nome=x.Nome,Unidade=x.Unidade,StockAtual=x.StockAtual,CustoMedio=x.CustoMedio}).ToListAsync();
+    public async Task<IReadOnlyList<DocumentoItemDto>> ListarItensAsync(int compraId) => await _context.CompraItens.AsNoTracking().Include(x=>x.Produto).Where(x=>x.CompraId==compraId).OrderBy(x=>x.Id).Select(x=>new DocumentoItemDto{Id=x.Id,ProdutoId=x.ProdutoId,ProdutoCodigo=x.Produto.Codigo,ProdutoNome=x.Produto.Nome,Unidade=x.Produto.Unidade,Quantidade=x.Quantidade,PrecoUnitario=x.PrecoUnitario,DescontoPercentual=x.DescontoPercentual,IvaPercentual=x.IvaPercentual,Subtotal=x.Quantidade*x.PrecoUnitario*(1-x.DescontoPercentual/100m),ValorIva=x.Quantidade*x.PrecoUnitario*(1-x.DescontoPercentual/100m)*x.IvaPercentual/100m,Total=x.Quantidade*x.PrecoUnitario*(1-x.DescontoPercentual/100m)*(1+x.IvaPercentual/100m)}).ToListAsync();
+    public async Task AdicionarItemAsync(NovoDocumentoItemDto d){ var compra=await _context.Compras.Include(x=>x.Itens).FirstOrDefaultAsync(x=>x.Id==d.DocumentoId)??throw new InvalidOperationException("Compra não encontrada."); if(compra.Estado is EstadoCompra.Recebido or EstadoCompra.Faturado or EstadoCompra.Cancelado) throw new InvalidOperationException("Não é possível alterar itens nesta fase da compra."); if(d.Quantidade<=0||d.PrecoUnitario<0||d.DescontoPercentual<0||d.DescontoPercentual>100||d.IvaPercentual<0) throw new InvalidOperationException("Valores do item inválidos."); if(!await _context.Produtos.AnyAsync(x=>x.Id==d.ProdutoId&&x.EmpresaId==compra.EmpresaId&&x.Ativo)) throw new InvalidOperationException("Produto inválido."); var item=new CompraItem{CompraId=compra.Id,ProdutoId=d.ProdutoId,Quantidade=d.Quantidade,PrecoUnitario=d.PrecoUnitario,DescontoPercentual=d.DescontoPercentual,IvaPercentual=d.IvaPercentual}; _context.CompraItens.Add(item); await _context.SaveChangesAsync(); await RecalcularCompraAsync(compra.Id); }
+    public async Task RemoverItemAsync(int itemId){ var item=await _context.CompraItens.Include(x=>x.Compra).FirstOrDefaultAsync(x=>x.Id==itemId)??throw new InvalidOperationException("Item não encontrado."); if(item.Compra.Estado is EstadoCompra.Recebido or EstadoCompra.Faturado or EstadoCompra.Cancelado) throw new InvalidOperationException("Não é possível remover itens nesta fase."); var id=item.CompraId; _context.CompraItens.Remove(item); await _context.SaveChangesAsync(); await RecalcularCompraAsync(id); }
+    private async Task RecalcularCompraAsync(int id){ var c=await _context.Compras.FindAsync(id)??throw new InvalidOperationException("Compra não encontrada."); var itens=await _context.CompraItens.Where(x=>x.CompraId==id).ToListAsync(); c.ValorTotal=itens.Sum(x=>x.Total); c.DataAtualizacao=DateTime.UtcNow; await _context.SaveChangesAsync(); }
 
     private async Task<Compra> ObterAsync(int compraId) => await _context.Compras.FindAsync(compraId)
         ?? throw new InvalidOperationException("Compra não encontrada.");
