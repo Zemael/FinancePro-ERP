@@ -89,6 +89,8 @@ public partial class MainWindow : Window
 
     private void Bens_Click(object sender, RoutedEventArgs e) => MostrarBens();
 
+    private void Stocks_Click(object sender, RoutedEventArgs e) => MostrarStocks();
+
     private void Configuracoes_Click(object sender, RoutedEventArgs e) => MostrarConfiguracoes();
 
     private void Workflow_Click(object sender, RoutedEventArgs e) => MostrarWorkflow();
@@ -219,6 +221,7 @@ public partial class MainWindow : Window
         BtnDespesas.Visibility = Visibilidade("Despesas");
         BtnCompras.Visibility = Visibilidade("Compras");
         BtnBens.Visibility = Visibilidade("Patrimonio");
+        BtnStocks.Visibility = Visibility.Visible;
         BtnConfiguracoes.Visibility = Visibilidade("Configuracoes");
         BtnWorkflow.Visibility = Visibility.Visible;
         BtnRelatorios.Visibility = Visibility.Visible;
@@ -291,6 +294,14 @@ public partial class MainWindow : Window
         var compraService = _scopeAtual!.ServiceProvider.GetRequiredService<PurchasingApplicationService>();
         var viewModel = new CompraViewModel(compraService, _utilizador.EmpresaId);
         ConteudoHost.Content = new CompraView { DataContext = viewModel };
+    }
+
+    private void MostrarStocks()
+    {
+        DestacarItemAtivo(BtnStocks);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IStockService>();
+        ConteudoHost.Content = new StockView { DataContext = new StockViewModel(service, _utilizador.EmpresaId) };
     }
 
     private void MostrarBens()

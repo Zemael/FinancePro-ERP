@@ -22,5 +22,7 @@ public sealed class RevenueGateway : IRevenueGateway
         _service.RegistarRecebimentoAsync(contaReceberId, origemTipo, origemId, dataRecebimento);
     public Task RegistarRecebimentoParcialAsync(int contaReceberId, decimal valor, string origemTipo, int origemId, DateTime dataRecebimento) =>
         _service.RegistarRecebimentoParcialAsync(contaReceberId, valor, origemTipo, origemId, dataRecebimento);
+    public Task AprovarPropostaAsync(int contaReceberId) => _service.AprovarPropostaAsync(contaReceberId);
+    public Task FaturarAsync(int contaReceberId) => _service.FaturarAsync(contaReceberId);
     public Task CancelarAsync(int contaReceberId) => _service.CancelarAsync(contaReceberId);
 }

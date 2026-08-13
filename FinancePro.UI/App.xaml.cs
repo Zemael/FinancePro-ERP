@@ -1,4 +1,4 @@
-using FinancePro.Application.MasterData.Currencies;
+﻿using FinancePro.Application.MasterData.Currencies;
 using FinancePro.Application.MasterData.Banking;
 using FinancePro.Data.Administration;
 using FinancePro.Application.MasterData.Companies;
@@ -156,6 +156,7 @@ public partial class App : System.Windows.Application
         services.AddScoped<IDespesasService, DespesasService>();
         services.AddScoped<IOrcamentoService, OrcamentoService>();
         services.AddScoped<ICompraService, CompraService>();
+        services.AddScoped<IStockService, StockService>();
         services.AddScoped<IAuditoriaService, AuditoriaService>();
         services.AddScoped<IBemService, BemService>();
         services.AddTransient<LoginViewModel>();

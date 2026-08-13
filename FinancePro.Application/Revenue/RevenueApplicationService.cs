@@ -76,6 +76,20 @@ public sealed class RevenueApplicationService
         catch (Exception ex) { return Result.Fail(ex.Message); }
     }
 
+    public async Task<Result> AprovarPropostaAsync(int contaReceberId)
+    {
+        if (contaReceberId <= 0) return Result.Fail("Proposta inválida.");
+        try { await _gateway.AprovarPropostaAsync(contaReceberId); return Result.Ok("Proposta aprovada."); }
+        catch (Exception ex) { return Result.Fail(ex.Message); }
+    }
+
+    public async Task<Result> FaturarAsync(int contaReceberId)
+    {
+        if (contaReceberId <= 0) return Result.Fail("Proposta inválida.");
+        try { await _gateway.FaturarAsync(contaReceberId); return Result.Ok("Fatura emitida e conta a receber ativada."); }
+        catch (Exception ex) { return Result.Fail(ex.Message); }
+    }
+
     public async Task<Result> CancelarAsync(int contaReceberId)
     {
         if (contaReceberId <= 0) return Result.Fail("Conta a receber inválida.");

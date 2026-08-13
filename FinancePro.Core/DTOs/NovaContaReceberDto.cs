@@ -11,4 +11,5 @@ public class NovaContaReceberDto
     public int? ClienteId { get; set; }
     public int? CategoriaId { get; set; }
     public int EmpresaId { get; set; }
+    public bool CriarComoProposta { get; set; } = true;
 }

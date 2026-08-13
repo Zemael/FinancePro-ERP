@@ -1,4 +1,4 @@
-<Window x:Class="FinancePro.UI.MainWindow"
+﻿<Window x:Class="FinancePro.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="FinancePro ERP"
@@ -174,7 +174,7 @@
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE821;" Style="{StaticResource NavIcon}"/><TextBlock Text="Gestão Patrimonial" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
 
-                        <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7B8;" Style="{StaticResource NavIcon}"/><TextBlock Text="Stocks" Style="{StaticResource NavText}"/></StackPanel></Border>
+                        <Button x:Name="BtnStocks" Style="{StaticResource ItemNav}" Click="Stocks_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7B8;" Style="{StaticResource NavIcon}"/><TextBlock Text="Stocks" Style="{StaticResource NavText}"/></StackPanel></Button>
                         <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" Style="{StaticResource NavIcon}"/><TextBlock Text="Investimentos" Style="{StaticResource NavText}"/></StackPanel></Border>
                         <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE77B;" Style="{StaticResource NavIcon}"/><TextBlock Text="Recursos Humanos" Style="{StaticResource NavText}"/></StackPanel></Border>
                         <Button x:Name="BtnContabilidade" Style="{StaticResource ItemNav}" Click="Contabilidade_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8D4;" Style="{StaticResource NavIcon}"/><TextBlock Text="Contabilidade" Style="{StaticResource NavText}"/></StackPanel></Button>

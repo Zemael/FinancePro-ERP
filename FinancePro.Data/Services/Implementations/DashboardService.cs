@@ -86,7 +86,7 @@ public class DashboardService : IDashboardService
 
         var hoje = DateTime.Today;
         var pendentes = await _context.ContasReceber
-            .Where(c => c.EmpresaId == empresaId && c.Estado == EstadoConta.Pendente)
+            .Where(c => c.EmpresaId == empresaId && c.ComercialEstado == "Faturada" && c.Estado == EstadoConta.Pendente)
             .Include(c => c.Cliente)
             .OrderBy(c => c.DataVencimento)
             .Take(5)
@@ -106,7 +106,7 @@ public class DashboardService : IDashboardService
         }).ToList();
 
         var totalAtrasadas = await _context.ContasReceber
-            .CountAsync(c => c.EmpresaId == empresaId && c.Estado == EstadoConta.Pendente && c.DataVencimento < hoje);
+            .CountAsync(c => c.EmpresaId == empresaId && c.ComercialEstado == "Faturada" && c.Estado == EstadoConta.Pendente && c.DataVencimento < hoje);
 
         if (totalAtrasadas > 0)
         {

@@ -11,5 +11,7 @@ public interface IReceitasService
     Task CriarAsync(NovaContaReceberDto dto);
     Task RegistarRecebimentoAsync(int contaReceberId, string origemTipo, int origemId, DateTime dataRecebimento);
     Task RegistarRecebimentoParcialAsync(int contaReceberId, decimal valor, string origemTipo, int origemId, DateTime dataRecebimento);
+    Task AprovarPropostaAsync(int contaReceberId);
+    Task FaturarAsync(int contaReceberId);
     Task CancelarAsync(int contaReceberId);
 }

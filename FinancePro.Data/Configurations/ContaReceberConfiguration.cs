@@ -16,6 +16,9 @@ public class ContaReceberConfiguration : IEntityTypeConfiguration<ContaReceber>
         builder.Property(c => c.Estado).HasConversion<string>().HasMaxLength(20);
         builder.Property(c => c.FormaPagamento).HasMaxLength(50);
         builder.Property(c => c.CentroCusto).HasMaxLength(100);
+        builder.Property(c => c.ComercialEstado).HasMaxLength(20);
+        builder.Property(c => c.NumeroProposta).HasMaxLength(30);
+        builder.Property(c => c.NumeroFatura).HasMaxLength(30);
 
         builder.HasOne(c => c.Cliente).WithMany().HasForeignKey(c => c.ClienteId).OnDelete(DeleteBehavior.SetNull);
         builder.HasOne(c => c.Categoria).WithMany().HasForeignKey(c => c.CategoriaId).OnDelete(DeleteBehavior.SetNull);

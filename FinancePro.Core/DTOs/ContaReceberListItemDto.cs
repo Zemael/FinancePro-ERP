@@ -7,6 +7,13 @@ public class ContaReceberListItemDto
     public string Descricao { get; set; } = string.Empty;
     public decimal Valor { get; set; }
     public decimal ValorLiquidado { get; set; }
+    public string ComercialEstado { get; set; } = "Faturada";
+    public string? NumeroProposta { get; set; }
+    public string? NumeroFatura { get; set; }
+    public DateTime? DataAprovacao { get; set; }
+    public DateTime? DataFaturacao { get; set; }
+    public bool PodeAprovar => ComercialEstado == "Proposta";
+    public bool PodeFaturar => ComercialEstado == "Aprovada";
     public decimal SaldoAberto => Math.Max(0, Valor - ValorLiquidado);
     public int DiasAtraso => SaldoAberto > 0 && DataVencimento.Date < DateTime.Today ? (DateTime.Today - DataVencimento.Date).Days : 0;
     public DateTime DataEmissao { get; set; }

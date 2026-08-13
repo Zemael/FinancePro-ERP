@@ -51,6 +51,8 @@ public class ReceitasViewModel : ViewModelBase
     public ObservableCollection<ContaReceberListItemDto> Contas { get; } = new();
 
     public ICommand CriarCommand { get; }
+    public ICommand AprovarCommand { get; }
+    public ICommand FaturarCommand { get; }
     public ICommand ReceberCommand { get; }
     public ICommand CancelarCommand { get; }
     public ICommand AtualizarCommand { get; }
@@ -61,6 +63,8 @@ public class ReceitasViewModel : ViewModelBase
         _empresaId = empresaId;
 
         CriarCommand = new AsyncRelayCommand(_ => CriarAsync(), _ => !AGuardar);
+        AprovarCommand = new AsyncRelayCommand(AprovarAsync);
+        FaturarCommand = new AsyncRelayCommand(FaturarAsync);
         ReceberCommand = new AsyncRelayCommand(ReceberAsync);
         CancelarCommand = new AsyncRelayCommand(CancelarAsync);
         AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync(), _ => !ACarregar);
@@ -144,6 +148,22 @@ public class ReceitasViewModel : ViewModelBase
         {
             AGuardar = false;
         }
+    }
+
+    private async Task AprovarAsync(object? parametro)
+    {
+        LimparMensagens(); if (parametro is not ContaReceberListItemDto conta) return;
+        var resultado = await _service.AprovarPropostaAsync(conta.Id);
+        if (resultado.IsFailure) { MensagemErro = string.Join(" ", resultado.Errors); return; }
+        await CarregarContasAsync(); MensagemSucesso = resultado.Message ?? "Proposta aprovada.";
+    }
+
+    private async Task FaturarAsync(object? parametro)
+    {
+        LimparMensagens(); if (parametro is not ContaReceberListItemDto conta) return;
+        var resultado = await _service.FaturarAsync(conta.Id);
+        if (resultado.IsFailure) { MensagemErro = string.Join(" ", resultado.Errors); return; }
+        await CarregarContasAsync(); MensagemSucesso = resultado.Message ?? "Fatura emitida.";
     }
 
     private async Task ReceberAsync(object? parametro)

@@ -1,0 +1,3 @@
+using FinancePro.Core.Entities; using Microsoft.EntityFrameworkCore; using Microsoft.EntityFrameworkCore.Metadata.Builders;
+namespace FinancePro.Data.Configurations;
+public class MovimentoStockConfiguration : IEntityTypeConfiguration<MovimentoStock> { public void Configure(EntityTypeBuilder<MovimentoStock> b) { b.ToTable("MovimentosStock"); b.HasKey(x=>x.Id); b.Property(x=>x.Quantidade).HasPrecision(18,3); b.Property(x=>x.CustoUnitario).HasPrecision(18,4); b.Property(x=>x.SaldoApos).HasPrecision(18,3); b.Property(x=>x.DocumentoReferencia).HasMaxLength(80); b.Property(x=>x.Observacao).HasMaxLength(500); b.HasOne(x=>x.Produto).WithMany().HasForeignKey(x=>x.ProdutoId).OnDelete(DeleteBehavior.Restrict); } }

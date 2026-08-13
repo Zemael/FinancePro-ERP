@@ -298,3 +298,4 @@ HAVING SUM(l.Debit-l.Credit)<>0 ORDER BY e.EntryDate,e.Id", request, ct, rd =>
     private static ReportRow R(params (string Key, object? Value)[] values) => new(values.ToDictionary(x => x.Key, x => x.Value));
     private static ReportResult Build(string title, IReadOnlyList<ReportColumn> columns, IEnumerable<ReportRow> rows) => new(title, columns, rows.ToList());
 }
+

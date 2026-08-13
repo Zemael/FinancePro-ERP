@@ -31,6 +31,15 @@ public sealed class RevenueApplicationServiceTests
         Assert.True(result.IsFailure);
     }
 
+
+    [Fact]
+    public async Task AprovarProposta_DeveFalhar_QuandoIdInvalido()
+    {
+        var service = new RevenueApplicationService(new FakeGateway());
+        var result = await service.AprovarPropostaAsync(0);
+        Assert.True(result.IsFailure);
+    }
+
     private sealed class FakeGateway : IRevenueGateway
     {
         public Task<IReadOnlyList<ContaReceberListItemDto>> ListarAsync(int empresaId) => Task.FromResult<IReadOnlyList<ContaReceberListItemDto>>(Array.Empty<ContaReceberListItemDto>());
@@ -40,6 +49,8 @@ public sealed class RevenueApplicationServiceTests
         public Task CriarAsync(NovaContaReceberDto dto) => Task.CompletedTask;
         public Task RegistarRecebimentoAsync(int contaReceberId, string origemTipo, int origemId, DateTime dataRecebimento) => Task.CompletedTask;
         public Task RegistarRecebimentoParcialAsync(int contaReceberId, decimal valor, string origemTipo, int origemId, DateTime dataRecebimento) => Task.CompletedTask;
+        public Task AprovarPropostaAsync(int contaReceberId) => Task.CompletedTask;
+        public Task FaturarAsync(int contaReceberId) => Task.CompletedTask;
         public Task CancelarAsync(int contaReceberId) => Task.CompletedTask;
     }
 }

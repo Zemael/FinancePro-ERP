@@ -12,6 +12,11 @@ public class ContaReceber : EntityBase
     public string Descricao { get; set; } = string.Empty;
     public decimal Valor { get; set; }
     public decimal ValorLiquidado { get; set; }
+    public string ComercialEstado { get; set; } = "Faturada";
+    public string? NumeroProposta { get; set; }
+    public string? NumeroFatura { get; set; }
+    public DateTime? DataAprovacao { get; set; }
+    public DateTime? DataFaturacao { get; set; }
     public DateTime DataEmissao { get; set; }
     public DateTime DataVencimento { get; set; }
     public EstadoConta Estado { get; set; } = EstadoConta.Pendente;

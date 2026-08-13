@@ -113,7 +113,7 @@
                                Visibility="{Binding MensagemSucesso, Converter={StaticResource TextoParaVisibilidade}}"/>
 
                     <Button Style="{StaticResource BotaoPrimario}" Command="{Binding CriarCommand}"
-                            Content="{Binding AGuardar, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Adicionar}"/>
+                            Content="{Binding AGuardar, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Criar proposta}"/>
                 </StackPanel>
             </Border>
 
@@ -164,7 +164,8 @@
                 <DataGrid ItemsSource="{Binding Contas}" AutoGenerateColumns="False" IsReadOnly="True"
                           HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="36" BorderThickness="0">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Código" Binding="{Binding Codigo}" Width="80"/>
+                        <DataGridTextColumn Header="Proposta" Binding="{Binding NumeroProposta}" Width="115"/>
+                        <DataGridTextColumn Header="Fatura" Binding="{Binding NumeroFatura}" Width="115"/>
                         <DataGridTextColumn Header="Descrição" Binding="{Binding Descricao}" Width="*"/>
                         <DataGridTextColumn Header="Cliente" Binding="{Binding ClienteNome}" Width="120"/>
                         <DataGridTextColumn Header="Categoria" Binding="{Binding CategoriaNome}" Width="110"/>
@@ -173,6 +174,7 @@
                         <DataGridTextColumn Header="Recebido" Binding="{Binding ValorLiquidado, Converter={StaticResource ValorMoeda}}" Width="105"/>
                         <DataGridTextColumn Header="Saldo" Binding="{Binding SaldoAberto, Converter={StaticResource ValorMoeda}}" Width="105"/>
                         <DataGridTextColumn Header="Atraso" Binding="{Binding DiasAtraso, StringFormat={}{0} d}" Width="65"/>
+                        <DataGridTextColumn Header="Comercial" Binding="{Binding ComercialEstado}" Width="85"/>
                         <DataGridTemplateColumn Header="Estado" Width="80">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -181,10 +183,16 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="" Width="150">
+                        <DataGridTemplateColumn Header="" Width="235">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
+                                        <Button Content="Aprovar" Style="{StaticResource BotaoLink}" Foreground="#0F4C81"
+                                                Visibility="{Binding PodeAprovar, Converter={StaticResource BoolParaVisibilidade}}"
+                                                Command="{Binding DataContext.AprovarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
+                                        <Button Content="Faturar" Style="{StaticResource BotaoLink}" Foreground="#0F6E56"
+                                                Visibility="{Binding PodeFaturar, Converter={StaticResource BoolParaVisibilidade}}"
+                                                Command="{Binding DataContext.FaturarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
                                         <Button Content="Receber" Style="{StaticResource BotaoLink}" Foreground="#0F6E56"
                                                 Visibility="{Binding PodeReceber, Converter={StaticResource BoolParaVisibilidade}}"
                                                 Command="{Binding DataContext.ReceberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"

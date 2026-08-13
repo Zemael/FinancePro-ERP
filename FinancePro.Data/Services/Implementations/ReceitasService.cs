@@ -36,6 +36,7 @@ public class ReceitasService : IReceitasService
             Descricao = c.Descricao,
             Valor = c.Valor,
             ValorLiquidado = c.ValorLiquidado,
+            ComercialEstado = c.ComercialEstado, NumeroProposta = c.NumeroProposta, NumeroFatura = c.NumeroFatura, DataAprovacao = c.DataAprovacao, DataFaturacao = c.DataFaturacao,
             DataEmissao = c.DataEmissao,
             DataVencimento = c.DataVencimento,
             DataRecebimento = c.DataRecebimento,
@@ -45,7 +46,7 @@ public class ReceitasService : IReceitasService
             CentroCusto = c.CentroCusto,
             EstadoExibicao = c.Estado == EstadoConta.Pendente && c.ValorLiquidado > 0 ? "Parcial" :
                 c.Estado == EstadoConta.Pendente && c.DataVencimento.Date < hoje ? "Atrasado" : c.Estado.ToString(),
-            PodeReceber = c.Estado == EstadoConta.Pendente,
+            PodeReceber = c.Estado == EstadoConta.Pendente && c.ComercialEstado == "Faturada",
             PodeCancelar = c.Estado == EstadoConta.Pendente
         }).ToList();
     }
@@ -78,10 +79,14 @@ public class ReceitasService : IReceitasService
         }
 
         var proximoNumero = 1 + await _context.ContasReceber.CountAsync(c => c.EmpresaId == dto.EmpresaId);
+        var propostaNumero = $"PROP-{DateTime.Today:yyyy}-{proximoNumero:D5}";
 
         _context.ContasReceber.Add(new ContaReceber
         {
             Codigo = $"REC-{proximoNumero:D5}",
+            ComercialEstado = dto.CriarComoProposta ? "Proposta" : "Faturada",
+            NumeroProposta = dto.CriarComoProposta ? propostaNumero : null,
+            DataFaturacao = dto.CriarComoProposta ? null : DateTime.Today,
             Descricao = dto.Descricao.Trim(),
             Valor = dto.Valor,
             DataEmissao = dto.DataEmissao,
@@ -103,6 +108,8 @@ public class ReceitasService : IReceitasService
             .Include(c => c.Cliente)
             .SingleOrDefaultAsync(c => c.Id == contaReceberId)
             ?? throw new InvalidOperationException("Conta a receber não encontrada.");
+
+        if (conta.ComercialEstado != "Faturada") throw new InvalidOperationException("A proposta deve ser faturada antes de receber valores.");
 
         if (conta.Estado != EstadoConta.Pendente)
         {
@@ -178,12 +185,30 @@ public class ReceitasService : IReceitasService
     {
         var conta = await _context.ContasReceber.SingleOrDefaultAsync(c => c.Id == contaReceberId)
             ?? throw new InvalidOperationException("Conta a receber não encontrada.");
+        if (conta.ComercialEstado != "Faturada") throw new InvalidOperationException("A proposta deve ser faturada antes de receber valores.");
         if (conta.Estado != EstadoConta.Pendente) throw new InvalidOperationException("Esta conta já não está pendente.");
         var saldo = conta.Valor - conta.ValorLiquidado;
         if (valor <= 0 || valor > saldo) throw new InvalidOperationException($"O valor deve ser maior que zero e não pode exceder o saldo de {saldo:N2}.");
         var movimentoId = await _tesourariaService.RegistarMovimentoAsync(new NovoMovimentoDto { Data=dataRecebimento, Descricao=$"Recebimento {conta.Codigo}: {conta.Descricao}", Valor=valor, Tipo=TipoCategoria.Receita, TipoOperacao=TipoOperacao.Entrada, FormaPagamento=conta.FormaPagamento, CentroCusto=conta.CentroCusto, CategoriaId=conta.CategoriaId, CaixaId=origemTipo=="Caixa"?origemId:null, ContaBancariaId=origemTipo=="ContaBancaria"?origemId:null, ClienteId=conta.ClienteId, EmpresaId=conta.EmpresaId });
         conta.ValorLiquidado += valor; conta.MovimentoId = movimentoId; conta.DataAtualizacao=DateTime.UtcNow;
         if (conta.ValorLiquidado >= conta.Valor) { conta.Estado=EstadoConta.Recebido; conta.DataRecebimento=dataRecebimento; }
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task AprovarPropostaAsync(int contaReceberId)
+    {
+        var conta = await _context.ContasReceber.FindAsync(contaReceberId) ?? throw new InvalidOperationException("Proposta não encontrada.");
+        if (conta.ComercialEstado != "Proposta") throw new InvalidOperationException("Só propostas em preparação podem ser aprovadas.");
+        conta.ComercialEstado = "Aprovada"; conta.DataAprovacao = DateTime.UtcNow; conta.DataAtualizacao = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task FaturarAsync(int contaReceberId)
+    {
+        var conta = await _context.ContasReceber.FindAsync(contaReceberId) ?? throw new InvalidOperationException("Proposta não encontrada.");
+        if (conta.ComercialEstado != "Aprovada") throw new InvalidOperationException("A proposta deve estar aprovada antes da faturação.");
+        var numero = 1 + await _context.ContasReceber.CountAsync(c => c.EmpresaId == conta.EmpresaId && c.NumeroFatura != null);
+        conta.NumeroFatura = $"FAT-{DateTime.Today:yyyy}-{numero:D5}"; conta.ComercialEstado = "Faturada"; conta.DataFaturacao = DateTime.UtcNow; conta.DataAtualizacao = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }
 
