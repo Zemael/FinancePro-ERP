@@ -1,0 +1,159 @@
+<UserControl x:Class="FinancePro.UI.Views.InvestimentosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource FundoPrincipalBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <Grid Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="Financeiro / Investimentos" FontSize="11" Foreground="{DynamicResource GrayTextBrush}" Margin="0,0,0,2"/>
+                    <TextBlock Text="Gestão de Investimentos" Style="{StaticResource TituloModulo}" Margin="0"/>
+                    <TextBlock Text="Carteira, execução, retorno, ROI e exposição ao risco" Style="{StaticResource TextoSecundario}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button HorizontalAlignment="Right" Style="{StaticResource FP.SecondaryButton}" Content="Atualizar" Command="{Binding AtualizarCommand}"/>
+            </Grid>
+
+            <UniformGrid Columns="4" Margin="0,0,0,16">
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource FP.AccentSoft}"><TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource FP.Accent}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Investimento Planeado" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="160" HorizontalAlignment="Left"><TextBlock Text="{Binding InvestimentoPlaneado, StringFormat={}{0:N0} FCFA}" Style="{StaticResource FP.CompanyKpiValue}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource SucessoSuaveBrush}"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SucessoBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Investimento Executado" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="160" HorizontalAlignment="Left"><TextBlock Text="{Binding InvestimentoExecutado, StringFormat={}{0:N0} FCFA}" Style="{StaticResource FP.CompanyKpiValue}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource RoxoSuaveBrush}"><TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource RoxoBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Resultado da Carteira" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="160" HorizontalAlignment="Left"><TextBlock Text="{Binding ResultadoTotal, StringFormat={}{0:N0} FCFA}" Style="{StaticResource FP.CompanyKpiValue}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+                <Border Style="{StaticResource FP.KpiCard}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource AvisoSuaveBrush}"><TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource FP.Warning}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="ROI da Carteira" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="160" HorizontalAlignment="Left"><TextBlock Text="{Binding RoiCarteira, StringFormat={}{0:N1}%}" Style="{StaticResource FP.CompanyKpiValue}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+            </UniformGrid>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Planeamento e cadastro" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                    <UniformGrid Columns="5"><StackPanel Margin="0,0,10,8"><TextBlock Text="Código *"/><TextBox Text="{Binding Codigo}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Nome *"/><TextBox Text="{Binding Nome}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Tipo *"/><ComboBox ItemsSource="{Binding Tipos}" SelectedItem="{Binding Tipo}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Departamento *"/><TextBox Text="{Binding Departamento}"/></StackPanel><StackPanel><TextBlock Text="Gestor *"/><TextBox Text="{Binding Gestor}"/></StackPanel></UniformGrid>
+                    <UniformGrid Columns="5"><StackPanel Margin="0,0,10,8"><TextBlock Text="Data inicial"/><DatePicker SelectedDate="{Binding DataInicial}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Data final"/><DatePicker SelectedDate="{Binding DataFinal}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Orçamento"/><TextBox Text="{Binding Orcamento}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Executado"/><TextBox Text="{Binding ValorExecutado}"/></StackPanel><StackPanel><TextBlock Text="Retorno esperado"/><TextBox Text="{Binding RetornoEsperado}"/></StackPanel></UniformGrid>
+                    <TextBlock Text="Observações"/><TextBox Text="{Binding Observacoes}" Height="55" AcceptsReturn="True"/>
+                    <UniformGrid Columns="5" Margin="0,10,0,0"><StackPanel Margin="0,0,10,8"><TextBlock Text="Execução física %"/><TextBox Text="{Binding ExecucaoFisica}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Fonte de financiamento"/><TextBox Text="{Binding FonteFinanciamento}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Valor financiado"/><TextBox Text="{Binding ValorFinanciado}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Próxima etapa"/><TextBox Text="{Binding ProximaEtapa}"/></StackPanel><StackPanel><TextBlock Text="Data da etapa"/><DatePicker SelectedDate="{Binding DataProximaEtapa}"/></StackPanel></UniformGrid>
+                    <UniformGrid Columns="5" Margin="0,6,0,0"><StackPanel Margin="0,0,10,8"><TextBlock Text="Nível de risco"/><ComboBox ItemsSource="{Binding NiveisRisco}" SelectedItem="{Binding NivelRisco}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Descrição do risco"/><TextBox Text="{Binding DescricaoRisco}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Plano de mitigação"/><TextBox Text="{Binding PlanoMitigacao}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="ROI-alvo %"/><TextBox Text="{Binding RoiAlvo}"/></StackPanel><StackPanel><TextBlock Text="Data-meta"/><DatePicker SelectedDate="{Binding DataMeta}"/></StackPanel></UniformGrid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0"><Button Content="Novo" Command="{Binding NovoCommand}" Margin="0,0,8,0"/><Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,0,8,0"/><Button Content="Aprovar" Command="{Binding AprovarCommand}" Margin="0,0,8,0"/><Button Content="Concluir" Command="{Binding ConcluirCommand}" Margin="0,0,8,0"/><Button Content="Arquivar" Command="{Binding ArquivarCommand}"/></StackPanel>
+                    <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Planos}" SelectedItem="{Binding PlanoSelecionado}" AutoGenerateColumns="False" IsReadOnly="True" Height="210" Margin="0,12,0,0"><DataGrid.Columns><DataGridTextColumn Header="Código" Binding="{Binding Code}"/><DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="*"/><DataGridTextColumn Header="Gestor" Binding="{Binding Manager}"/><DataGridTextColumn Header="Orçamento" Binding="{Binding Budget, StringFormat=N0}"/><DataGridTextColumn Header="Físico %" Binding="{Binding PhysicalProgress, StringFormat=N1}"/><DataGridTextColumn Header="Risco" Binding="{Binding RiskLevel}"/><DataGridTextColumn Header="ROI-alvo %" Binding="{Binding TargetRoi, StringFormat=N1}"/><DataGridTextColumn Header="Data-meta" Binding="{Binding TargetCompletionDate, StringFormat=dd/MM/yyyy}"/><DataGridTextColumn Header="Estado" Binding="{Binding Status}"/></DataGrid.Columns></DataGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Plano de amortização e prestações" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                    <UniformGrid Columns="6">
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="N.º prestação"/><TextBox Text="{Binding NumeroPrestacao}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Vencimento"/><DatePicker SelectedDate="{Binding VencimentoPrestacao}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Capital"/><TextBox Text="{Binding CapitalPrestacao}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Juros"/><TextBox Text="{Binding JurosPrestacao}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Valor devido"/><TextBox Text="{Binding ValorPrestacao}"/></StackPanel>
+                        <StackPanel><TextBlock Text="Valor pago"/><TextBox Text="{Binding ValorPagoPrestacao}"/></StackPanel>
+                    </UniformGrid>
+                    <UniformGrid Columns="4">
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Data do pagamento"/><DatePicker SelectedDate="{Binding DataPagamentoPrestacao}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Estado"/><TextBox Text="{Binding EstadoPrestacao}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Referência"/><TextBox Text="{Binding ReferenciaPagamento}"/></StackPanel>
+                        <StackPanel><TextBlock Text="Notas"/><TextBox Text="{Binding NotasPrestacao}"/></StackPanel>
+                    </UniformGrid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
+                        <Button Content="Gerar plano" Command="{Binding GerarPlanoPrestacoesCommand}" Margin="0,0,8,0"/>
+                        <Button Content="Nova" Command="{Binding NovaPrestacaoCommand}" Margin="0,0,8,0"/>
+                        <Button Content="Guardar" Command="{Binding GuardarPrestacaoCommand}" Margin="0,0,8,0"/>
+                        <Button Content="Arquivar" Command="{Binding ArquivarPrestacaoCommand}"/>
+                    </StackPanel>
+                    <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Prestacoes}" SelectedItem="{Binding PrestacaoSelecionada}" AutoGenerateColumns="False" IsReadOnly="True" Height="220" Margin="0,12,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="N.º" Binding="{Binding InstallmentNumber}" Width="Auto"/>
+                            <DataGridTextColumn Header="Vencimento" Binding="{Binding DueDate, StringFormat=dd/MM/yyyy}" Width="Auto"/>
+                            <DataGridTextColumn Header="Capital" Binding="{Binding PrincipalAmount, StringFormat=N0}" Width="Auto"/>
+                            <DataGridTextColumn Header="Juros" Binding="{Binding InterestAmount, StringFormat=N0}" Width="Auto"/>
+                            <DataGridTextColumn Header="Devido" Binding="{Binding AmountDue, StringFormat=N0}" Width="Auto"/>
+                            <DataGridTextColumn Header="Pago" Binding="{Binding AmountPaid, StringFormat=N0}" Width="Auto"/>
+                            <DataGridTextColumn Header="Pagamento" Binding="{Binding PaymentDate, StringFormat=dd/MM/yyyy}" Width="Auto"/>
+                            <DataGridTextColumn Header="Estado" Binding="{Binding Status}" Width="Auto"/>
+                            <DataGridTextColumn Header="Referência" Binding="{Binding PaymentReference}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel><TextBlock Text="Financiamentos e empréstimos" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/><UniformGrid Columns="5"><StackPanel Margin="0,0,10,8"><TextBlock Text="Contrato *"/><TextBox Text="{Binding Contrato}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Financiador *"/><TextBox Text="{Binding Financiador}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Modalidade"/><ComboBox ItemsSource="{Binding Modalidades}" SelectedItem="{Binding Modalidade}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Valor aprovado"/><TextBox Text="{Binding ValorAprovado}"/></StackPanel><StackPanel><TextBlock Text="Desembolsado"/><TextBox Text="{Binding ValorDesembolsado}"/></StackPanel></UniformGrid><UniformGrid Columns="5"><StackPanel Margin="0,0,10,8"><TextBlock Text="Saldo devedor"/><TextBox Text="{Binding SaldoDevedor}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Taxa anual %"/><TextBox Text="{Binding TaxaAnual}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Prazo (meses)"/><TextBox Text="{Binding PrazoMeses}"/></StackPanel><StackPanel Margin="0,0,10,8"><TextBlock Text="Prestação"/><TextBox Text="{Binding Prestacao}"/></StackPanel><StackPanel><TextBlock Text="1.º vencimento"/><DatePicker SelectedDate="{Binding PrimeiroVencimento}"/></StackPanel></UniformGrid><UniformGrid Columns="3" Margin="0,4,0,8"><StackPanel Margin="0,0,10,0"><TextBlock Text="Data inicial"/><DatePicker SelectedDate="{Binding InicioFinanciamento}"/></StackPanel><StackPanel Margin="0,0,10,0"><TextBlock Text="Estado"/><TextBox Text="{Binding EstadoFinanciamento}"/></StackPanel><StackPanel><TextBlock Text="Notas"/><TextBox Text="{Binding NotasFinanciamento}"/></StackPanel></UniformGrid><StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="Novo" Command="{Binding NovoFinanciamentoCommand}" Margin="0,0,8,0"/><Button Content="Guardar" Command="{Binding GuardarFinanciamentoCommand}" Margin="0,0,8,0"/><Button Content="Arquivar" Command="{Binding ArquivarFinanciamentoCommand}"/></StackPanel><DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Financiamentos}" SelectedItem="{Binding FinanciamentoSelecionado}" AutoGenerateColumns="False" IsReadOnly="True" Height="190" Margin="0,12,0,0"><DataGrid.Columns><DataGridTextColumn Header="Contrato" Binding="{Binding ContractNumber}"/><DataGridTextColumn Header="Investimento" Binding="{Binding Investment}" Width="*"/><DataGridTextColumn Header="Financiador" Binding="{Binding Lender}"/><DataGridTextColumn Header="Aprovado" Binding="{Binding ApprovedAmount, StringFormat=N0}"/><DataGridTextColumn Header="Desembolsado" Binding="{Binding DisbursedAmount, StringFormat=N0}"/><DataGridTextColumn Header="Saldo" Binding="{Binding OutstandingBalance, StringFormat=N0}"/><DataGridTextColumn Header="Taxa %" Binding="{Binding AnnualRate, StringFormat=N2}"/><DataGridTextColumn Header="Prazo" Binding="{Binding TermMonths}"/><DataGridTextColumn Header="Estado" Binding="{Binding Status}"/></DataGrid.Columns></DataGrid></StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Fluxos de caixa e viabilidade" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                    <UniformGrid Columns="5">
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Data"/><DatePicker SelectedDate="{Binding DataFluxo}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Descrição *"/><TextBox Text="{Binding DescricaoFluxo}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Tipo"/><ComboBox ItemsSource="{Binding TiposFluxo}" SelectedItem="{Binding TipoFluxo}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Entrada"/><TextBox Text="{Binding EntradaFluxo}"/></StackPanel>
+                        <StackPanel><TextBlock Text="Saída"/><TextBox Text="{Binding SaidaFluxo}"/></StackPanel>
+                    </UniformGrid>
+                    <UniformGrid Columns="4">
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Referência"/><TextBox Text="{Binding ReferenciaFluxo}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Notas"/><TextBox Text="{Binding NotasFluxo}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Taxa de desconto %"/><TextBox Text="{Binding TaxaDesconto}"/></StackPanel>
+                        <StackPanel><TextBlock Text="Payback"/><TextBlock Margin="0,9,0,0" FontWeight="SemiBold" Text="{Binding DataPayback, StringFormat=dd/MM/yyyy, TargetNullValue='Não atingido'}"/></StackPanel>
+                    </UniformGrid>
+                    <UniformGrid Columns="4" Margin="0,4,0,8">
+                        <TextBlock Text="{Binding TotalEntradasFluxo, StringFormat=Entradas: {0:N0} FCFA}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding TotalSaidasFluxo, StringFormat=Saídas: {0:N0} FCFA}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding FluxoLiquido, StringFormat=Fluxo líquido: {0:N0} FCFA}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding VplFluxo, StringFormat=VPL: {0:N0} FCFA}" FontWeight="SemiBold"/>
+                    </UniformGrid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="Novo" Command="{Binding NovoFluxoCommand}" Margin="0,0,8,0"/><Button Content="Guardar" Command="{Binding GuardarFluxoCommand}" Margin="0,0,8,0"/><Button Content="Arquivar" Command="{Binding ArquivarFluxoCommand}"/></StackPanel>
+                    <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding FluxosCaixa}" SelectedItem="{Binding FluxoSelecionado}" AutoGenerateColumns="False" IsReadOnly="True" Height="220" Margin="0,12,0,0"><DataGrid.Columns><DataGridTextColumn Header="Data" Binding="{Binding FlowDate, StringFormat=dd/MM/yyyy}"/><DataGridTextColumn Header="Descrição" Binding="{Binding Description}" Width="*"/><DataGridTextColumn Header="Tipo" Binding="{Binding FlowType}"/><DataGridTextColumn Header="Entrada" Binding="{Binding InflowAmount, StringFormat=N0}"/><DataGridTextColumn Header="Saída" Binding="{Binding OutflowAmount, StringFormat=N0}"/><DataGridTextColumn Header="Líquido" Binding="{Binding NetAmount, StringFormat=N0}"/><DataGridTextColumn Header="Referência" Binding="{Binding Reference}"/></DataGrid.Columns></DataGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Avaliação pós-investimento e encerramento" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                    <UniformGrid Columns="5">
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Data da avaliação"/><DatePicker SelectedDate="{Binding DataAvaliacao}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Tipo"/><ComboBox ItemsSource="{Binding TiposAvaliacao}" SelectedItem="{Binding TipoAvaliacao}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Benefícios realizados"/><TextBox Text="{Binding BeneficiosRealizados}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Custos adicionais"/><TextBox Text="{Binding CustosAdicionais}"/></StackPanel>
+                        <StackPanel><TextBlock Text="Valor residual"/><TextBox Text="{Binding ValorResidual}"/></StackPanel>
+                    </UniformGrid>
+                    <UniformGrid Columns="4">
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Objetivos realizados %"/><TextBox Text="{Binding RealizacaoObjetivos}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Classificação"/><ComboBox ItemsSource="{Binding ClassificacoesAvaliacao}" SelectedItem="{Binding ClassificacaoFinal}"/></StackPanel>
+                        <StackPanel Margin="0,0,10,8"><TextBlock Text="Estado"/><ComboBox ItemsSource="{Binding EstadosAvaliacao}" SelectedItem="{Binding EstadoAvaliacao}"/></StackPanel>
+                        <StackPanel><TextBlock Text="Recomendação"/><TextBox Text="{Binding RecomendacaoAvaliacao}"/></StackPanel>
+                    </UniformGrid>
+                    <TextBlock Text="Notas e lições aprendidas"/><TextBox Text="{Binding NotasAvaliacao}" Height="55" AcceptsReturn="True"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0"><Button Content="Nova" Command="{Binding NovaAvaliacaoCommand}" Margin="0,0,8,0"/><Button Content="Guardar" Command="{Binding GuardarAvaliacaoCommand}" Margin="0,0,8,0"/><Button Content="Arquivar" Command="{Binding ArquivarAvaliacaoCommand}"/></StackPanel>
+                    <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Avaliacoes}" SelectedItem="{Binding AvaliacaoSelecionada}" AutoGenerateColumns="False" IsReadOnly="True" Height="220" Margin="0,12,0,0"><DataGrid.Columns><DataGridTextColumn Header="Data" Binding="{Binding ReviewDate, StringFormat=dd/MM/yyyy}"/><DataGridTextColumn Header="Tipo" Binding="{Binding EvaluationType}"/><DataGridTextColumn Header="Benefícios" Binding="{Binding BenefitsRealized, StringFormat=N0}"/><DataGridTextColumn Header="Custos" Binding="{Binding AdditionalCosts, StringFormat=N0}"/><DataGridTextColumn Header="Residual" Binding="{Binding ResidualValue, StringFormat=N0}"/><DataGridTextColumn Header="Benefício líquido" Binding="{Binding NetBenefit, StringFormat=N0}"/><DataGridTextColumn Header="Objetivos %" Binding="{Binding ObjectivesAchievement, StringFormat=N1}"/><DataGridTextColumn Header="Classificação" Binding="{Binding FinalRating}"/><DataGridTextColumn Header="Recomendação" Binding="{Binding Recommendation}" Width="*"/><DataGridTextColumn Header="Estado" Binding="{Binding Status}"/></DataGrid.Columns></DataGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0"><TextBlock Text="Pesquisar"/><TextBox Text="{Binding Pesquisa, UpdateSourceTrigger=PropertyChanged}"/></StackPanel>
+                    <StackPanel Grid.Column="2"><TextBlock Text="Risco"/><ComboBox ItemsSource="{Binding Riscos}" SelectedItem="{Binding RiscoSelecionado}"/></StackPanel>
+                    <StackPanel Grid.Column="4"><TextBlock Text="Resumo"/><TextBlock Margin="0,9,0,0" Text="{Binding InvestimentosAtivos, StringFormat=Ativos: {0}}"/><TextBlock Text="{Binding RiscosAltos, StringFormat=Risco alto: {0}}"/></StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Carteira de investimentos" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                    <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Investimentos}" AutoGenerateColumns="False" IsReadOnly="True" Height="420">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Código" Binding="{Binding Code}" Width="Auto"/>
+                            <DataGridTextColumn Header="Investimento" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Estado" Binding="{Binding Status}" Width="Auto"/>
+                            <DataGridTextColumn Header="Planeado" Binding="{Binding PlannedInvestment, StringFormat=N0}" Width="Auto"/>
+                            <DataGridTextColumn Header="Executado" Binding="{Binding InvestedAmount, StringFormat=N0}" Width="Auto"/>
+                            <DataGridTextColumn Header="Retorno" Binding="{Binding ActualReturn, StringFormat=N0}" Width="Auto"/>
+                            <DataGridTextColumn Header="Resultado" Binding="{Binding Result, StringFormat=N0}" Width="Auto"/>
+                            <DataGridTextColumn Header="ROI %" Binding="{Binding Roi, StringFormat=N1}" Width="Auto"/>
+                            <DataGridTextColumn Header="Execução %" Binding="{Binding Execution, StringFormat=N1}" Width="Auto"/>
+                            <DataGridTextColumn Header="Risco" Binding="{Binding Risk}" Width="Auto"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock Text="{Binding Mensagem}" Foreground="{DynamicResource AvisoBrush}" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

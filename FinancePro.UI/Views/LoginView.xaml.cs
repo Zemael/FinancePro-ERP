@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using FinancePro.Core.DTOs;
+using FinancePro.UI.Common;
 using FinancePro.UI.ViewModels;
 
 namespace FinancePro.UI.Views;
@@ -16,9 +17,26 @@ public partial class LoginView : Window
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.LoginBemSucedido += resultado => LoginBemSucedido?.Invoke(resultado);
+        viewModel.LoginBemSucedido += resultado =>
+        {
+            PreferenciasLogin.Guardar(viewModel.Email, LembrarCheckBox.IsChecked == true);
+            LoginBemSucedido?.Invoke(resultado);
+        };
 
-        Loaded += (_, _) => EmailBox.Focus();
+        var (email, lembrar) = PreferenciasLogin.Carregar();
+        if (lembrar)
+        {
+            viewModel.Email = email;
+            LembrarCheckBox.IsChecked = true;
+        }
+
+        Loaded += (_, _) =>
+        {
+            if (string.IsNullOrEmpty(viewModel.Email))
+                EmailBox.Focus();
+            else
+                SenhaBox.Focus();
+        };
     }
 
 

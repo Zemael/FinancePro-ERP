@@ -4,6 +4,10 @@ public class NovaContaReceberDto
 {
     public string Descricao { get; set; } = string.Empty;
     public decimal Valor { get; set; }
+    public decimal DescontoGeral { get; set; }
+    public decimal Frete { get; set; }
+    public decimal OutrasDespesas { get; set; }
+    public string? Observacoes { get; set; }
     public DateTime DataEmissao { get; set; } = DateTime.Today;
     public DateTime DataVencimento { get; set; } = DateTime.Today;
     public string? FormaPagamento { get; set; }

@@ -76,6 +76,16 @@ public class DashboardService : IDashboardService
         var operacoesReais = new[] { TipoOperacao.Entrada, TipoOperacao.Saida, TipoOperacao.Ajuste };
         var totalReceitas = movimentos.Where(m => m.Tipo == TipoCategoria.Receita && operacoesReais.Contains(m.TipoOperacao) && m.Data >= inicioMes).Sum(m => m.Valor);
         var totalDespesas = movimentos.Where(m => m.Tipo == TipoCategoria.Despesa && operacoesReais.Contains(m.TipoOperacao) && m.Data >= inicioMes).Sum(m => m.Valor);
+        var inicioMesAnterior = inicioMes.AddMonths(-1);
+        var receitasMesAnterior = movimentos.Where(m => m.Tipo == TipoCategoria.Receita && operacoesReais.Contains(m.TipoOperacao) && m.Data >= inicioMesAnterior && m.Data < inicioMes).Sum(m => m.Valor);
+        var despesasMesAnterior = movimentos.Where(m => m.Tipo == TipoCategoria.Despesa && operacoesReais.Contains(m.TipoOperacao) && m.Data >= inicioMesAnterior && m.Data < inicioMes).Sum(m => m.Valor);
+
+        var contasReceberPendente = await _context.ContasReceber
+            .Where(c => c.EmpresaId == empresaId && c.ComercialEstado == "Faturada" && c.Estado == EstadoConta.Pendente)
+            .SumAsync(c => (decimal?)(c.Valor - c.ValorLiquidado)) ?? 0m;
+        var contasPagarPendente = await _context.ContasPagar
+            .Where(c => c.EmpresaId == empresaId && c.Estado == EstadoConta.Pendente)
+            .SumAsync(c => (decimal?)(c.Valor - c.ValorLiquidado)) ?? 0m;
 
         var movimentosRecentes = movimentos
             .OrderByDescending(m => m.Data)
@@ -239,6 +249,34 @@ FROM dbo.FiscalObligations WHERE CompanyId=@companyId";
             // Calendário fiscal ainda não instalado: o restante Dashboard continua funcional.
         }
 
+        var projetosAtivos = 0;
+        var projetosCriticos = 0;
+        var resultadoProjetos = 0m;
+        try
+        {
+            var connection = _context.Database.GetDbConnection();
+            var shouldClose = connection.State != System.Data.ConnectionState.Open;
+            if (shouldClose) await connection.OpenAsync();
+            try
+            {
+                await using var command = connection.CreateCommand();
+                command.CommandText = @"SELECT
+ COUNT(CASE WHEN Status NOT IN ('Concluido','Cancelado') THEN 1 END),
+ COUNT(CASE WHEN Status NOT IN ('Concluido','Cancelado') AND BudgetCost > BudgetRevenue THEN 1 END),
+ COALESCE(SUM(BudgetRevenue-BudgetCost),0)
+ FROM dbo.Projects WHERE CompanyId=@companyId";
+                var parameter = command.CreateParameter(); parameter.ParameterName="@companyId"; parameter.Value=empresaId; command.Parameters.Add(parameter);
+                await using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    projetosAtivos = reader.IsDBNull(0) ? 0 : Convert.ToInt32(reader.GetValue(0));
+                    projetosCriticos = reader.IsDBNull(1) ? 0 : Convert.ToInt32(reader.GetValue(1));
+                    resultadoProjetos = reader.IsDBNull(2) ? 0m : Convert.ToDecimal(reader.GetValue(2));
+                }
+            } finally { if (shouldClose) await connection.CloseAsync(); }
+        } catch (System.Data.Common.DbException) { }
+        if (projetosCriticos > 0) alertas.Add(new AlertaDto { Severidade = "Aviso", Mensagem = $"{projetosCriticos} projeto(s) com orçamento de custo superior à receita prevista" });
+
         // Lembrete estático — ainda não existe um subsistema de backup real na app.
         alertas.Add(new AlertaDto { Severidade = "Info", Mensagem = "Backup da base de dados não configurado" });
 
@@ -250,6 +288,13 @@ FROM dbo.FiscalObligations WHERE CompanyId=@companyId";
             SaldoBancario = saldoBancarioTotal,
             TotalReceitas = totalReceitas,
             TotalDespesas = totalDespesas,
+            ReceitasMesAnterior = receitasMesAnterior,
+            DespesasMesAnterior = despesasMesAnterior,
+            ContasReceberPendente = contasReceberPendente,
+            ContasPagarPendente = contasPagarPendente,
+            ProjetosAtivos = projetosAtivos,
+            ProjetosCriticos = projetosCriticos,
+            ResultadoProjetos = resultadoProjetos,
             MovimentosRecentes = movimentosRecentes,
             SaldosPorOrigem = saldosPorOrigem,
             Pendencias = pendencias,

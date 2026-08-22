@@ -41,6 +41,7 @@ public partial class BemViewModel : ObservableObject
     [ObservableProperty] private string responsavel = string.Empty;
     [ObservableProperty] private DateTime dataAquisicao = DateTime.Today;
     [ObservableProperty] private string valorAquisicaoTexto = string.Empty;
+    [ObservableProperty] private string valorResidualTexto = "0";
     [ObservableProperty] private string vidaUtilAnosTexto = string.Empty;
     [ObservableProperty] private MetodoDepreciacao metodoDepreciacaoSelecionado = MetodoDepreciacao.Linear;
 
@@ -73,6 +74,19 @@ public partial class BemViewModel : ObservableObject
 
     public ObservableCollection<BemListItemDto> Bens { get; } = new();
     public ObservableCollection<LogAuditoriaDto> HistoricoAuditoria { get; } = new();
+
+    public int TotalAtivos => Bens.Count(b => b.Estado != "Abatido");
+    public decimal ValorPatrimonio => Bens.Sum(b => b.ValorAquisicao);
+    public decimal DepreciacaoAcumuladaTotal => Bens.Sum(b => b.DepreciacaoAcumulada);
+    public decimal ValorLiquidoTotal => Bens.Sum(b => b.ValorLiquidoAtual);
+    public decimal DepreciacaoMensalTotal => Bens.Sum(b => b.DepreciacaoMensal);
+
+    private void AtualizarIndicadores()
+    {
+        OnPropertyChanged(nameof(TotalAtivos)); OnPropertyChanged(nameof(ValorPatrimonio));
+        OnPropertyChanged(nameof(DepreciacaoAcumuladaTotal)); OnPropertyChanged(nameof(ValorLiquidoTotal));
+        OnPropertyChanged(nameof(DepreciacaoMensalTotal));
+    }
 
     public BemViewModel(AssetApplicationService service, IAuditoriaService auditoria, int empresaId)
     {
@@ -127,6 +141,7 @@ public partial class BemViewModel : ObservableObject
         {
             Bens.Add(bem);
         }
+        AtualizarIndicadores();
     }
 
     private async Task CarregarHistoricoAsync(int bemId)
@@ -155,6 +170,7 @@ public partial class BemViewModel : ObservableObject
         Responsavel = string.Empty;
         DataAquisicao = DateTime.Today;
         ValorAquisicaoTexto = string.Empty;
+        ValorResidualTexto = "0";
         VidaUtilAnosTexto = string.Empty;
         MetodoDepreciacaoSelecionado = MetodoDepreciacao.Linear;
         EmEdicao = true;
@@ -182,6 +198,7 @@ public partial class BemViewModel : ObservableObject
         Responsavel = BemSelecionado.Responsavel ?? string.Empty;
         DataAquisicao = BemSelecionado.DataAquisicao;
         ValorAquisicaoTexto = BemSelecionado.ValorAquisicao.ToString();
+        ValorResidualTexto = BemSelecionado.ValorResidual.ToString();
         VidaUtilAnosTexto = BemSelecionado.VidaUtilAnos.ToString();
         MetodoDepreciacaoSelecionado = Enum.TryParse<MetodoDepreciacao>(BemSelecionado.MetodoDepreciacao, out var m) ? m : MetodoDepreciacao.Linear;
         EmEdicao = true;
@@ -197,6 +214,12 @@ public partial class BemViewModel : ObservableObject
         if (!decimal.TryParse(ValorAquisicaoTexto, out var valorAquisicao) || valorAquisicao < 0)
         {
             MensagemErro = "Indique um valor de aquisição válido.";
+            return;
+        }
+
+        if (!decimal.TryParse(ValorResidualTexto, out var valorResidual) || valorResidual < 0 || valorResidual > valorAquisicao)
+        {
+            MensagemErro = "Indique um valor residual entre zero e o valor de aquisição.";
             return;
         }
 
@@ -218,6 +241,7 @@ public partial class BemViewModel : ObservableObject
             Responsavel = Responsavel,
             DataAquisicao = DataAquisicao,
             ValorAquisicao = valorAquisicao,
+            ValorResidual = valorResidual,
             VidaUtilAnos = vidaUtil,
             MetodoDepreciacao = MetodoDepreciacaoSelecionado,
             EmpresaId = _empresaId
@@ -289,11 +313,11 @@ public partial class BemViewModel : ObservableObject
     [RelayCommand]
     private void Exportar()
     {
-        var cabecalhos = new[] { "Código", "Nº Patrimonial", "Descrição", "Categoria", "Responsável", "Data Aquisição", "Valor Aquisição", "Valor Líquido Atual", "Estado" };
+        var cabecalhos = new[] { "Código", "Nº Patrimonial", "Descrição", "Categoria", "Responsável", "Data Aquisição", "Valor Aquisição", "Valor Residual", "Depreciação Acumulada", "Valor Líquido Atual", "Estado" };
         var linhas = Bens.Select(b => (IReadOnlyList<string>)new[]
         {
             b.Codigo, b.NumeroPatrimonial, b.Descricao, b.Categoria ?? "", b.Responsavel ?? "",
-            b.DataAquisicao.ToString("dd/MM/yyyy"), b.ValorAquisicao.ToString("0.00"), b.ValorLiquidoAtual.ToString("0.00"), b.Estado
+            b.DataAquisicao.ToString("dd/MM/yyyy"), b.ValorAquisicao.ToString("0.00"), b.ValorResidual.ToString("0.00"), b.DepreciacaoAcumulada.ToString("0.00"), b.ValorLiquidoAtual.ToString("0.00"), b.Estado
         });
 
         if (ExportadorCsv.Exportar("Bens.csv", cabecalhos, linhas))

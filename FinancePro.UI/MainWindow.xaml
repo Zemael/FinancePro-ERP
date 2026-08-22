@@ -5,8 +5,9 @@
         Width="1440" Height="900"
         MinWidth="1180" MinHeight="720"
         WindowStartupLocation="CenterScreen"
-        Icon="pack://application:,,,/Resources/Images/logo.png"
-        Background="#F4F7FB"
+        WindowState="Maximized"
+        Icon="pack://application:,,,/Resources/Images/financepro-mark-v4.png"
+        Background="{DynamicResource FundoPrincipalBrush}"
         FontFamily="Segoe UI">
 
     <Window.Resources>
@@ -54,6 +55,11 @@
         <Style x:Key="NavText" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Visibility">
+                <Setter.Value>
+                    <Binding Path="IsSidebarExpandida" RelativeSource="{RelativeSource AncestorType=Window}" Converter="{StaticResource BoolParaVisibilidade}"/>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="NavDisabled" TargetType="Border">
@@ -92,7 +98,7 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="238"/>
+            <ColumnDefinition x:Name="ColunaSidebar" Width="238"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -112,15 +118,16 @@
 
                 <Border Grid.Row="0" Background="{StaticResource SidebarBrush}" Padding="20,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Image Source="pack://application:,,,/Resources/Images/logo-icon-transparent.png" Width="38" Height="38" Stretch="Uniform" Margin="0,0,10,0"/>
-                        <StackPanel VerticalAlignment="Center">
+                        <Image Source="pack://application:,,,/Resources/Images/financepro-mark-v4.png" Width="38" Height="38" Stretch="Uniform" Margin="0,0,10,0"/>
+                        <StackPanel x:Name="PainelLogoTexto" VerticalAlignment="Center"
+                                    Visibility="{Binding IsSidebarExpandida, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolParaVisibilidade}}">
                             <TextBlock Text="FinancePro" Foreground="White" FontSize="19" FontWeight="SemiBold"/>
                             <TextBlock Text="ERP" Foreground="#67B7FF" FontSize="14" FontWeight="Bold"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Margin="0,12,0,12">
                         <Button x:Name="BtnDashboard" Style="{StaticResource ItemNav}" Click="Dashboard_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE80F;" Style="{StaticResource NavIcon}"/><TextBlock Text="Dashboard" Style="{StaticResource NavText}"/></StackPanel>
@@ -175,18 +182,19 @@
                         </Button>
 
                         <Button x:Name="BtnStocks" Style="{StaticResource ItemNav}" Click="Stocks_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7B8;" Style="{StaticResource NavIcon}"/><TextBlock Text="Stocks" Style="{StaticResource NavText}"/></StackPanel></Button>
-                        <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" Style="{StaticResource NavIcon}"/><TextBlock Text="Investimentos" Style="{StaticResource NavText}"/></StackPanel></Border>
-                        <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE77B;" Style="{StaticResource NavIcon}"/><TextBlock Text="Recursos Humanos" Style="{StaticResource NavText}"/></StackPanel></Border>
+                        <Button x:Name="BtnProjetos" Style="{StaticResource ItemNav}" Click="Projetos_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE821;" Style="{StaticResource NavIcon}"/><TextBlock Text="Projetos" Style="{StaticResource NavText}"/></StackPanel></Button>
+                        <Button x:Name="BtnInvestimentos" Style="{StaticResource ItemNav}" Click="Investimentos_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8C7;" Style="{StaticResource NavIcon}"/><TextBlock Text="Investimentos" Style="{StaticResource NavText}"/></StackPanel></Button>
+                        <Button x:Name="BtnRecursosHumanos" Style="{StaticResource ItemNav}" Click="RecursosHumanos_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE77B;" Style="{StaticResource NavIcon}"/><TextBlock Text="RH Financeiro" Style="{StaticResource NavText}"/></StackPanel></Button>
                         <Button x:Name="BtnContabilidade" Style="{StaticResource ItemNav}" Click="Contabilidade_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8D4;" Style="{StaticResource NavIcon}"/><TextBlock Text="Contabilidade" Style="{StaticResource NavText}"/></StackPanel></Button>
                         <Button x:Name="BtnConsolidacao" Style="{StaticResource ItemNav}" Click="Consolidacao_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D2;" Style="{StaticResource NavIcon}"/><TextBlock Text="Consolidação" Style="{StaticResource NavText}"/></StackPanel></Button>
-                        <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D2;" Style="{StaticResource NavIcon}"/><TextBlock Text="Demonstrações Financeiras" Style="{StaticResource NavText}"/></StackPanel></Border>
+                        <Button x:Name="BtnFaturacao" Style="{StaticResource ItemNav}" Click="Faturacao_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8A5;" Style="{StaticResource NavIcon}"/><TextBlock Text="Faturação" Style="{StaticResource NavText}"/></StackPanel></Button>
                         <Button x:Name="BtnRelatorios" Style="{StaticResource ItemNav}" Click="Relatorios_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9F9;" Style="{StaticResource NavIcon}"/><TextBlock Text="Relatórios" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
                         <Button x:Name="BtnDocumentos" Style="{StaticResource ItemNav}" Click="Documentos_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8A5;" Style="{StaticResource NavIcon}"/><TextBlock Text="Documentos" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
-                        <Border Style="{StaticResource NavDisabled}"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" Style="{StaticResource NavIcon}"/><TextBlock Text="Auditoria" Style="{StaticResource NavText}"/></StackPanel></Border>
+                        <Button x:Name="BtnAuditoria" Style="{StaticResource ItemNav}" Click="Auditoria_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" Style="{StaticResource NavIcon}"/><TextBlock Text="Auditoria" Style="{StaticResource NavText}"/></StackPanel></Button>
 
                         <Border Height="1" Background="#2B6091" Margin="18,8"/>
                         <Button x:Name="BtnWorkflow" Style="{StaticResource ItemNav}" Click="Workflow_Click">
@@ -195,11 +203,13 @@
                         <Button x:Name="BtnConfiguracoes" Style="{StaticResource ItemNav}" Click="Configuracoes_Click">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" Style="{StaticResource NavIcon}"/><TextBlock Text="Configurações" Style="{StaticResource NavText}"/></StackPanel>
                         </Button>
+                        <Button x:Name="BtnAnalitica" Style="{StaticResource ItemNav}" Click="Analitica_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D2;" Style="{StaticResource NavIcon}"/><TextBlock Text="Contab. Analítica" Style="{StaticResource NavText}"/></StackPanel></Button>
                         <Button x:Name="BtnAdministracao" Style="{StaticResource ItemNav}" Click="Administracao_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72E;" Style="{StaticResource NavIcon}"/><TextBlock Text="Administração" Style="{StaticResource NavText}"/></StackPanel></Button>
                     </StackPanel>
                 </ScrollViewer>
 
-                <Border Grid.Row="2" Margin="12" Background="#164E84" CornerRadius="10" Padding="14">
+                <Border Grid.Row="2" Margin="12" Background="#164E84" CornerRadius="10" Padding="14"
+                        Visibility="{Binding IsSidebarExpandida, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolParaVisibilidade}}">
                     <StackPanel>
                         <TextBlock Text="Regulo, Lda" Foreground="White" FontWeight="SemiBold" FontSize="13"/>
                         <TextBlock Text="Exercício 2026" Foreground="#CDE3FA" FontSize="11" Margin="0,3,0,0"/>
@@ -216,7 +226,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Style="{StaticResource TopIconButton}" Content="&#xE700;" ToolTip="Menu"/>
+                <Button Grid.Column="0" Style="{StaticResource TopIconButton}" Content="&#xE700;" ToolTip="Expandir/colapsar menu" Click="Menu_Click"/>
                 <Border Grid.Column="1" Width="320" Height="38" HorizontalAlignment="Center" Background="#123F73" BorderBrush="#35679A" BorderThickness="1" CornerRadius="9">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -226,12 +236,16 @@
                     </Grid>
                 </Border>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource TopIconButton}" Content="&#xE7ED;" ToolTip="Notificações"/>
+                    <Button x:Name="BtnNotificacoes" Style="{StaticResource TopIconButton}" Content="&#xE7ED;" ToolTip="Notificações" Click="Notificacoes_Click"/>
                     <Button Style="{StaticResource TopIconButton}" Content="&#xE897;" ToolTip="Ajuda"/>
                     <Button x:Name="BtnTema" Style="{StaticResource TopIconButton}" Content="&#xE706;" Click="Tema_Click" ToolTip="Alternar tema"/>
-                    <Border Width="34" Height="34" Background="#E4D8FF" CornerRadius="17" Margin="10,0,8,0">
-                        <TextBlock Text="Z" Foreground="#5B21B6" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
+                    <Button Style="{StaticResource TopIconButton}" Margin="10,0,8,0" ToolTip="Alterar a minha fotografia" Click="FotoPerfil_Click">
+                        <Grid Width="34" Height="34">
+                            <Ellipse Fill="#E4D8FF"/>
+                            <TextBlock x:Name="InicialUsuarioTexto" FontFamily="Segoe UI" Foreground="#5B21B6" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Ellipse Stroke="#DCE9FA" StrokeThickness="1"><Ellipse.Fill><ImageBrush x:Name="FotoPerfilBrush" Stretch="UniformToFill"/></Ellipse.Fill></Ellipse>
+                        </Grid>
+                    </Button>
                     <StackPanel VerticalAlignment="Center" Margin="0,0,10,0">
                         <TextBlock x:Name="UsuarioTexto" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
                         <TextBlock Text="Sessão ativa" Foreground="#AFC9E5" FontSize="10"/>
@@ -242,21 +256,21 @@
         </Border>
 
         <!-- Main content -->
-        <Border Grid.Column="1" Grid.Row="1" Background="#F4F7FB">
+        <Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource FundoPrincipalBrush}">
             <ContentControl x:Name="ConteudoHost"/>
         </Border>
 
         <!-- Statusbar -->
-        <Border Grid.Column="1" Grid.Row="2" Background="White" BorderBrush="#DCE5EF" BorderThickness="0,1,0,0">
+        <Border Grid.Column="1" Grid.Row="2" Background="{DynamicResource FundoCartaoBrush}" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="0,1,0,0">
             <Grid Margin="20,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Servidor: (local)\SQLEXPRESS" Foreground="#475569" FontSize="10"/>
+                    <TextBlock Text="Servidor: (local)\SQLEXPRESS" Foreground="{DynamicResource GrayTextBrush}" FontSize="10"/>
                     <Ellipse Width="7" Height="7" Fill="#22C55E" Margin="24,0,6,0"/>
-                    <TextBlock Text="Base de dados ligada" Foreground="#475569" FontSize="10"/>
+                    <TextBlock Text="Base de dados ligada" Foreground="{DynamicResource GrayTextBrush}" FontSize="10"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Text="Versão 0.2.0" Foreground="#64748B" FontSize="10" Margin="0,0,24,0"/>
-                    <TextBlock Text="© 2026 Zemael Jacinto da Silva. Todos os direitos reservados." Foreground="#64748B" FontSize="10"/>
+                    <TextBlock Text="Versão 6.74.0" Foreground="{DynamicResource GrayTextBrush}" FontSize="10" Margin="0,0,24,0"/>
+                    <TextBlock Text="© 2026 Zemael Jacinto da Silva. Todos os direitos reservados." Foreground="{DynamicResource GrayTextBrush}" FontSize="10"/>
                 </StackPanel>
             </Grid>
         </Border>

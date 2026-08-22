@@ -20,6 +20,7 @@ public sealed class UtilizadoresViewModel : ViewModelBase
     private string _novaPassword = string.Empty;
     private int _perfilId;
     private int _empresaId;
+    private byte[]? _fotoPerfil;
     private string _mensagem = string.Empty;
     private bool _aGuardar;
     private bool _aCarregar;
@@ -30,11 +31,13 @@ public sealed class UtilizadoresViewModel : ViewModelBase
 
     public string Pesquisa { get => _pesquisa; set => SetProperty(ref _pesquisa, value); }
     public UtilizadorDto? Selecionado { get => _selecionado; set => SetProperty(ref _selecionado, value); }
-    public string NomeCompleto { get => _nomeCompleto; set => SetProperty(ref _nomeCompleto, value); }
+    public string NomeCompleto { get => _nomeCompleto; set { if (SetProperty(ref _nomeCompleto, value)) OnPropertyChanged(nameof(InicialUtilizador)); } }
     public string Email { get => _email; set => SetProperty(ref _email, value); }
     public string NovaPassword { get => _novaPassword; set => SetProperty(ref _novaPassword, value); }
     public int PerfilId { get => _perfilId; set => SetProperty(ref _perfilId, value); }
     public int EmpresaId { get => _empresaId; set => SetProperty(ref _empresaId, value); }
+    public byte[]? FotoPerfil { get => _fotoPerfil; set { if (SetProperty(ref _fotoPerfil, value)) OnPropertyChanged(nameof(InicialUtilizador)); } }
+    public string InicialUtilizador => string.IsNullOrWhiteSpace(NomeCompleto) ? "?" : NomeCompleto.Trim()[0].ToString().ToUpperInvariant();
     public string Mensagem { get => _mensagem; set => SetProperty(ref _mensagem, value); }
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
     public bool ACarregar { get => _aCarregar; set => SetProperty(ref _aCarregar, value); }
@@ -44,6 +47,9 @@ public sealed class UtilizadoresViewModel : ViewModelBase
     public ICommand EditarCommand { get; }
     public ICommand GuardarCommand { get; }
     public ICommand AlternarAtivoCommand { get; }
+    public ICommand RemoverFotoCommand { get; }
+
+    public event Action<int, byte[]?>? FotoPerfilAtualizada;
 
     public UtilizadoresViewModel(
         UserAdministrationService service,
@@ -58,6 +64,7 @@ public sealed class UtilizadoresViewModel : ViewModelBase
         EditarCommand = new RelayCommand(_ => Editar(), _ => Selecionado is not null);
         GuardarCommand = new AsyncRelayCommand(_ => GuardarAsync(), _ => !AGuardar);
         AlternarAtivoCommand = new AsyncRelayCommand(AlternarAtivoAsync);
+        RemoverFotoCommand = new RelayCommand(_ => FotoPerfil = null);
         _ = InicializarAsync();
     }
 
@@ -109,6 +116,7 @@ public sealed class UtilizadoresViewModel : ViewModelBase
         if (Selecionado is null) return;
         _idEdicao = Selecionado.Id;
         NomeCompleto = Selecionado.NomeCompleto;
+        FotoPerfil = Selecionado.FotoPerfil;
         Email = Selecionado.Email;
         PerfilId = Selecionado.PerfilId;
         EmpresaId = Selecionado.EmpresaId;
@@ -129,7 +137,8 @@ public sealed class UtilizadoresViewModel : ViewModelBase
                 PerfilId,
                 EmpresaId,
                 true,
-                NovaPassword));
+                NovaPassword,
+                FotoPerfil));
 
             if (resultado.IsFailure)
             {
@@ -138,6 +147,9 @@ public sealed class UtilizadoresViewModel : ViewModelBase
             }
 
             var mensagemSucesso = resultado.Message ?? "Utilizador guardado com sucesso.";
+            var utilizadorGuardadoId = resultado.Value;
+            if (utilizadorGuardadoId == SessaoAtual.UtilizadorId)
+                FotoPerfilAtualizada?.Invoke(utilizadorGuardadoId, FotoPerfil);
             Limpar();
             Mensagem = mensagemSucesso;
             await CarregarAsync();
@@ -164,6 +176,7 @@ public sealed class UtilizadoresViewModel : ViewModelBase
     {
         _idEdicao = 0;
         NomeCompleto = Email = NovaPassword = string.Empty;
+        FotoPerfil = null;
         PerfilId = Perfis.FirstOrDefault()?.Id ?? 0;
         EmpresaId = Empresas.FirstOrDefault()?.Id ?? 0;
         Selecionado = null;
@@ -171,4 +184,6 @@ public sealed class UtilizadoresViewModel : ViewModelBase
 
     private static string ObterErro(IEnumerable<string> erros, string? mensagem) =>
         erros.FirstOrDefault() ?? mensagem ?? "Não foi possível concluir a operação.";
+
+    public void DefinirFotoPerfil(byte[] foto) => FotoPerfil = foto;
 }

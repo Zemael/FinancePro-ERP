@@ -11,6 +11,7 @@ public sealed class ExercicioFinanceiroDto
     public bool Padrao { get; set; }
     public bool Encerrado { get; set; }
     public bool Ativo { get; set; } = true;
+    public override string ToString() => string.IsNullOrWhiteSpace(EmpresaNome) ? Ano.ToString() : $"{Ano} · {EmpresaNome}";
 }
 
 public sealed record FechoAnualCheckDto(string Codigo, string Descricao, bool Bloqueante, int Quantidade, string Mensagem);
@@ -26,5 +27,6 @@ public sealed record FechoAnualHistoricoDto(int Id, int ExercicioId, string Oper
 public sealed record ContaFechoAnualDto(int Id, string Codigo, string Nome, string Natureza, string Classificacao)
 {
     public string Descricao => $"{Codigo} · {Nome}";
+    public override string ToString() => Descricao;
 }
 public sealed record ConfiguracaoFechoAnualDto(int EmpresaId, int? ContaResultadoId, int? ContaResultadosTransitadosId);

@@ -141,12 +141,12 @@
             </Border>
 
             <TextBlock Text="{Binding MensagemErro}"
-                       Foreground="#C62828"
+                       Foreground="{DynamicResource PerigoBrush}"
                        FontWeight="SemiBold"
                        TextWrapping="Wrap"
                        Margin="0,0,0,8"/>
             <TextBlock Text="{Binding MensagemInfo}"
-                       Foreground="#2E7D32"
+                       Foreground="{DynamicResource SucessoBrush}"
                        FontWeight="SemiBold"
                        TextWrapping="Wrap"
                        Margin="0,0,0,12"/>
@@ -171,19 +171,15 @@
 
             <!-- Lista de caixas -->
             <Border Style="{StaticResource Cartao}" Padding="0" Margin="0,0,0,16">
-                <DataGrid ItemsSource="{Binding Caixas}"
+                <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Caixas}"
                           SelectedItem="{Binding CaixaSelecionada, Mode=TwoWay}"
                           AutoGenerateColumns="False"
-                          IsReadOnly="True"
-                          HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal"
-                          RowHeight="38"
-                          BorderThickness="0">
+                          IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Nome" Binding="{Binding Nome}" Width="*"/>
-                        <DataGridTextColumn Header="Saldo inicial" Binding="{Binding SaldoInicial, Converter={StaticResource ValorMoeda}}" Width="150"/>
-                        <DataGridTextColumn Header="Saldo mínimo" Binding="{Binding SaldoMinimo, Converter={StaticResource ValorMoeda}}" Width="150"/>
-                        <DataGridCheckBoxColumn Header="Saldo negativo" Binding="{Binding PermiteSaldoNegativo}" Width="120"/>
+                        <DataGridTextColumn Header="Saldo inicial" Binding="{Binding SaldoInicial, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                        <DataGridTextColumn Header="Saldo mínimo" Binding="{Binding SaldoMinimo, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                        <DataGridCheckBoxColumn ElementStyle="{StaticResource FP.DataGridCheckBox}" EditingElementStyle="{StaticResource FP.DataGridCheckBox}" Header="Saldo negativo" Binding="{Binding PermiteSaldoNegativo}" Width="Auto"/>
                         <DataGridTemplateColumn Header="Estado" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

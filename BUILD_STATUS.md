@@ -1,9 +1,9 @@
 # Build Status
 
-- Version: 3.3.1
-- Scope: Consolidation through Business Partners and UI Framework Stability
-- Build: PENDING LOCAL VALIDATION
-- Tests: PENDING LOCAL VALIDATION
-- Migrations: NOT REQUIRED
-- Database model changed: NO
-- GitHub Actions: PENDING PUSH
+- Version: 6.71.0
+- Functional scope: 18/18 modules completed
+- Build: pending Windows validation through `Gerar-Release.ps1`
+- Tests expected: 79 passed, 0 failed, 0 skipped
+- Database update in this version: automatic and idempotent bank fields, chart of accounts and 14 cost centers
+- Release pipeline: restore + Bootstrap + build + tests + publish + installer + checksums
+- Machine-readable report: `artifacts/release-validation.json`

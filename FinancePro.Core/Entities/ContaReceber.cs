@@ -12,6 +12,10 @@ public class ContaReceber : EntityBase
     public string Descricao { get; set; } = string.Empty;
     public decimal Valor { get; set; }
     public decimal ValorLiquidado { get; set; }
+    public decimal DescontoGeral { get; set; }
+    public decimal Frete { get; set; }
+    public decimal OutrasDespesas { get; set; }
+    public string? Observacoes { get; set; }
     public string ComercialEstado { get; set; } = "Faturada";
     public string? NumeroProposta { get; set; }
     public string? NumeroFatura { get; set; }

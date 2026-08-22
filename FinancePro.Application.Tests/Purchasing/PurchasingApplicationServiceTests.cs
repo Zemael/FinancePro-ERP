@@ -15,7 +15,7 @@ public sealed class PurchasingApplicationServiceTests
         {
             EmpresaId = 1,
             Data = DateTime.Today,
-            Departamento = "AdministraÃ§Ã£o",
+            Departamento = "Administração",
             Comprador = "Zemael",
             ValorTotal = 1000m
         });
@@ -34,7 +34,7 @@ public sealed class PurchasingApplicationServiceTests
         {
             EmpresaId = 1,
             Data = DateTime.Today,
-            Departamento = "AdministraÃ§Ã£o",
+            Departamento = "Administração",
             Comprador = "Zemael",
             FornecedorId = 1,
             ValorTotal = 1000m

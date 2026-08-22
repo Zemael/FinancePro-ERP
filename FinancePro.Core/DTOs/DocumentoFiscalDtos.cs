@@ -13,6 +13,7 @@ public sealed class DocumentoFiscalDto
     public string Estado { get; set; } = "Emitido";
     public string? DocumentoOrigem { get; set; }
     public string? Motivo { get; set; }
+    public override string ToString() => string.IsNullOrWhiteSpace(Numero) ? Tipo : $"{Tipo} · {Numero}";
 }
 
 public sealed class NovaNotaFiscalDto

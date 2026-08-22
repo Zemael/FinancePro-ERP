@@ -8,6 +8,7 @@ public class LoginResultDto
     public int UtilizadorId { get; set; }
     public string NomeCompleto { get; set; } = string.Empty;
     public string PerfilNome { get; set; } = string.Empty;
+    public byte[]? FotoPerfil { get; set; }
     public int EmpresaId { get; set; }
     public IReadOnlyCollection<string> Permissoes { get; set; } = Array.Empty<string>();
 }

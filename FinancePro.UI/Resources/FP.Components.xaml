@@ -133,8 +133,6 @@
     </Style>
 
     <!-- Compatibilidade de nomenclatura para Views que usam chaves FP.* -->
-    <SolidColorBrush x:Key="FP.PageBackground" Color="#F4F7FB"/>
-
     <Style x:Key="FP.PageTitle"
            TargetType="TextBlock"
            BasedOn="{StaticResource FPPageTitle}"/>

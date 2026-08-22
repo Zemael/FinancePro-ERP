@@ -25,6 +25,7 @@ public sealed class UtilizadorService : IUtilizadorService
             Id = x.Id,
             NomeCompleto = x.NomeCompleto,
             Email = x.Email,
+            FotoPerfil = x.FotoPerfil,
             PerfilId = x.PerfilId,
             PerfilNome = x.Perfil.Nome,
             EmpresaId = x.EmpresaId,
@@ -64,6 +65,7 @@ public sealed class UtilizadorService : IUtilizadorService
 
         entity.NomeCompleto = nome;
         entity.Email = email;
+        entity.FotoPerfil = dto.FotoPerfil;
         entity.PerfilId = dto.PerfilId;
         entity.EmpresaId = dto.EmpresaId;
         entity.Ativo = dto.Ativo;
@@ -76,6 +78,16 @@ public sealed class UtilizadorService : IUtilizadorService
     {
         var entity = await _context.Utilizadores.FindAsync(id) ?? throw new InvalidOperationException("Utilizador não encontrado.");
         entity.Ativo = ativo;
+        entity.DataAtualizacao = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task AtualizarFotoPerfilAsync(int id, byte[]? fotoPerfil)
+    {
+        if (fotoPerfil is { Length: > 1024 * 1024 })
+            throw new InvalidOperationException("A fotografia não pode exceder 1 MB.");
+        var entity = await _context.Utilizadores.FindAsync(id) ?? throw new InvalidOperationException("Utilizador não encontrado.");
+        entity.FotoPerfil = fotoPerfil;
         entity.DataAtualizacao = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }

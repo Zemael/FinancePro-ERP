@@ -9,14 +9,16 @@ public static class SessaoAtual
     public static string NomeCompleto { get; private set; } = string.Empty;
     public static string PerfilNome { get; private set; } = string.Empty;
     public static int EmpresaId { get; private set; }
+    public static byte[]? FotoPerfil { get; private set; }
 
     public static void Definir(int utilizadorId, string nomeCompleto, string perfilNome, int empresaId,
-        IEnumerable<string>? permissoes = null)
+        IEnumerable<string>? permissoes = null, byte[]? fotoPerfil = null)
     {
         UtilizadorId = utilizadorId;
         NomeCompleto = nomeCompleto;
         PerfilNome = perfilNome;
         EmpresaId = empresaId;
+        FotoPerfil = fotoPerfil;
         _permissoes.Clear();
         if (permissoes is not null)
             foreach (var permissao in permissoes) _permissoes.Add(permissao);
@@ -30,4 +32,6 @@ public static class SessaoAtual
         PerfilNome.Equals("Administrador", StringComparison.OrdinalIgnoreCase) ||
         _permissoes.Any(x => x.EndsWith(".Desativar", StringComparison.OrdinalIgnoreCase) ||
                              x.EndsWith(".Aprovar", StringComparison.OrdinalIgnoreCase));
+
+    public static void AtualizarFotoPerfil(byte[]? fotoPerfil) => FotoPerfil = fotoPerfil;
 }

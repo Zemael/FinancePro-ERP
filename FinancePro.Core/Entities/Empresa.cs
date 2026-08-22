@@ -9,6 +9,7 @@ public class Empresa : EntityBase
     public string? Telefone { get; set; }
     public string? Email { get; set; }
     public string Moeda { get; set; } = "FCFA";
+    public byte[]? Logotipo { get; set; }
 
     public ICollection<Utilizador> Utilizadores { get; set; } = new List<Utilizador>();
     public ICollection<ExercicioFinanceiro> ExerciciosFinanceiros { get; set; } = new List<ExercicioFinanceiro>();

@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>FinancePro.UI</RootNamespace>
-    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\app-v4.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,8 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\Images\logo.png" />
-    <Resource Include="Resources\Images\logo-240.png" />
+    <Resource Include="Resources\Images\financepro-logo-v4.png" />
+    <Resource Include="Resources\Images\financepro-mark-v4.png" />
   </ItemGroup>
 
 </Project>

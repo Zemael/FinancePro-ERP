@@ -1,39 +1,54 @@
 <UserControl x:Class="FinancePro.UI.Views.UtilizadoresView"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- Background="{StaticResource FP.Page}">
+ Background="{DynamicResource FP.Page}">
  <Grid>
   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="380"/></Grid.ColumnDefinitions>
   <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
    <Grid Margin="26,22,22,26" MaxWidth="1420" HorizontalAlignment="Center">
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="18"/><RowDefinition Height="Auto"/><RowDefinition Height="18"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <Grid Grid.Row="0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-     <StackPanel><TextBlock Text="Administração  ›  Utilizadores" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><TextBlock Text="Utilizadores" Foreground="{StaticResource FP.Text}" FontSize="25" FontWeight="SemiBold" Margin="0,8,0,0"/><TextBlock Text="Administre contas, empresas, perfis e estados de acesso." Foreground="{StaticResource FP.TextMuted}" FontSize="12" Margin="0,5,0,0"/></StackPanel>
+     <StackPanel><TextBlock Text="Administração  ›  Utilizadores" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/><TextBlock Text="Utilizadores" Foreground="{DynamicResource FP.Text}" FontSize="25" FontWeight="SemiBold" Margin="0,8,0,0"/><TextBlock Text="Administre contas, empresas, perfis e estados de acesso." Foreground="{DynamicResource FP.TextMuted}" FontSize="12" Margin="0,5,0,0"/></StackPanel>
      <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="Atualizar" Command="{Binding PesquisarCommand}" Style="{StaticResource FP.SecondaryButton}" Margin="0,0,10,0"/><Button Content="+  Novo Utilizador" Command="{Binding NovoCommand}" Style="{StaticResource FP.PrimaryButton}"/></StackPanel>
     </Grid>
     <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="14"/><ColumnDefinition/><ColumnDefinition Width="14"/><ColumnDefinition/><ColumnDefinition Width="14"/><ColumnDefinition/></Grid.ColumnDefinitions>
-     <Border Grid.Column="0" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Total" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><TextBlock Text="{Binding Utilizadores.Count}" Foreground="{StaticResource FP.Text}" FontSize="22" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel></Border>
-     <Border Grid.Column="2" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Selecionado" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><TextBlock Text="{Binding Selecionado.NomeCompleto, TargetNullValue=—}" TextTrimming="CharacterEllipsis" Foreground="{StaticResource FP.Text}" FontSize="16" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel></Border>
-     <Border Grid.Column="4" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Perfil" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><TextBlock Text="{Binding Selecionado.PerfilNome, TargetNullValue=—}" Foreground="{StaticResource FP.Text}" FontSize="18" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel></Border>
-     <Border Grid.Column="6" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Último acesso" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><TextBlock Text="{Binding Selecionado.UltimoLogin, StringFormat={}{0:dd/MM/yyyy HH:mm}, TargetNullValue=—}" Foreground="{StaticResource FP.Text}" FontSize="15" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel></Border>
+     <Border Grid.Column="0" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Total" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/><TextBlock Text="{Binding Utilizadores.Count}" Foreground="{DynamicResource FP.Text}" FontSize="22" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel></Border>
+     <Border Grid.Column="2" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Selecionado" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/><TextBlock Text="{Binding Selecionado.NomeCompleto, TargetNullValue=—}" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource FP.Text}" FontSize="16" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel></Border>
+     <Border Grid.Column="4" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Perfil" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/><TextBlock Text="{Binding Selecionado.PerfilNome, TargetNullValue=—}" Foreground="{DynamicResource FP.Text}" FontSize="18" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel></Border>
+     <Border Grid.Column="6" Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Último acesso" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/><TextBlock Text="{Binding Selecionado.UltimoLogin, StringFormat={}{0:dd/MM/yyyy HH:mm}, TargetNullValue=—}" Foreground="{DynamicResource FP.Text}" FontSize="15" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel></Border>
     </Grid>
     <Border Grid.Row="4" Style="{StaticResource FP.Card}"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="14"/><RowDefinition Height="*"/></Grid.RowDefinitions>
      <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBox Text="{Binding Pesquisa, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FilterTextBox}" Width="360" HorizontalAlignment="Left" ToolTip="Pesquisar por nome, email ou perfil"/><Button Grid.Column="1" Content="Pesquisar" Command="{Binding PesquisarCommand}" Style="{StaticResource FP.SecondaryButton}"/></Grid>
-     <DataGrid Grid.Row="2" ItemsSource="{Binding Utilizadores}" SelectedItem="{Binding Selecionado}" Style="{StaticResource FP.DataGrid}" AutoGenerateColumns="False">
-      <DataGrid.Columns><DataGridTextColumn Header="Nome" Binding="{Binding NomeCompleto}" Width="220"/><DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="220"/><DataGridTextColumn Header="Empresa" Binding="{Binding EmpresaNome}" Width="160"/><DataGridTextColumn Header="Perfil" Binding="{Binding PerfilNome}" Width="140"/><DataGridTextColumn Header="Estado" Binding="{Binding Ativo, Converter={StaticResource AtivoParaTextoConverter}}" Width="100"/></DataGrid.Columns>
+     <DataGrid Grid.Row="2" ItemsSource="{Binding Utilizadores}" SelectedItem="{Binding Selecionado}" Style="{StaticResource FP.DataGrid}" AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+      <DataGrid.Columns>
+       <DataGridTemplateColumn Header="Foto" Width="64" MinWidth="64"><DataGridTemplateColumn.CellTemplate><DataTemplate><Grid Width="38" Height="38" Margin="2"><Ellipse Fill="{DynamicResource FP.AccentSoft}"/><TextBlock Text="{Binding Inicial}" Foreground="{DynamicResource FP.Accent}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/><Ellipse><Ellipse.Fill><ImageBrush ImageSource="{Binding FotoPerfil, Converter={StaticResource FotoPerfilConverter}}" Stretch="UniformToFill"/></Ellipse.Fill></Ellipse></Grid></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+       <DataGridTextColumn Header="Nome" Binding="{Binding NomeCompleto}" Width="1.4*" MinWidth="170"/><DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="1.7*" MinWidth="200"/><DataGridTextColumn Header="Empresa" Binding="{Binding EmpresaNome}" Width="1.3*" MinWidth="160"/><DataGridTextColumn Header="Perfil" Binding="{Binding PerfilNome}" Width="*" MinWidth="120"/><DataGridTextColumn Header="Estado" Binding="{Binding Ativo, Converter={StaticResource AtivoParaTextoConverter}}" Width="*" MinWidth="90"/>
+      </DataGrid.Columns>
      </DataGrid>
     </Grid></Border>
    </Grid>
   </ScrollViewer>
-  <Border Grid.Column="1" Background="{StaticResource FP.Surface}" BorderBrush="{StaticResource FP.Border}" BorderThickness="1,0,0,0" Padding="22">
+  <Border Grid.Column="1" Background="{DynamicResource FP.Surface}" BorderBrush="{DynamicResource FP.Border}" BorderThickness="1,0,0,0" Padding="22">
    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel>
-    <TextBlock Text="Conta do Utilizador" Foreground="{StaticResource FP.Text}" FontSize="20" FontWeight="SemiBold"/><TextBlock Text="A palavra-passe é obrigatória apenas num novo registo." Foreground="{StaticResource FP.TextMuted}" FontSize="11" Margin="0,5,0,20"/>
-    <TextBlock Text="Nome completo" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><TextBox Text="{Binding NomeCompleto, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FilterTextBox}" Margin="0,6,0,12"/>
-    <TextBlock Text="Email / utilizador" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FilterTextBox}" Margin="0,6,0,12"/>
-    <TextBlock Text="Empresa" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><ComboBox ItemsSource="{Binding Empresas}" SelectedValue="{Binding EmpresaId}" SelectedValuePath="Id" DisplayMemberPath="Nome" Background="{StaticResource FP.Surface}" Foreground="{StaticResource FP.Text}" BorderBrush="{StaticResource FP.Border}" BorderThickness="1" Padding="10,7" Margin="0,6,0,12"/>
-    <TextBlock Text="Perfil" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><ComboBox ItemsSource="{Binding Perfis}" SelectedValue="{Binding PerfilId}" SelectedValuePath="Id" DisplayMemberPath="Nome" Background="{StaticResource FP.Surface}" Foreground="{StaticResource FP.Text}" BorderBrush="{StaticResource FP.Border}" BorderThickness="1" Padding="10,7" Margin="0,6,0,12"/>
-    <TextBlock Text="Palavra-passe inicial / nova" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/><TextBox Text="{Binding NovaPassword, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FilterTextBox}" Margin="0,6,0,18"/>
-    <TextBlock Text="{Binding Mensagem}" Foreground="{StaticResource FP.Accent}" TextWrapping="Wrap" Margin="0,0,0,14"/>
+    <TextBlock Text="Conta do Utilizador" Foreground="{DynamicResource FP.Text}" FontSize="20" FontWeight="SemiBold"/><TextBlock Text="A palavra-passe é obrigatória apenas num novo registo." Foreground="{DynamicResource FP.TextMuted}" FontSize="11" Margin="0,5,0,16"/>
+    <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
+     <Grid Width="112" Height="112">
+      <Ellipse Fill="{DynamicResource FP.AccentSoft}" Stroke="{DynamicResource FP.Border}" StrokeThickness="2"/>
+      <TextBlock Text="{Binding InicialUtilizador}" Foreground="{DynamicResource FP.Accent}" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <Ellipse Stroke="{DynamicResource FP.Border}" StrokeThickness="2"><Ellipse.Fill><ImageBrush ImageSource="{Binding FotoPerfil, Converter={StaticResource FotoPerfilConverter}}" Stretch="UniformToFill"/></Ellipse.Fill></Ellipse>
+     </Grid>
+     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+      <Button Content="Selecionar foto" Click="SelecionarFoto_Click" Style="{StaticResource FP.SecondaryButton}" Margin="0,0,8,0"/>
+      <Button Content="Remover" Command="{Binding RemoverFotoCommand}" Style="{StaticResource FP.SecondaryButton}"/>
+     </StackPanel>
+     <TextBlock Text="JPG ou PNG · redimensionada automaticamente" Foreground="{DynamicResource FP.TextMuted}" FontSize="10" HorizontalAlignment="Center" Margin="0,7,0,0"/>
+    </StackPanel>
+    <TextBlock Text="Nome completo" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/><TextBox Text="{Binding NomeCompleto, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FilterTextBox}" Margin="0,6,0,12"/>
+    <TextBlock Text="Email / utilizador" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/><TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FilterTextBox}" Margin="0,6,0,12"/>
+    <TextBlock Text="Empresa" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/><ComboBox ItemsSource="{Binding Empresas}" SelectedValue="{Binding EmpresaId}" SelectedValuePath="Id" DisplayMemberPath="Nome" Background="{DynamicResource FP.Surface}" Foreground="{DynamicResource FP.Text}" BorderBrush="{DynamicResource FP.Border}" BorderThickness="1" Padding="10,7" Margin="0,6,0,12"/>
+    <TextBlock Text="Perfil" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/><ComboBox ItemsSource="{Binding Perfis}" SelectedValue="{Binding PerfilId}" SelectedValuePath="Id" DisplayMemberPath="Nome" Background="{DynamicResource FP.Surface}" Foreground="{DynamicResource FP.Text}" BorderBrush="{DynamicResource FP.Border}" BorderThickness="1" Padding="10,7" Margin="0,6,0,12"/>
+    <TextBlock Text="Palavra-passe inicial / nova" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/><TextBox Text="{Binding NovaPassword, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FP.FilterTextBox}" Margin="0,6,0,18"/>
+    <TextBlock Text="{Binding Mensagem}" Foreground="{DynamicResource FP.Accent}" TextWrapping="Wrap" Margin="0,0,0,14"/>
     <Button Content="Guardar Utilizador" Command="{Binding GuardarCommand}" Style="{StaticResource FP.PrimaryButton}" Margin="0,0,0,10"/>
     <Button Content="Editar selecionado" Command="{Binding EditarCommand}" Style="{StaticResource FP.SecondaryButton}" Margin="0,0,0,10"/>
     <Button Content="Ativar / Desativar" Command="{Binding AlternarAtivoCommand}" CommandParameter="{Binding Selecionado}" Style="{StaticResource FP.SecondaryButton}"/>

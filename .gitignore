@@ -18,3 +18,5 @@ appsettings.Development.json
 appsettings.Local.json
 *.bak
 TestResults/
+artifacts/
+dist/

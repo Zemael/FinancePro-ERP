@@ -14,6 +14,7 @@ public sealed class PermissaoService : IPermissaoService
     {
         ("Dashboard", "Dashboard"),
         ("Empresas", "Empresas"),
+        ("Parceiros", "Clientes e Fornecedores"),
         ("Exercicios", "Exercícios Financeiros"),
         ("Moedas", "Moedas"),
         ("Utilizadores", "Utilizadores"),
@@ -27,7 +28,20 @@ public sealed class PermissaoService : IPermissaoService
         ("Despesas", "Despesas"),
         ("Compras", "Compras"),
         ("Patrimonio", "Gestão Patrimonial"),
-        ("Configuracoes", "Configurações")
+        ("Stocks", "Stocks"),
+        ("Projetos", "Projetos"),
+        ("Investimentos", "Investimentos"),
+        ("RecursosHumanos", "RH Financeiro"),
+        ("Contabilidade", "Contabilidade"),
+        ("Consolidacao", "Consolidação"),
+        ("Faturacao", "Faturação"),
+        ("Relatorios", "Relatórios"),
+        ("Documentos", "Documentos"),
+        ("Auditoria", "Auditoria"),
+        ("Workflow", "Centro de Tarefas"),
+        ("Configuracoes", "Configurações"),
+        ("ContabilidadeAnalitica", "Contabilidade Analítica"),
+        ("Administracao", "Administração")
     };
 
     public PermissaoService(FinanceProDbContext context) => _context = context;

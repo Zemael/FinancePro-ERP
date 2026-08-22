@@ -37,7 +37,8 @@ public sealed class AdministrationGateway :
             PerfilId = request.ProfileId,
             EmpresaId = request.CompanyId,
             Ativo = request.IsActive,
-            NovaPassword = request.NewPassword
+            NovaPassword = request.NewPassword,
+            FotoPerfil = request.ProfilePhoto
         });
 
     public Task SetActiveAsync(int id, bool active, CancellationToken cancellationToken = default)

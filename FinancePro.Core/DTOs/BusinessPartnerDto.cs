@@ -10,4 +10,5 @@ public sealed class BusinessPartnerDto
     public string? Email { get; set; }
     public string? Morada { get; set; }
     public bool Ativo { get; set; }
+    public override string ToString() => Nome;
 }

@@ -7,6 +7,10 @@ public class ContaReceberListItemDto
     public string Descricao { get; set; } = string.Empty;
     public decimal Valor { get; set; }
     public decimal ValorLiquidado { get; set; }
+    public decimal DescontoGeral { get; set; }
+    public decimal Frete { get; set; }
+    public decimal OutrasDespesas { get; set; }
+    public string? Observacoes { get; set; }
     public string ComercialEstado { get; set; } = "Faturada";
     public string? NumeroProposta { get; set; }
     public string? NumeroFatura { get; set; }
@@ -14,20 +18,38 @@ public class ContaReceberListItemDto
     public DateTime? DataFaturacao { get; set; }
     public bool PodeAprovar => ComercialEstado == "Proposta";
     public bool PodeFaturar => ComercialEstado == "Aprovada";
+    public bool PodeEditarItens => ComercialEstado == "Proposta" && EstadoExibicao != "Cancelado";
+    public bool PodeDuplicar => EstadoExibicao != "Cancelado";
     public decimal SaldoAberto => Math.Max(0, Valor - ValorLiquidado);
     public int DiasAtraso => SaldoAberto > 0 && DataVencimento.Date < DateTime.Today ? (DateTime.Today - DataVencimento.Date).Days : 0;
     public DateTime DataEmissao { get; set; }
     public DateTime DataVencimento { get; set; }
     public DateTime? DataRecebimento { get; set; }
     public string? ClienteNome { get; set; }
+    public string? ClienteNIF { get; set; }
+    public string? ClienteMorada { get; set; }
+    public string? ClienteTelefone { get; set; }
+    public string? ClienteEmail { get; set; }
+    public int? ClienteId { get; set; }
     public string? CategoriaNome { get; set; }
+    public int? CategoriaId { get; set; }
     public string? FormaPagamento { get; set; }
     public string? CentroCusto { get; set; }
 
     /// <summary>Pendente | Atrasado | Recebido | Cancelado — "Atrasado" é calculado
     /// (Pendente + vencimento já passado), não é um valor guardado.</summary>
     public string EstadoExibicao { get; set; } = string.Empty;
+    public string EstadoDocumento => ComercialEstado switch
+    {
+        "Proposta" => "Proforma em preparação",
+        "Aprovada" => "Proforma validada",
+        "Faturada" when EstadoExibicao == "Recebido" => "Paga / recibo emitido",
+        "Faturada" when ValorLiquidado > 0 => "Parcialmente paga",
+        "Faturada" => "Fatura definitiva",
+        _ => ComercialEstado
+    };
 
     public bool PodeReceber { get; set; }
     public bool PodeCancelar { get; set; }
+    public override string ToString() => string.IsNullOrWhiteSpace(Codigo) ? Descricao : $"{Codigo} · {Descricao}";
 }

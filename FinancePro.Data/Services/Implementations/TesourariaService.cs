@@ -39,7 +39,7 @@ public class TesourariaService : ITesourariaService
                 CategoriaNome = m.Categoria != null ? m.Categoria.Nome : null,
                 FormaPagamento = m.FormaPagamento,
                 CentroCusto = m.CentroCusto,
-                Origem = m.Caixa != null ? $"Caixa Â· {m.Caixa.Nome}" : $"Banco Â· {m.ContaBancaria!.NumeroConta}"
+                Origem = m.Caixa != null ? $"Caixa · {m.Caixa.Nome}" : $"Banco · {m.ContaBancaria!.NumeroConta}"
             })
             .ToListAsync();
     }
@@ -52,20 +52,20 @@ public class TesourariaService : ITesourariaService
             {
                 Tipo = "Caixa",
                 Id = c.Id,
-                Nome = $"Caixa Â· {c.Nome}",
+                Nome = $"Caixa · {c.Nome}",
                 Disponivel = _context.SessoesCaixa.Any(s =>
                     s.CaixaId == c.Id && s.Estado == EstadoSessaoCaixa.Aberta),
                 MotivoIndisponibilidade = _context.SessoesCaixa.Any(s =>
                     s.CaixaId == c.Id && s.Estado == EstadoSessaoCaixa.Aberta)
                     ? null
-                    : "Abra uma sessÃ£o de caixa antes de receber neste caixa."
+                    : "Abra uma sessão de caixa antes de receber neste caixa."
             })
             .ToListAsync();
 
         var contas = await _context.ContasBancarias
             .Where(c => c.EmpresaId == empresaId && c.Ativo)
             .Include(c => c.Banco)
-            .Select(c => new OpcaoOrigemDto { Tipo = "ContaBancaria", Id = c.Id, Nome = $"Banco Â· {c.Banco.Nome} ({c.NumeroConta})" })
+            .Select(c => new OpcaoOrigemDto { Tipo = "ContaBancaria", Id = c.Id, Nome = $"Banco · {c.Banco.Nome} ({c.NumeroConta})" })
             .ToListAsync();
 
         return caixas.Concat(contas).ToList();
@@ -87,17 +87,17 @@ public class TesourariaService : ITesourariaService
 
         if (temCaixa == temConta)
         {
-            throw new InvalidOperationException("Escolha exatamente uma origem: caixa ou conta bancÃ¡ria.");
+            throw new InvalidOperationException("Escolha exatamente uma origem: caixa ou conta bancária.");
         }
 
         if (string.IsNullOrWhiteSpace(dto.Descricao))
         {
-            throw new InvalidOperationException("A descriÃ§Ã£o Ã© obrigatÃ³ria.");
+            throw new InvalidOperationException("A descrição é obrigatória.");
         }
 
         if (dto.TipoOperacao is TipoOperacao.Transferencia or TipoOperacao.Sangria or TipoOperacao.Reforco)
         {
-            throw new InvalidOperationException("TransferÃªncia/Sangria/ReforÃ§o tÃªm de ter origem e destino â€” use RegistarTransferenciaAsync.");
+            throw new InvalidOperationException("Transferência/Sangria/Reforço têm de ter origem e destino — use RegistarTransferenciaAsync.");
         }
 
         var valorAbsoluto = Math.Abs(dto.Valor);
@@ -108,7 +108,7 @@ public class TesourariaService : ITesourariaService
 
         // Ajuste pode ser positivo (soma) ou negativo (subtrai), consoante o
         // sinal com que o valor foi introduzido; os outros tipos usam o sinal
-        // implÃ­cito na prÃ³pria operaÃ§Ã£o.
+        // implícito na própria operação.
         var tipoSinal = dto.TipoOperacao switch
         {
             TipoOperacao.Entrada => TipoCategoria.Receita,
@@ -149,7 +149,7 @@ public class TesourariaService : ITesourariaService
     {
         if (string.IsNullOrWhiteSpace(dto.Descricao))
         {
-            throw new InvalidOperationException("A descriÃ§Ã£o Ã© obrigatÃ³ria.");
+            throw new InvalidOperationException("A descrição é obrigatória.");
         }
 
         if (dto.Valor <= 0)
@@ -159,18 +159,18 @@ public class TesourariaService : ITesourariaService
 
         if (dto.Data == default)
         {
-            throw new InvalidOperationException("A data da transferÃªncia Ã© obrigatÃ³ria.");
+            throw new InvalidOperationException("A data da transferência é obrigatória.");
         }
 
         var tiposValidos = new[] { "Caixa", "ContaBancaria" };
         if (!tiposValidos.Contains(dto.OrigemTipo) || !tiposValidos.Contains(dto.DestinoTipo))
         {
-            throw new InvalidOperationException("A origem e o destino devem ser Caixa ou Conta BancÃ¡ria.");
+            throw new InvalidOperationException("A origem e o destino devem ser Caixa ou Conta Bancária.");
         }
 
         if (dto.OrigemTipo == dto.DestinoTipo && dto.OrigemId == dto.DestinoId)
         {
-            throw new InvalidOperationException("A origem e o destino nÃ£o podem ser os mesmos.");
+            throw new InvalidOperationException("A origem e o destino não podem ser os mesmos.");
         }
 
         await ValidarOrigemTransferenciaAsync(dto.EmpresaId, dto.OrigemTipo, dto.OrigemId, exigeSessaoAberta: true);
@@ -190,7 +190,7 @@ public class TesourariaService : ITesourariaService
             var origem = new Movimento
             {
                 Data = dto.Data,
-                Descricao = $"{descricao} (saÃ­da)",
+                Descricao = $"{descricao} (saída)",
                 Valor = dto.Valor,
                 Tipo = TipoCategoria.Despesa,
                 TipoOperacao = dto.TipoOperacao,
@@ -242,12 +242,12 @@ public class TesourariaService : ITesourariaService
 
             if (caixa is null)
             {
-                throw new InvalidOperationException("Caixa nÃ£o encontrada para a empresa ativa.");
+                throw new InvalidOperationException("Caixa não encontrada para a empresa ativa.");
             }
 
             if (!caixa.Ativo)
             {
-                throw new InvalidOperationException($"A caixa \"{caixa.Nome}\" estÃ¡ inativa.");
+                throw new InvalidOperationException($"A caixa \"{caixa.Nome}\" está inativa.");
             }
 
             if (exigeSessaoAberta)
@@ -260,7 +260,7 @@ public class TesourariaService : ITesourariaService
                 if (!sessaoAberta)
                 {
                     throw new InvalidOperationException(
-                        $"Abra uma sessÃ£o na caixa \"{caixa.Nome}\" antes de transferir valores a partir dela.");
+                        $"Abra uma sessão na caixa \"{caixa.Nome}\" antes de transferir valores a partir dela.");
                 }
             }
 
@@ -274,29 +274,29 @@ public class TesourariaService : ITesourariaService
 
         if (conta is null)
         {
-            throw new InvalidOperationException("Conta bancÃ¡ria nÃ£o encontrada para a empresa ativa.");
+            throw new InvalidOperationException("Conta bancária não encontrada para a empresa ativa.");
         }
 
         if (!conta.Ativo)
         {
             throw new InvalidOperationException(
-                $"A conta bancÃ¡ria {conta.NumeroConta} estÃ¡ inativa.");
+                $"A conta bancária {conta.NumeroConta} está inativa.");
         }
     }
 
     public async Task MarcarConciliadoAsync(int movimentoId, bool conciliado)
     {
         var movimento = await _context.Movimentos.FindAsync(movimentoId)
-            ?? throw new InvalidOperationException("Movimento nÃ£o encontrado.");
+            ?? throw new InvalidOperationException("Movimento não encontrado.");
 
         movimento.Conciliado = conciliado;
         movimento.DataAtualizacao = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }
 
-    /// <summary>Se a caixa nÃ£o permitir saldo negativo, bloqueia a operaÃ§Ã£o
+    /// <summary>Se a caixa não permitir saldo negativo, bloqueia a operação
     /// caso o saldo resultante ficasse abaixo de zero. Movimentos de Bloqueio
-    /// nÃ£o entram nesta soma (nÃ£o afetam saldo real).</summary>
+    /// não entram nesta soma (não afetam saldo real).</summary>
     private async Task GarantirSaldoSuficienteAsync(int caixaId, decimal valorASubtrair)
     {
         var caixa = await _context.Caixas.FindAsync(caixaId);
@@ -312,7 +312,7 @@ public class TesourariaService : ITesourariaService
         if (saldoAtual - valorASubtrair < 0)
         {
             throw new InvalidOperationException(
-                $"OperaÃ§Ã£o bloqueada: a caixa \"{caixa.Nome}\" nÃ£o permite saldo negativo " +
+                $"Operação bloqueada: a caixa \"{caixa.Nome}\" não permite saldo negativo " +
                 $"(saldo atual {saldoAtual:#,##0} FCFA, insuficiente para {valorASubtrair:#,##0} FCFA).");
         }
     }
@@ -351,7 +351,7 @@ public class TesourariaService : ITesourariaService
         var previsao30 = saldo + await ReceberAte(limite30) - await PagarAte(limite30);
         var previsao60 = saldo + await ReceberAte(limite60) - await PagarAte(limite60);
         var inadimplencia = aReceber <= 0 ? 0 : Math.Round(receberAtrasado / aReceber * 100m, 1);
-        var risco = previsao30 < 0 ? "CrÃ­tico" : previsao7 < 0 || pagarAtrasado > saldo ? "Elevado" : previsao15 < saldo * 0.20m ? "Moderado" : "Baixo";
+        var risco = previsao30 < 0 ? "Crítico" : previsao7 < 0 || pagarAtrasado > saldo ? "Elevado" : previsao15 < saldo * 0.20m ? "Moderado" : "Baixo";
 
         return new TreasuryOverviewDto
         {
@@ -389,7 +389,7 @@ public class TesourariaService : ITesourariaService
             .Select(x => new { x.DataVencimento, Saldo = x.Valor - x.ValorLiquidado }).ToListAsync();
         var pagar = await _context.ContasPagar.Where(x => x.EmpresaId == empresaId && x.Estado == EstadoConta.Pendente)
             .Select(x => new { x.DataVencimento, Saldo = x.Valor - x.ValorLiquidado }).ToListAsync();
-        var faixas = new (string Nome, int Min, int Max)[] { ("A vencer", int.MinValue, -1), ("Vence hoje / 30 dias", 0, 30), ("31â€“60 dias", 31, 60), ("61â€“90 dias", 61, 90), ("Mais de 90 dias", 91, int.MaxValue) };
+        var faixas = new (string Nome, int Min, int Max)[] { ("A vencer", int.MinValue, -1), ("Vence hoje / 30 dias", 0, 30), ("31–60 dias", 31, 60), ("61–90 dias", 61, 90), ("Mais de 90 dias", 91, int.MaxValue) };
         return faixas.Select(f => new TreasuryAgingDto
         {
             Faixa = f.Nome,

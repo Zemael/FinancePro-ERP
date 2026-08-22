@@ -17,6 +17,7 @@ using FinancePro.Application.MasterData.Companies;
 using FinancePro.Application.MasterData.Partners;
 using FinancePro.Services.Interfaces;
 using FinancePro.UI.Common;
+using FinancePro.UI.Common.Converters;
 using FinancePro.UI.ViewModels;
 using FinancePro.UI.Views;
 using FinancePro.Platform.Settings;
@@ -27,19 +28,38 @@ using FinancePro.Platform.Administration;
 using FinancePro.Platform.Accounting;
 using FinancePro.Platform.Consolidation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 
 namespace FinancePro.UI;
 
 /// <summary>
-/// Janela principal (shell) pÃ³s-login: barra superior com o utilizador
-/// ligado, navegaÃ§Ã£o lateral e uma Ã¡rea de conteÃºdo que troca entre os
-/// mÃ³dulos. SÃ³ Dashboard e Tesouraria estÃ£o ativos (Etapa 5); os
-/// restantes mÃ³dulos aparecem como "brevemente" atÃ© serem desenvolvidos.
+/// Janela principal (shell) pós-login: barra superior com o utilizador
+/// ligado, navegação lateral e uma área de conteúdo que troca entre os
+/// módulos. Só Dashboard e Tesouraria estão ativos (Etapa 5); os
+/// restantes módulos aparecem como "brevemente" até serem desenvolvidos.
 /// </summary>
 public partial class MainWindow : Window
 {
     private static readonly Brush ItemAtivoFundo = new SolidColorBrush(Color.FromRgb(0x15, 0x60, 0x82));
     private static readonly Brush ItemInativoFundo = Brushes.Transparent;
+
+    public static readonly DependencyProperty IsSidebarExpandidaProperty = DependencyProperty.Register(
+        nameof(IsSidebarExpandida), typeof(bool), typeof(MainWindow), new PropertyMetadata(true));
+
+    public bool IsSidebarExpandida
+    {
+        get => (bool)GetValue(IsSidebarExpandidaProperty);
+        set => SetValue(IsSidebarExpandidaProperty, value);
+    }
+
+    private const double LarguraSidebarExpandida = 238;
+    private const double LarguraSidebarColapsada = 72;
+
+    private void Menu_Click(object sender, RoutedEventArgs e)
+    {
+        IsSidebarExpandida = !IsSidebarExpandida;
+        ColunaSidebar.Width = new GridLength(IsSidebarExpandida ? LarguraSidebarExpandida : LarguraSidebarColapsada);
+    }
 
     private readonly LoginResultDto _utilizador;
     private IServiceScope? _scopeAtual;
@@ -49,7 +69,9 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _utilizador = utilizador;
-        UsuarioTexto.Text = $"{utilizador.NomeCompleto} Â· {utilizador.PerfilNome}";
+        UsuarioTexto.Text = $"{utilizador.NomeCompleto} · {utilizador.PerfilNome}";
+        InicialUsuarioTexto.Text = string.IsNullOrWhiteSpace(utilizador.NomeCompleto) ? "?" : utilizador.NomeCompleto.Trim()[0].ToString().ToUpperInvariant();
+        AtualizarFotoPerfil(utilizador.FotoPerfil);
 
         AplicarPermissoesMenu();
         MostrarDashboard();
@@ -58,6 +80,10 @@ public partial class MainWindow : Window
     }
 
     private void Dashboard_Click(object sender, RoutedEventArgs e) => MostrarDashboard();
+    private void Notificacoes_Click(object sender, RoutedEventArgs e) => MostrarNotificacoes();
+    private void Projetos_Click(object sender, RoutedEventArgs e) => AbrirModuloSeguro("Projetos", MostrarProjetos);
+    private void Investimentos_Click(object sender, RoutedEventArgs e) => AbrirModuloSeguro("Investimentos", MostrarInvestimentos);
+    private void RecursosHumanos_Click(object sender, RoutedEventArgs e) => AbrirModuloSeguro("RH Financeiro", MostrarRecursosHumanos);
 
     private void Empresas_Click(object sender, RoutedEventArgs e) => MostrarEmpresas();
 
@@ -80,6 +106,7 @@ public partial class MainWindow : Window
     private void Bancos_Click(object sender, RoutedEventArgs e) => MostrarBancos();
 
     private void Receitas_Click(object sender, RoutedEventArgs e) => MostrarReceitas();
+    private void Faturacao_Click(object sender, RoutedEventArgs e) => MostrarFaturacao();
 
     private void Orcamento_Click(object sender, RoutedEventArgs e) => MostrarOrcamento();
 
@@ -98,6 +125,7 @@ public partial class MainWindow : Window
     private void Relatorios_Click(object sender, RoutedEventArgs e) => MostrarRelatorios();
 
     private void Documentos_Click(object sender, RoutedEventArgs e) => MostrarDocumentos();
+    private void Auditoria_Click(object sender, RoutedEventArgs e) => MostrarAuditoria();
     private void Administracao_Click(object sender, RoutedEventArgs e) => MostrarAdministracao();
 
     private void Contabilidade_Click(object sender, RoutedEventArgs e) => MostrarContabilidade();
@@ -106,8 +134,35 @@ public partial class MainWindow : Window
 
     private void Tema_Click(object sender, RoutedEventArgs e) => GestorTema.Alternar();
 
-    /// <summary>MantÃ©m o item do mÃ³dulo atual sempre destacado a teal na
-    /// barra lateral â€” antes sÃ³ havia destaque temporÃ¡rio ao passar o rato.</summary>
+    private async void FotoPerfil_Click(object sender, RoutedEventArgs e)
+    {
+        var dialogo = new OpenFileDialog
+        {
+            Title = "Selecionar a minha fotografia de perfil",
+            Filter = "Imagens (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png",
+            CheckFileExists = true,
+            Multiselect = false
+        };
+        if (dialogo.ShowDialog(this) != true) return;
+
+        try
+        {
+            var foto = ProcessadorFotoPerfil.CarregarEComprimir(dialogo.FileName);
+            using var scope = App.Services.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<IUtilizadorService>()
+                .AtualizarFotoPerfilAsync(_utilizador.UtilizadorId, foto);
+            _utilizador.FotoPerfil = foto;
+            SessaoAtual.AtualizarFotoPerfil(foto);
+            AtualizarFotoPerfil(foto);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Fotografia de perfil", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    /// <summary>Mantém o item do módulo atual sempre destacado a teal na
+    /// barra lateral — antes só havia destaque temporário ao passar o rato.</summary>
     private void DestacarItemAtivo(Button item)
     {
         if (_itemNavAtivo is not null)
@@ -182,7 +237,20 @@ public partial class MainWindow : Window
         var service = _scopeAtual!.ServiceProvider.GetRequiredService<UserAdministrationService>();
         var perfilService = _scopeAtual.ServiceProvider.GetRequiredService<IPerfilService>();
         var empresaService = _scopeAtual.ServiceProvider.GetRequiredService<IEmpresaService>();
-        ConteudoHost.Content = new UtilizadoresView { DataContext = new UtilizadoresViewModel(service, perfilService, empresaService) };
+        var viewModel = new UtilizadoresViewModel(service, perfilService, empresaService);
+        viewModel.FotoPerfilAtualizada += (_, foto) =>
+        {
+            _utilizador.FotoPerfil = foto;
+            SessaoAtual.AtualizarFotoPerfil(foto);
+            AtualizarFotoPerfil(foto);
+        };
+        ConteudoHost.Content = new UtilizadoresView { DataContext = viewModel };
+    }
+
+    private void AtualizarFotoPerfil(byte[]? foto)
+    {
+        FotoPerfilBrush.ImageSource = new FotoPerfilConverter().Convert(
+            foto, typeof(ImageSource), null, System.Globalization.CultureInfo.CurrentCulture) as ImageSource;
     }
 
     private void MostrarPerfis()
@@ -207,7 +275,7 @@ public partial class MainWindow : Window
     {
         BtnDashboard.Visibility = Visibilidade("Dashboard");
         BtnEmpresas.Visibility = Visibilidade("Empresas");
-        BtnParceiros.Visibility = Visibility.Visible;
+        BtnParceiros.Visibility = Visibilidade("Parceiros");
         BtnExercicios.Visibility = Visibilidade("Exercicios");
         BtnMoedas.Visibility = Visibilidade("Moedas");
         BtnUtilizadores.Visibility = Visibilidade("Utilizadores");
@@ -221,13 +289,20 @@ public partial class MainWindow : Window
         BtnDespesas.Visibility = Visibilidade("Despesas");
         BtnCompras.Visibility = Visibilidade("Compras");
         BtnBens.Visibility = Visibilidade("Patrimonio");
-        BtnStocks.Visibility = Visibility.Visible;
+        BtnStocks.Visibility = Visibilidade("Stocks");
+        BtnProjetos.Visibility = Visibilidade("Projetos");
+        BtnInvestimentos.Visibility = Visibilidade("Investimentos");
+        BtnRecursosHumanos.Visibility = Visibilidade("RecursosHumanos");
+        BtnContabilidade.Visibility = Visibilidade("Contabilidade");
+        BtnConsolidacao.Visibility = Visibilidade("Consolidacao");
+        BtnFaturacao.Visibility = Visibilidade("Faturacao");
+        BtnRelatorios.Visibility = Visibilidade("Relatorios");
+        BtnDocumentos.Visibility = Visibilidade("Documentos");
+        BtnAuditoria.Visibility = Visibilidade("Auditoria");
+        BtnWorkflow.Visibility = Visibilidade("Workflow");
         BtnConfiguracoes.Visibility = Visibilidade("Configuracoes");
-        BtnWorkflow.Visibility = Visibility.Visible;
-        BtnRelatorios.Visibility = Visibility.Visible;
-        BtnAdministracao.Visibility = Visibility.Visible;
-        BtnContabilidade.Visibility = Visibility.Visible;
-        BtnConsolidacao.Visibility = Visibility.Visible;
+        BtnAnalitica.Visibility = Visibilidade("ContabilidadeAnalitica");
+        BtnAdministracao.Visibility = Visibilidade("Administracao");
     }
 
     private static Visibility Visibilidade(string modulo) =>
@@ -266,6 +341,15 @@ public partial class MainWindow : Window
         TrocarScope();
         var receitasService = _scopeAtual!.ServiceProvider.GetRequiredService<RevenueApplicationService>();
         var viewModel = new ReceitasViewModel(receitasService, _utilizador.EmpresaId);
+        ConteudoHost.Content = new ReceitasView { DataContext = viewModel };
+    }
+
+    private void MostrarFaturacao()
+    {
+        DestacarItemAtivo(BtnFaturacao);
+        TrocarScope();
+        var receitasService = _scopeAtual!.ServiceProvider.GetRequiredService<RevenueApplicationService>();
+        var viewModel = new ReceitasViewModel(receitasService, _utilizador.EmpresaId, modoFaturacao: true);
         ConteudoHost.Content = new ReceitasView { DataContext = viewModel };
     }
 
@@ -314,6 +398,24 @@ public partial class MainWindow : Window
         ConteudoHost.Content = new BemView { DataContext = viewModel };
     }
 
+
+    private void MostrarNotificacoes()
+    {
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IDashboardService>();
+        ConteudoHost.Content = new NotificationsView
+        {
+            DataContext = new NotificationsViewModel(service, _utilizador.EmpresaId, _utilizador.UtilizadorId)
+        };
+    }
+
+    private void MostrarAuditoria()
+    {
+        DestacarItemAtivo(BtnAuditoria);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IAuditoriaService>();
+        ConteudoHost.Content = new AuditoriaView { DataContext = new AuditoriaViewModel(service, _utilizador.EmpresaId) };
+    }
 
     private void MostrarWorkflow()
     {
@@ -365,6 +467,48 @@ public partial class MainWindow : Window
         };
     }
 
+    private void MostrarAnalitica()
+    {
+        DestacarItemAtivo(BtnAnalitica);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IAnalyticAccountingService>();
+        ConteudoHost.Content = new AnalyticAccountingView { DataContext = new AnalyticAccountingViewModel(service, _utilizador.EmpresaId) };
+    }
+
+    private void MostrarProjetos()
+    {
+        DestacarItemAtivo(BtnProjetos);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IAnalyticAccountingService>();
+        ConteudoHost.Content = new ProjectsView { DataContext = new ProjectsViewModel(service, _utilizador.EmpresaId) };
+    }
+
+    private void MostrarInvestimentos()
+    {
+        DestacarItemAtivo(BtnInvestimentos);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<IAnalyticAccountingService>();
+        var investmentService = _scopeAtual.ServiceProvider.GetRequiredService<FinancePro.Platform.Investments.IInvestmentService>();
+        ConteudoHost.Content = new InvestimentosView { DataContext = new InvestimentosViewModel(service, investmentService, _utilizador.EmpresaId) };
+    }
+
+    private void MostrarRecursosHumanos()
+    {
+        DestacarItemAtivo(BtnRecursosHumanos);
+        TrocarScope();
+        var service = _scopeAtual!.ServiceProvider.GetRequiredService<FinancePro.Platform.HumanResources.IHumanResourcesService>();
+        ConteudoHost.Content = new HumanResourcesView { DataContext = new HumanResourcesViewModel(service, _utilizador.EmpresaId) };
+    }
+
+    private static void AbrirModuloSeguro(string modulo, Action abrir)
+    {
+        try { abrir(); }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Não foi possível abrir {modulo}.\n\n{ex.GetBaseException().Message}\n\nExecute o FinancePro.Bootstrap com --validate e tente novamente.", "FinancePro — Módulo indisponível", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     private void MostrarAdministracao()
     {
         DestacarItemAtivo(BtnAdministracao);
@@ -383,13 +527,12 @@ public partial class MainWindow : Window
         ConteudoHost.Content = new ConfiguracoesView { DataContext = viewModel };
     }
 
-    /// <summary>Cada mÃ³dulo recebe o seu prÃ³prio scope de DI (e portanto o seu
-    /// prÃ³prio DbContext), fechado assim que se troca de mÃ³dulo.</summary>
+    /// <summary>Cada módulo recebe o seu próprio scope de DI (e portanto o seu
+    /// próprio DbContext), fechado assim que se troca de módulo.</summary>
     private void TrocarScope()
     {
         _scopeAtual?.Dispose();
         _scopeAtual = App.Services.CreateScope();
     }
+    private void Analitica_Click(object sender, RoutedEventArgs e) => MostrarAnalitica();
 }
-
-

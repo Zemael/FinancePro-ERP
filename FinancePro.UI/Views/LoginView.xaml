@@ -6,7 +6,7 @@
         Height="760"
         MinWidth="1080"
         MinHeight="680"
-        Icon="pack://application:,,,/Resources/Images/logo.png"
+        Icon="pack://application:,,,/Resources/Images/financepro-mark-v4.png"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         WindowStyle="None"
@@ -157,7 +157,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="pack://application:,,,/Resources/Images/logo.png"
+                    <Image Source="pack://application:,,,/Resources/Images/financepro-mark-v4.png"
                            Width="24" Height="24" Stretch="Uniform" Margin="0,0,10,0"/>
                     <TextBlock Text="FinancePro ERP" FontWeight="SemiBold" FontSize="13"
                                Foreground="#20364E" VerticalAlignment="Center"/>
@@ -195,7 +195,7 @@
                         <StackPanel>
                             <Border Width="62" Height="62" CornerRadius="15" Background="White"
                                     HorizontalAlignment="Left" Padding="9" Margin="0,0,0,20">
-                                <Image Source="pack://application:,,,/Resources/Images/logo-240.png"
+                                <Image Source="pack://application:,,,/Resources/Images/financepro-mark-v4.png"
                                        Stretch="Uniform"/>
                             </Border>
                             <TextBlock FontSize="34" FontWeight="Bold" Foreground="White">
@@ -323,7 +323,6 @@
                                          IsEnabled="{Binding AAutenticar, Converter={StaticResource InversorBool}}"/>
 
                                 <Button x:Name="MostrarSenhaButton"
-                                        Width="42"
                                         Height="46"
                                         Margin="0,2,3,2"
                                         Padding="0"
@@ -386,7 +385,7 @@
                             </Grid>
 
                             <Grid Margin="0,14,0,0">
-                                <CheckBox Content="Lembrar acesso" Foreground="#536B82" FontSize="12"
+                                <CheckBox x:Name="LembrarCheckBox" Content="Lembrar acesso" Foreground="#536B82" FontSize="12"
                                           VerticalAlignment="Center"/>
                                 <TextBlock Text="Recuperar palavra-passe"
                                            Foreground="#0F4C81" FontWeight="SemiBold" FontSize="12"

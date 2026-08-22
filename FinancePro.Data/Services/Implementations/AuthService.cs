@@ -39,6 +39,7 @@ public class AuthService : IAuthService
             UtilizadorId = utilizador.Id,
             NomeCompleto = utilizador.NomeCompleto,
             PerfilNome = utilizador.Perfil.Nome,
+            FotoPerfil = utilizador.FotoPerfil,
             EmpresaId = utilizador.EmpresaId,
             Permissoes = utilizador.Perfil.Nome == "Administrador"
                 ? new[] { "*" }

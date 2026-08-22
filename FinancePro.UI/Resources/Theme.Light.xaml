@@ -1,16 +1,55 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <!-- FinancePro — Paleta única (tema claro). Teal = cor principal da marca,
+         Azul = accent (ênfase/seleção). Toda a app lê estas chaves via DynamicResource,
+         por isso ficam aqui e são trocadas em bloco pelo GestorTema. -->
+
+    <!-- Marca / hierarquia tonal -->
     <SolidColorBrush x:Key="TealDarkBrush" Color="#0E4C5E"/>
     <SolidColorBrush x:Key="TealBrush" Color="#156082"/>
     <SolidColorBrush x:Key="TealLightBrush" Color="#DCEAF0"/>
     <SolidColorBrush x:Key="TealPaleBrush" Color="#F1F7F9"/>
-    <SolidColorBrush x:Key="GrayTextBrush" Color="#595959"/>
+    <SolidColorBrush x:Key="GrayTextBrush" Color="#64748B"/>
     <SolidColorBrush x:Key="GraySubBrush" Color="#888780"/>
 
+    <!-- Superfícies e texto -->
     <SolidColorBrush x:Key="FundoPrincipalBrush" Color="#F1F7F9"/>
     <SolidColorBrush x:Key="FundoCartaoBrush" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="TextoPrincipalBrush" Color="#1F2937"/>
+    <SolidColorBrush x:Key="TextoPrincipalBrush" Color="#10233F"/>
     <SolidColorBrush x:Key="BordaBrush" Color="#DCEAF0"/>
+
+    <!-- Estado -->
+    <SolidColorBrush x:Key="SucessoBrush" Color="#159B62"/>
+    <SolidColorBrush x:Key="SucessoSuaveBrush" Color="#E8F8F0"/>
+    <SolidColorBrush x:Key="PerigoBrush" Color="#DC3C4B"/>
+    <SolidColorBrush x:Key="PerigoSuaveBrush" Color="#FDECEF"/>
+    <SolidColorBrush x:Key="AvisoBrush" Color="#F59E0B"/>
+    <SolidColorBrush x:Key="AvisoSuaveBrush" Color="#FFF8E8"/>
+    <SolidColorBrush x:Key="NeutroSuaveBrush" Color="#F1F7F9"/>
+    <SolidColorBrush x:Key="RoxoBrush" Color="#7C3AED"/>
+    <SolidColorBrush x:Key="RoxoSuaveBrush" Color="#F1EAFE"/>
+
+    <!-- Aliases FP.* (design system) — mesma paleta, chaves usadas em 20+ ecrãs -->
+    <SolidColorBrush x:Key="FP.Primary" Color="#0E4C5E"/>
+    <SolidColorBrush x:Key="FP.PrimaryHover" Color="#156082"/>
+    <SolidColorBrush x:Key="FP.Accent" Color="#2F6FED"/>
+    <SolidColorBrush x:Key="FP.CheckBoxAccent" Color="#2A78D6"/>
+    <SolidColorBrush x:Key="FP.AccentSoft" Color="#EAF1FF"/>
+    <SolidColorBrush x:Key="FP.Page" Color="#F1F7F9"/>
+    <SolidColorBrush x:Key="FP.Surface" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="FP.Border" Color="#DCEAF0"/>
+    <SolidColorBrush x:Key="FP.Text" Color="#10233F"/>
+    <SolidColorBrush x:Key="FP.TextMuted" Color="#64748B"/>
+    <SolidColorBrush x:Key="FP.Success" Color="#159B62"/>
+    <SolidColorBrush x:Key="FP.SuccessSoft" Color="#E8F8F0"/>
+    <SolidColorBrush x:Key="FP.Danger" Color="#DC3C4B"/>
+    <SolidColorBrush x:Key="FP.DangerSoft" Color="#FDECEF"/>
+    <SolidColorBrush x:Key="FP.Warning" Color="#F59E0B"/>
+
+    <!-- Aliases legados (histórico do projeto — mesmas cores, chaves antigas) -->
+    <SolidColorBrush x:Key="FundoJanelaBrush" Color="#F1F7F9"/>
+    <SolidColorBrush x:Key="TextoSecundarioBrush" Color="#64748B"/>
+    <SolidColorBrush x:Key="AzulPrimarioBrush" Color="#2F6FED"/>
 
 </ResourceDictionary>

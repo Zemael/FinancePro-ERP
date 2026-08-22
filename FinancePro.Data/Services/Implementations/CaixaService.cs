@@ -95,6 +95,8 @@ public class CaixaService : ICaixaService
     public async Task<SessaoCaixaDto> AbrirAsync(AbrirCaixaDto dto)
     {
         if (dto.SaldoInicial < 0) throw new InvalidOperationException("O saldo inicial não pode ser negativo.");
+        if (dto.UtilizadorId <= 0 || !await _context.Utilizadores.AnyAsync(x => x.Id == dto.UtilizadorId && x.Ativo))
+            throw new InvalidOperationException("A sessão do utilizador não é válida. Termine a sessão e entre novamente.");
         var caixa = await _context.Caixas.SingleOrDefaultAsync(x => x.Id == dto.CaixaId && x.EmpresaId == dto.EmpresaId)
             ?? throw new InvalidOperationException("Caixa não encontrada.");
         if (!caixa.Ativo) throw new InvalidOperationException("Não é possível abrir uma caixa inativa.");
@@ -106,7 +108,6 @@ public class CaixaService : ICaixaService
             .OrderByDescending(x => x.Padrao).ThenByDescending(x => x.Ano)
             .FirstOrDefaultAsync() ?? throw new InvalidOperationException("Não existe exercício financeiro aberto para esta empresa.");
 
-        await using var transaction = await _context.Database.BeginTransactionAsync();
         var sessao = new SessaoCaixa
         {
             CaixaId = dto.CaixaId,
@@ -135,9 +136,11 @@ public class CaixaService : ICaixaService
             });
         }
 
+        // SaveChanges envolve a sessão e o movimento de abertura numa única
+        // transação automática, compatível com EnableRetryOnFailure.
         await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
-        return (await ObterSessaoAbertaAsync(dto.EmpresaId, dto.CaixaId))!;
+        return await ObterSessaoAbertaAsync(dto.EmpresaId, dto.CaixaId)
+            ?? throw new InvalidOperationException("A caixa foi aberta, mas não foi possível recarregar a sessão.");
     }
 
     public async Task<SessaoCaixaDto> FecharAsync(FecharCaixaDto dto)

@@ -7,4 +7,5 @@ public sealed record UserSaveRequest(
     int ProfileId,
     int CompanyId,
     bool IsActive,
-    string? NewPassword);
+    string? NewPassword,
+    byte[]? ProfilePhoto = null);

@@ -9,4 +9,10 @@ public class EmpresaListItemDto
     public string? Email { get; set; }
     public string Moeda { get; set; } = "FCFA";
     public bool Ativo { get; set; }
+
+    /// <summary>
+    /// Garante que controlos WPF exibem o nome da empresa quando não existe
+    /// um DisplayMemberPath explícito, em vez do nome completo do tipo DTO.
+    /// </summary>
+    public override string ToString() => Nome;
 }

@@ -2,37 +2,15 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <UserControl.Resources>
-        <Style x:Key="Cartao" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="18,16"/>
-            <Setter Property="BorderBrush" Value="#DCEAF0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <Style x:Key="Rotulo" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#595959"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-        <Style x:Key="BotaoPrimario" TargetType="Button" BasedOn="{StaticResource BaseButton}">
-            <Setter Property="Width" Value="160"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="Margin" Value="0,16,0,0"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-    </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
         <StackPanel>
 
-            <TextBlock Text="Configurações" FontSize="18" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
+            <TextBlock Text="Configurações" Style="{StaticResource TituloModulo}" Margin="0,0,0,4"/>
             <TextBlock Text="Dados da empresa e utilizadores com acesso ao sistema"
-                       FontSize="12" Foreground="#595959" Margin="0,0,0,16"/>
+                       Style="{StaticResource TextoSecundario}" Margin="0,0,0,16"/>
 
-            <TextBlock Text="Empresa" FontSize="14" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,10"/>
+            <TextBlock Text="Empresa" Style="{StaticResource FP.SectionTitle}" Margin="0,0,0,10"/>
             <Border Style="{StaticResource Cartao}">
                 <StackPanel>
                     <Grid>
@@ -73,7 +51,7 @@
                     <TextBlock Text="Email" Style="{StaticResource Rotulo}" Margin="0,14,0,4"/>
                     <TextBox Text="{Binding EmailEmpresa, UpdateSourceTrigger=PropertyChanged}"/>
 
-                    <TextBlock Text="{Binding MensagemErroEmpresa}" Foreground="#C00000" FontSize="12"
+                    <TextBlock Text="{Binding MensagemErroEmpresa}" Foreground="{DynamicResource PerigoBrush}" FontSize="12"
                                Margin="0,12,0,0" TextWrapping="Wrap"
                                Visibility="{Binding MensagemErroEmpresa, Converter={StaticResource TextoParaVisibilidade}}"/>
 
@@ -82,7 +60,7 @@
                 </StackPanel>
             </Border>
 
-            <TextBlock Text="Parâmetros do sistema" FontSize="14" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,24,0,10"/>
+            <TextBlock Text="Parâmetros do sistema" Style="{StaticResource FP.SectionTitle}" Margin="0,24,0,10"/>
             <Border Style="{StaticResource Cartao}">
                 <StackPanel>
                     <Grid>
@@ -105,12 +83,257 @@
                         </StackPanel>
                     </Grid>
                     <CheckBox Content="Permitir caixa com saldo negativo" IsChecked="{Binding PermitirCaixaNegativo}" Margin="0,14,0,0"/>
-                    <TextBlock Text="{Binding MensagemParametros}" Foreground="#0E6B4F" Margin="0,12,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding MensagemParametros}" Foreground="{DynamicResource SucessoBrush}" Margin="0,12,0,0" TextWrapping="Wrap"/>
                     <Button Style="{StaticResource BotaoPrimario}" Command="{Binding GuardarParametrosCommand}" Content="Guardar parâmetros"/>
                 </StackPanel>
             </Border>
 
-            <TextBlock Text="Utilizadores" FontSize="14" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,24,0,10"/>
+            <TextBlock Text="Saúde do sistema e cópia de segurança" Style="{StaticResource FP.SectionTitle}" Margin="0,24,0,10"/>
+            <Border Style="{StaticResource Cartao}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="{DynamicResource NeutroSuaveBrush}" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Base de dados" Style="{StaticResource Rotulo}"/>
+                                <TextBlock Text="{Binding DatabaseNome}" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}"/>
+                                <TextBlock Text="{Binding DatabaseServidor}" FontSize="11" Foreground="{DynamicResource GrayTextBrush}" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Background="{DynamicResource NeutroSuaveBrush}" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Tamanho da base" Style="{StaticResource Rotulo}"/>
+                                <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}">
+                                    <Run Text="{Binding DatabaseTamanhoMb, StringFormat={}{0:N2}}"/><Run Text=" MB"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="4" Background="{DynamicResource NeutroSuaveBrush}" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Último backup" Style="{StaticResource Rotulo}"/>
+                                <TextBlock Text="{Binding UltimoBackup}" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <TextBlock Text="{Binding ResumoSistema}" Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,12,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding MensagemBackup}" Foreground="{DynamicResource SucessoBrush}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                        <Button Style="{StaticResource BotaoPrimario}" Command="{Binding CriarBackupCommand}" Content="Criar backup agora" Margin="0"/>
+                        <Button Style="{StaticResource BotaoSecundario}" Command="{Binding AtualizarSaudeCommand}" Content="Atualizar estado" Margin="10,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Histórico de backups" Style="{StaticResource FP.SectionTitle}" Margin="0,24,0,10"/>
+            <Border Style="{StaticResource Cartao}">
+                <StackPanel>
+                    <TextBlock Text="Últimas cópias de segurança registadas pelo SQL Server" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}"/>
+                    <TextBlock Text="Apresenta backups completos, diferenciais e de log, incluindo data, tamanho, duração e destino." Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                    <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding HistoricoBackups}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,14,0,0" MaxHeight="300">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Início" Binding="{Binding StartedAt, StringFormat={}{0:dd/MM/yyyy HH:mm}}" Width="Auto"/>
+                            <DataGridTextColumn Header="Tipo" Binding="{Binding BackupType}" Width="Auto"/>
+                            <DataGridTextColumn Header="Estado" Binding="{Binding Status}" Width="Auto"/>
+                            <DataGridTextColumn Header="Tamanho" Binding="{Binding SizeMb, StringFormat={}{0:N2} MB}" Width="Auto"/>
+                            <DataGridTextColumn Header="Duração" Binding="{Binding DurationSeconds, StringFormat={}{0} s}" Width="Auto"/>
+                            <DataGridTextColumn Header="Destino" Binding="{Binding Destination}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock Text="{Binding MensagemHistoricoBackups}" Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="190"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Backups recentes a preservar" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding BackupsAPreservar, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                            <CheckBox Content="Confirmo a eliminação dos backups antigos criados pelo FinancePro" IsChecked="{Binding ConfirmarLimpezaBackups}"/>
+                            <TextBlock Text="A limpeza atua apenas em ficheiros FinancePro_*.bak na pasta padrão do SQL Server." Foreground="{DynamicResource GrayTextBrush}" FontSize="11" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                        <Button Style="{StaticResource BotaoSecundario}" Command="{Binding AtualizarHistoricoBackupsCommand}" Content="Atualizar histórico" Margin="0"/>
+                        <Button Style="{StaticResource BotaoPrimario}" Command="{Binding VerificarUltimoBackupCommand}" Content="Verificar último" Margin="10,0,0,0" Background="{DynamicResource SucessoBrush}" BorderBrush="{DynamicResource SucessoBrush}"/>
+                        <Button Style="{StaticResource BotaoPrimario}" Command="{Binding LimparBackupsAntigosCommand}" Content="Limpar antigos" Margin="10,0,0,0" Background="{DynamicResource PerigoBrush}" BorderBrush="{DynamicResource PerigoBrush}"/>
+                    </StackPanel>
+                    <Border Background="{DynamicResource NeutroSuaveBrush}" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="1" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Verificação de integridade" Style="{StaticResource Rotulo}"/>
+                            <TextBlock Text="{Binding EstadoVerificacaoBackup}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}"/>
+                            <TextBlock Text="{Binding DetalheVerificacaoBackup}" Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Política de continuidade" Style="{StaticResource FP.SectionTitle}" Margin="0,24,0,10"/>
+            <Border Style="{StaticResource Cartao}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Frequência do backup (horas)" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding FrequenciaBackupHoras, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Retenção (ficheiros)" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding BackupsAPreservar, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="RPO objetivo (horas)" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding RpoObjetivoHoras, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="6">
+                            <TextBlock Text="RTO objetivo (horas)" Style="{StaticResource Rotulo}"/>
+                            <TextBox Text="{Binding RtoObjetivoHoras, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
+                    <Border Background="{DynamicResource NeutroSuaveBrush}" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="1" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Conformidade atual" Style="{StaticResource Rotulo}"/>
+                            <TextBlock Text="{Binding EstadoPoliticaContinuidade}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <TextBlock Text="{Binding MensagemPoliticaContinuidade}" Foreground="{DynamicResource SucessoBrush}" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                    <Button Style="{StaticResource BotaoPrimario}" Command="{Binding GuardarPoliticaContinuidadeCommand}" Content="Guardar política" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Teste integrado de continuidade" Style="{StaticResource FP.SectionTitle}" Margin="0,24,0,10"/>
+            <Border Style="{StaticResource Cartao}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="{DynamicResource NeutroSuaveBrush}" CornerRadius="8" Padding="14" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Resultado geral" Style="{StaticResource Rotulo}"/>
+                                <TextBlock Text="{Binding EstadoTesteContinuidade}" FontSize="17" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock Text="Simulação técnica sem restauração" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}"/>
+                            <TextBlock Text="Valida disponibilidade, RPO, integridade da base, legibilidade do backup e política RTO numa única execução." Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding ResumoTesteContinuidade}" Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,7,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                    <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding TestesContinuidade}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,14,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Teste" Binding="{Binding Test}" Width="Auto"/>
+                            <DataGridTextColumn Header="Estado" Binding="{Binding Status}" Width="Auto"/>
+                            <DataGridTextColumn Header="Detalhe" Binding="{Binding Detail}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Button Style="{StaticResource BotaoPrimario}" Command="{Binding ExecutarTesteContinuidadeCommand}" Content="Executar teste" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Plano de recuperação e continuidade" Style="{StaticResource FP.SectionTitle}" Margin="0,24,0,10"/>
+            <Border Style="{StaticResource Cartao}">
+                <StackPanel>
+                    <TextBlock Text="Documento operacional de recuperação" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}"/>
+                    <TextBlock Text="Valida o último backup completo e gera um ficheiro TXT com o ponto de recuperação disponível, estado técnico e procedimento controlado. Nenhuma restauração é executada." Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding MensagemPlanoRecuperacao}" Foreground="{DynamicResource SucessoBrush}" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                    <Button Style="{StaticResource BotaoPrimario}" Command="{Binding GerarPlanoRecuperacaoCommand}" Content="Gerar plano" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Diagnóstico técnico" Style="{StaticResource FP.SectionTitle}" Margin="0,24,0,10"/>
+            <Border Style="{StaticResource Cartao}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="{DynamicResource NeutroSuaveBrush}" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="SQL Server" Style="{StaticResource Rotulo}"/>
+                                <TextBlock Text="{Binding SqlServerVersao}" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}"/>
+                                <TextBlock Text="{Binding DatabaseEstado, StringFormat=Estado: {0}}" FontSize="11" Foreground="{DynamicResource GrayTextBrush}" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Background="{DynamicResource NeutroSuaveBrush}" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Recuperação / Compatibilidade" Style="{StaticResource Rotulo}"/>
+                                <TextBlock Text="{Binding RecoveryModel}" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}"/>
+                                <TextBlock Text="{Binding CompatibilityLevel, StringFormat=Compatibilidade SQL: {0}}" FontSize="11" Foreground="{DynamicResource GrayTextBrush}" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="4" Background="{DynamicResource NeutroSuaveBrush}" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Integridade física" Style="{StaticResource Rotulo}"/>
+                                <TextBlock Text="{Binding IntegridadeBase}" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding MensagemDiagnostico}" Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                    <Button Style="{StaticResource BotaoPrimario}" Command="{Binding ExecutarDiagnosticoCommand}" Content="Executar diagnóstico" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Prontidão operacional" Style="{StaticResource FP.SectionTitle}" Margin="0,24,0,10"/>
+            <Border Style="{StaticResource Cartao}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="18"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="{DynamicResource NeutroSuaveBrush}" CornerRadius="8" Padding="14" BorderBrush="{DynamicResource BordaBrush}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Estado geral" Style="{StaticResource Rotulo}"/>
+                                <TextBlock Text="{Binding EstadoProntidao}" FontSize="17" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock Text="Verificação de produção" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}"/>
+                            <TextBlock Text="Confirma ligação, backup recente, integridade física, utilizadores, empresa e compatibilidade da base antes de colocar o sistema em operação." Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding ResumoProntidao}" Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,7,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                    <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding VerificacoesProntidao}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,14,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Área" Binding="{Binding Area}" Width="Auto"/>
+                            <DataGridTextColumn Header="Estado" Binding="{Binding Status}" Width="Auto"/>
+                            <DataGridTextColumn Header="Detalhe" Binding="{Binding Detail}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Button Style="{StaticResource BotaoPrimario}" Command="{Binding VerificarProntidaoCommand}" Content="Verificar prontidão" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Suporte técnico" Style="{StaticResource FP.SectionTitle}" Margin="0,24,0,10"/>
+            <Border Style="{StaticResource Cartao}">
+                <StackPanel>
+                    <TextBlock Text="Pacote de diagnóstico" FontWeight="SemiBold" Foreground="{DynamicResource TextoPrincipalBrush}"/>
+                    <TextBlock Text="Gera um relatório técnico em ficheiro TXT com estado da base, versão do SQL Server, integridade, último backup e resumo operacional. O ficheiro não inclui palavras-passe." Foreground="{DynamicResource GrayTextBrush}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding MensagemSuporte}" Foreground="{DynamicResource SucessoBrush}" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                    <Button Style="{StaticResource BotaoPrimario}" Command="{Binding GerarRelatorioSuporteCommand}" Content="Gerar relatório técnico" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Utilizadores" Style="{StaticResource FP.SectionTitle}" Margin="0,24,0,10"/>
             <Border Style="{StaticResource Cartao}">
                 <StackPanel>
                     <Grid>
@@ -145,7 +368,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <TextBlock Text="{Binding MensagemErroUtilizador}" Foreground="#C00000" FontSize="12"
+                    <TextBlock Text="{Binding MensagemErroUtilizador}" Foreground="{DynamicResource PerigoBrush}" FontSize="12"
                                Margin="0,12,0,0" TextWrapping="Wrap"
                                Visibility="{Binding MensagemErroUtilizador, Converter={StaticResource TextoParaVisibilidade}}"/>
 
@@ -155,12 +378,11 @@
             </Border>
 
             <Border Style="{StaticResource Cartao}" Padding="0" Margin="0,10,0,0">
-                <DataGrid ItemsSource="{Binding Utilizadores}" AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="36" BorderThickness="0">
+                <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Utilizadores}" AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Nome" Binding="{Binding NomeCompleto}" Width="*"/>
-                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="160"/>
-                        <DataGridTextColumn Header="Perfil" Binding="{Binding PerfilNome}" Width="110"/>
+                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="Auto"/>
+                        <DataGridTextColumn Header="Perfil" Binding="{Binding PerfilNome}" Width="Auto"/>
                         <DataGridTemplateColumn Header="Estado" Width="80">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -176,7 +398,7 @@
                                     <Button Content="{Binding Ativo, Converter={StaticResource AtivoParaAcaoTexto}}"
                                             Command="{Binding DataContext.AlternarAtivoUtilizadorCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
-                                            Background="Transparent" BorderThickness="0" Foreground="#156082" Cursor="Hand"/>
+                                            Style="{StaticResource BotaoLink}" Foreground="{DynamicResource TealBrush}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

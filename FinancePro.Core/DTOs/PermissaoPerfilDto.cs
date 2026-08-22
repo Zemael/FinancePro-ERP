@@ -13,4 +13,5 @@ public sealed class PermissaoPerfilDto
     public bool Aprovar { get; set; }
     public bool Exportar { get; set; }
     public bool Administrar { get; set; }
+    public override string ToString() => string.IsNullOrWhiteSpace(DescricaoModulo) ? Modulo : DescricaoModulo;
 }

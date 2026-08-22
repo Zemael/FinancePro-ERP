@@ -47,7 +47,8 @@ public sealed class EmpresaService : IEmpresaService
                 Morada = e.Morada,
                 Telefone = e.Telefone,
                 Email = e.Email,
-                Moeda = e.Moeda
+                Moeda = e.Moeda,
+                Logotipo = e.Logotipo
             }).FirstOrDefaultAsync();
 
     public async Task<int> GuardarAsync(EmpresaDto dto)
@@ -78,6 +79,7 @@ public sealed class EmpresaService : IEmpresaService
         empresa.Telefone = dto.Telefone?.Trim();
         empresa.Email = dto.Email?.Trim();
         empresa.Moeda = string.IsNullOrWhiteSpace(dto.Moeda) ? "FCFA" : dto.Moeda.Trim().ToUpperInvariant();
+        empresa.Logotipo = dto.Logotipo;
         empresa.DataAtualizacao = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();

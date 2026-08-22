@@ -45,4 +45,18 @@ public class AuditoriaService : IAuditoriaService
             })
             .ToListAsync();
     }
+
+    public async Task<IReadOnlyList<AuditoriaConsultaDto>> ListarAsync(int empresaId, DateTime? de = null, DateTime? ate = null, string? termo = null)
+    {
+        var q = _context.LogsAuditoria.AsNoTracking().Where(x => x.EmpresaId == empresaId);
+        if (de.HasValue) q = q.Where(x => x.Data >= de.Value.Date);
+        if (ate.HasValue) q = q.Where(x => x.Data < ate.Value.Date.AddDays(1));
+        if (!string.IsNullOrWhiteSpace(termo))
+        {
+            var t = termo.Trim();
+            q = q.Where(x => x.Entidade.Contains(t) || x.Acao.Contains(t) || x.UtilizadorNome.Contains(t) || (x.Detalhe != null && x.Detalhe.Contains(t)));
+        }
+        return await q.OrderByDescending(x => x.Data).Take(1000).Select(x => new AuditoriaConsultaDto
+        { Id=x.Id, Data=x.Data, Entidade=x.Entidade, RegistoId=x.RegistoId, Acao=x.Acao, Detalhe=x.Detalhe, UtilizadorId=x.UtilizadorId, UtilizadorNome=x.UtilizadorNome }).ToListAsync();
+    }
 }

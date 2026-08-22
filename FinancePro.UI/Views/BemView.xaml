@@ -1,31 +1,8 @@
-﻿<UserControl x:Class="FinancePro.UI.Views.BemView"
+<UserControl x:Class="FinancePro.UI.Views.BemView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <UserControl.Resources>
-        <Style x:Key="Cartao" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource FundoCartaoBrush}"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="16,14"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BordaBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <Style x:Key="Rotulo" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource GrayTextBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-        <Style x:Key="TituloModulo" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TealDarkBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-        <Style x:Key="TextoSecundario" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
-            <Setter Property="Foreground" Value="{DynamicResource GrayTextBrush}"/>
-        </Style>
         <Style x:Key="TextoDica" TargetType="TextBlock">
             <Setter Property="FontSize" Value="9.5"/>
             <Setter Property="Foreground" Value="{DynamicResource GraySubBrush}"/>
@@ -70,27 +47,36 @@
                 </StackPanel>
             </Border>
 
-            <TextBlock Text="{Binding MensagemErro}" Foreground="#C00000" FontSize="10.5"
+            <TextBlock Text="{Binding MensagemErro}" Foreground="{DynamicResource PerigoBrush}" FontSize="10.5"
                        Margin="0,0,0,10" TextWrapping="Wrap"
                        Visibility="{Binding MensagemErro, Converter={StaticResource TextoParaVisibilidade}}"/>
-            <TextBlock Text="{Binding MensagemInfo}" Foreground="#0F6E56" FontSize="10.5"
+            <TextBlock Text="{Binding MensagemInfo}" Foreground="{DynamicResource SucessoBrush}" FontSize="10.5"
                        Margin="0,0,0,10" TextWrapping="Wrap"
                        Visibility="{Binding MensagemInfo, Converter={StaticResource TextoParaVisibilidade}}"/>
+
+            <!-- Indicadores patrimoniais -->
+            <UniformGrid Columns="5" Margin="0,0,0,14">
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,8,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource FP.AccentSoft}"><TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource FP.Accent}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Ativos" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="140" HorizontalAlignment="Left"><TextBlock Text="{Binding TotalAtivos}" Style="{StaticResource FP.CompanyKpiValue}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,8,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource FP.AccentSoft}"><TextBlock Text="&#xE825;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource FP.Accent}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Aquisição" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="140" HorizontalAlignment="Left"><TextBlock Text="{Binding ValorPatrimonio, Converter={StaticResource ValorMoeda}}" Style="{StaticResource FP.CompanyKpiValue}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,8,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource AvisoSuaveBrush}"><TextBlock Text="&#xE73A;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AvisoBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Deprec. Acumulada" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="140" HorizontalAlignment="Left"><TextBlock Text="{Binding DepreciacaoAcumuladaTotal, Converter={StaticResource ValorMoeda}}" Style="{StaticResource FP.CompanyKpiValue}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,8,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource SucessoSuaveBrush}"><TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SucessoBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Valor Líquido" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="140" HorizontalAlignment="Left"><TextBlock Text="{Binding ValorLiquidoTotal, Converter={StaticResource ValorMoeda}}" Style="{StaticResource FP.CompanyKpiValue}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+                <Border Style="{StaticResource FP.KpiCard}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource RoxoSuaveBrush}"><TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource RoxoBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Deprec. Mensal" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="140" HorizontalAlignment="Left"><TextBlock Text="{Binding DepreciacaoMensalTotal, Converter={StaticResource ValorMoeda}}" Style="{StaticResource FP.CompanyKpiValue}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+            </UniformGrid>
 
             <!-- DataGrid principal -->
             <TextBlock Text="Bens" Style="{StaticResource RotuloSeccaoModulo}"/>
             <Border Style="{StaticResource Cartao}" Padding="0" Margin="0,0,0,16">
-                <DataGrid ItemsSource="{Binding Bens}" SelectedItem="{Binding BemSelecionado, Mode=TwoWay}"
-                          AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="32" BorderThickness="0">
+                <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Bens}" SelectedItem="{Binding BemSelecionado, Mode=TwoWay}"
+                          AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Nº Patrim." Binding="{Binding NumeroPatrimonial}" Width="90"/>
+                        <DataGridTextColumn Header="Nº Patrim." Binding="{Binding NumeroPatrimonial}" Width="Auto"/>
                         <DataGridTextColumn Header="Descrição" Binding="{Binding Descricao}" Width="*"/>
-                        <DataGridTextColumn Header="Categoria" Binding="{Binding Categoria}" Width="100"/>
-                        <DataGridTextColumn Header="Responsável" Binding="{Binding Responsavel}" Width="110"/>
-                        <DataGridTextColumn Header="Aquisição" Binding="{Binding ValorAquisicao, Converter={StaticResource ValorMoeda}}" Width="110"/>
-                        <DataGridTextColumn Header="Valor Líquido" Binding="{Binding ValorLiquidoAtual, Converter={StaticResource ValorMoeda}}" Width="110"/>
-                        <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="90"/>
+                        <DataGridTextColumn Header="Categoria" Binding="{Binding Categoria}" Width="Auto"/>
+                        <DataGridTextColumn Header="Responsável" Binding="{Binding Responsavel}" Width="Auto"/>
+                        <DataGridTextColumn Header="Aquisição" Binding="{Binding ValorAquisicao, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                        <DataGridTextColumn Header="Deprec. acum." Binding="{Binding DepreciacaoAcumulada, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                        <DataGridTextColumn Header="Valor Líquido" Binding="{Binding ValorLiquidoAtual, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                        <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="Auto"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
@@ -176,6 +162,8 @@
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Valor de aquisição (FCFA)" Style="{StaticResource Rotulo}"/>
                                     <TextBox Text="{Binding ValorAquisicaoTexto, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Valor residual (FCFA)" Style="{StaticResource Rotulo}" Margin="0,8,0,4"/>
+                                    <TextBox Text="{Binding ValorResidualTexto, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="4">
                                     <TextBlock Text="Vida útil (anos)" Style="{StaticResource Rotulo}"/>

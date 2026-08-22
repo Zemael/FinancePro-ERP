@@ -6,43 +6,43 @@
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel>
-                    <TextBlock Text="Centro de Tarefas" FontSize="22" FontWeight="SemiBold" Foreground="#0E4C5E"/>
-                    <TextBlock Text="Aprovações e decisões pendentes do seu perfil" Foreground="#667085" Margin="0,4,0,0"/>
+                    <TextBlock Text="Centro de Tarefas" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}"/>
+                    <TextBlock Text="Aprovações e decisões pendentes do seu perfil" Foreground="{DynamicResource FP.TextMuted}" Margin="0,4,0,0"/>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Atualizar" Command="{Binding RefreshCommand}" Style="{StaticResource BaseButton}" Padding="18,8"/>
+                <Button Grid.Column="1" Content="Atualizar" Command="{Binding RefreshCommand}" Style="{StaticResource FP.SecondaryButton}"/>
             </Grid>
 
             <UniformGrid Columns="4" Margin="0,0,0,18">
-                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Pendentes" Foreground="#667085"/><TextBlock Text="{Binding Pending}" FontSize="26" FontWeight="Bold" Foreground="#0E4C5E"/></StackPanel></Border>
-                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Em atraso" Foreground="#667085"/><TextBlock Text="{Binding Overdue}" FontSize="26" FontWeight="Bold" Foreground="#B42318"/></StackPanel></Border>
-                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Urgentes" Foreground="#667085"/><TextBlock Text="{Binding Urgent}" FontSize="26" FontWeight="Bold" Foreground="#B54708"/></StackPanel></Border>
-                <Border Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Concluídas hoje" Foreground="#667085"/><TextBlock Text="{Binding CompletedToday}" FontSize="26" FontWeight="Bold" Foreground="#067647"/></StackPanel></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource FP.AccentSoft}"><TextBlock Text="&#xE8D7;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource FP.Accent}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Pendentes" Style="{StaticResource FP.CompanyKpiLabel}"/><TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{Binding Pending}" Style="{StaticResource FP.CompanyKpiValue}" Foreground="{DynamicResource TealDarkBrush}"/></Grid></Grid></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource PerigoSuaveBrush}"><TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource PerigoBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Em atraso" Style="{StaticResource FP.CompanyKpiLabel}"/><TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{Binding Overdue}" Style="{StaticResource FP.CompanyKpiValue}" Foreground="{DynamicResource PerigoBrush}"/></Grid></Grid></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource AvisoSuaveBrush}"><TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AvisoBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Urgentes" Style="{StaticResource FP.CompanyKpiLabel}"/><TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{Binding Urgent}" Style="{StaticResource FP.CompanyKpiValue}" Foreground="{DynamicResource AvisoBrush}"/></Grid></Grid></Border>
+                <Border Style="{StaticResource FP.KpiCard}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource SucessoSuaveBrush}"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SucessoBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Concluídas hoje" Style="{StaticResource FP.CompanyKpiLabel}"/><TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{Binding CompletedToday}" Style="{StaticResource FP.CompanyKpiValue}" Foreground="{DynamicResource SucessoBrush}"/></Grid></Grid></Border>
             </UniformGrid>
 
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Style="{StaticResource FP.Card}">
-                    <DataGrid ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="430">
+                    <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="430">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Documento" Binding="{Binding DocumentReference}" Width="140"/>
+                            <DataGridTextColumn Header="Documento" Binding="{Binding DocumentReference}" Width="Auto"/>
                             <DataGridTextColumn Header="Tarefa" Binding="{Binding Title}" Width="*"/>
-                            <DataGridTextColumn Header="Módulo" Binding="{Binding Module}" Width="120"/>
-                            <DataGridTextColumn Header="Valor" Binding="{Binding Amount, StringFormat=N0}" Width="110"/>
-                            <DataGridTextColumn Header="Prazo" Binding="{Binding DueAt, StringFormat=dd/MM/yyyy HH:mm}" Width="145"/>
+                            <DataGridTextColumn Header="Módulo" Binding="{Binding Module}" Width="Auto"/>
+                            <DataGridTextColumn Header="Valor" Binding="{Binding Amount, StringFormat=N0}" Width="Auto"/>
+                            <DataGridTextColumn Header="Prazo" Binding="{Binding DueAt, StringFormat=dd/MM/yyyy HH:mm}" Width="Auto"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Border>
                 <Border Grid.Column="2" Style="{StaticResource FP.Card}">
                     <StackPanel>
-                        <TextBlock Text="Decisão" FontSize="16" FontWeight="SemiBold" Foreground="#0E4C5E"/>
+                        <TextBlock Text="Decisão" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}"/>
                         <TextBlock Text="{Binding SelectedTask.Title}" FontWeight="SemiBold" Margin="0,14,0,4" TextWrapping="Wrap"/>
-                        <TextBlock Text="{Binding SelectedTask.Description}" Foreground="#667085" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding SelectedTask.Description}" Foreground="{DynamicResource FP.TextMuted}" TextWrapping="Wrap"/>
                         <TextBlock Text="Observação" FontWeight="SemiBold" Margin="0,18,0,6"/>
                         <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="95" TextWrapping="Wrap"/>
                         <Button Content="Aprovar" Command="{Binding ApproveCommand}" Style="{StaticResource BaseButton}" Margin="0,16,0,0"/>
                         <Button Content="Devolver para correção" Command="{Binding ReturnCommand}" Margin="0,8,0,0"/>
                         <Button Content="Rejeitar" Command="{Binding RejectCommand}" Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding Message}" Margin="0,14,0,0" Foreground="#0E6B4F" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding Message}" Margin="0,14,0,0" Foreground="{DynamicResource SucessoBrush}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
             </Grid>

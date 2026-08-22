@@ -27,7 +27,7 @@ public sealed class ReportingViewModel : ViewModelBase
     public bool Busy { get => _busy; set => SetProperty(ref _busy, value); }
     public string Message { get => _message; set => SetProperty(ref _message, value); }
     public int RowCount => _result?.RowCount ?? 0;
-    public string ReportTitle => _result?.Title ?? "PrÃ©-visualizaÃ§Ã£o";
+    public string ReportTitle => _result?.Title ?? "Pré-visualização";
 
     public ICommand GenerateCommand { get; }
     public ICommand ExportCommand { get; }
@@ -58,7 +58,7 @@ public sealed class ReportingViewModel : ViewModelBase
             foreach (var row in _result.Rows.Take(250))
                 Rows.Add(new ReportPreviewRow(string.Join("  |  ", _result.Columns.Select(c => $"{c.Header}: {Format(row.Values.TryGetValue(c.Key, out var v) ? v : null)}"))));
             OnPropertyChanged(nameof(RowCount)); OnPropertyChanged(nameof(ReportTitle));
-            Message = _result.RowCount > 250 ? "PrÃ©-visualizaÃ§Ã£o limitada a 250 linhas. A exportaÃ§Ã£o inclui todos os registos." : "RelatÃ³rio gerado com sucesso.";
+            Message = _result.RowCount > 250 ? "Pré-visualização limitada a 250 linhas. A exportação inclui todos os registos." : "Relatório gerado com sucesso.";
         }
         catch (Exception ex) { Message = ex.Message; }
         finally { Busy = false; }
@@ -70,7 +70,7 @@ public sealed class ReportingViewModel : ViewModelBase
         var dialog = new SaveFileDialog { Filter = "Ficheiro CSV (*.csv)|*.csv", FileName = $"{SafeFileName(_result.Title)}-{DateTime.Now:yyyyMMdd-HHmm}.csv" };
         if (dialog.ShowDialog() != true) return;
         await _service.ExportCsvAsync(_result, dialog.FileName);
-        Message = "RelatÃ³rio exportado com sucesso.";
+        Message = "Relatório exportado com sucesso.";
     }
 
     private async Task ExportExcelAsync()
@@ -97,7 +97,7 @@ public sealed class ReportingViewModel : ViewModelBase
         var filePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"FinancePro-{SafeFileName(_result.Title)}-{DateTime.Now:yyyyMMddHHmmss}.html");
         await _service.ExportHtmlAsync(_result, filePath);
         Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
-        Message = "RelatÃ³rio aberto em modo de impressÃ£o. Utilize Imprimir ou Guardar como PDF no navegador.";
+        Message = "Relatório aberto em modo de impressão. Utilize Imprimir ou Guardar como PDF no navegador.";
     }
 
     private static string SafeFileName(string value)

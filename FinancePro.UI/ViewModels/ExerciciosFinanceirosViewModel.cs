@@ -28,6 +28,11 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
     private string _classificacaoSelecionada = "Ativo";
 
     public ObservableCollection<ExercicioFinanceiroDto> Exercicios { get; } = new();
+    public ObservableCollection<ExercicioFinanceiroDto> ExerciciosPagina { get; } = new();
+    private const int ItensPorPagina = 10;
+    private int _paginaAtual = 1;
+    public int PaginaAtual { get => _paginaAtual; private set => SetProperty(ref _paginaAtual, value); }
+    public int TotalPaginas => Math.Max(1, (int)Math.Ceiling(Exercicios.Count / (double)ItensPorPagina));
     public ObservableCollection<EmpresaListItemDto> Empresas { get; } = new();
     public ObservableCollection<ContaFechoAnualDto> ContasFecho { get; } = new();
     public IReadOnlyList<string> ClassificacoesConta { get; } = ["Ativo","Passivo","PatrimonioLiquido","Receita","Despesa"];
@@ -58,6 +63,8 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
     public ICommand ReabrirExercicioCommand { get; }
     public ICommand GuardarConfiguracaoFechoCommand { get; }
     public ICommand GuardarClassificacaoContaCommand { get; }
+    public ICommand PaginaAnteriorCommand { get; }
+    public ICommand PaginaSeguinteCommand { get; }
 
     public ExerciciosFinanceirosViewModel(IExercicioFinanceiroService service, IEmpresaService empresaService)
     {
@@ -73,7 +80,23 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
         ReabrirExercicioCommand = new AsyncRelayCommand(_ => ReabrirExercicioAsync(), _ => Selecionado is not null);
         GuardarConfiguracaoFechoCommand = new AsyncRelayCommand(_ => GuardarConfiguracaoFechoAsync(), _ => Selecionado is not null);
         GuardarClassificacaoContaCommand = new AsyncRelayCommand(_ => GuardarClassificacaoContaAsync(), _ => Selecionado is not null && ContaClassificacao is not null);
+        PaginaAnteriorCommand = new RelayCommand(_ => MudarPagina(-1), _ => PaginaAtual > 1);
+        PaginaSeguinteCommand = new RelayCommand(_ => MudarPagina(1), _ => PaginaAtual < TotalPaginas);
         _ = InicializarAsync();
+    }
+
+    private void MudarPagina(int delta)
+    {
+        PaginaAtual += delta;
+        AtualizarPagina();
+    }
+
+    private void AtualizarPagina()
+    {
+        ExerciciosPagina.Clear();
+        foreach (var item in Exercicios.Skip((PaginaAtual - 1) * ItensPorPagina).Take(ItensPorPagina))
+            ExerciciosPagina.Add(item);
+        OnPropertyChanged(nameof(TotalPaginas));
     }
 
     private async Task InicializarAsync()
@@ -89,6 +112,8 @@ public sealed class ExerciciosFinanceirosViewModel : ViewModelBase
         var lista = await _service.ListarAsync(Pesquisa);
         Exercicios.Clear();
         foreach (var item in lista) Exercicios.Add(item);
+        PaginaAtual = 1;
+        AtualizarPagina();
     }
 
     private void Editar()

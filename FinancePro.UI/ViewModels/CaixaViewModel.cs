@@ -32,7 +32,16 @@ public sealed class CaixaViewModel : ViewModelBase
     private string _observacaoSessao = string.Empty;
 
     public string Filtro { get => _filtro; set { if (SetProperty(ref _filtro, value)) AplicarFiltro(); } }
-    public CaixaListItemDto? CaixaSelecionada { get => _caixaSelecionada; set => SetProperty(ref _caixaSelecionada, value); }
+    public CaixaListItemDto? CaixaSelecionada
+    {
+        get => _caixaSelecionada;
+        set
+        {
+            if (!SetProperty(ref _caixaSelecionada, value)) return;
+            _ = CarregarSessaoAsync();
+            CommandManager.InvalidateRequerySuggested();
+        }
+    }
     public bool EmEdicao { get => _emEdicao; set => SetProperty(ref _emEdicao, value); }
     public string Nome { get => _nome; set => SetProperty(ref _nome, value); }
     public string SaldoInicialTexto { get => _saldoInicialTexto; set => SetProperty(ref _saldoInicialTexto, value); }
@@ -42,7 +51,7 @@ public sealed class CaixaViewModel : ViewModelBase
     public string MensagemInfo { get => _mensagemInfo; set => SetProperty(ref _mensagemInfo, value); }
     public bool AGuardar { get => _aGuardar; set => SetProperty(ref _aGuardar, value); }
 
-    public SessaoCaixaDto? SessaoAtual { get => _sessaoAtual; private set { if (SetProperty(ref _sessaoAtual, value)) { OnPropertyChanged(nameof(TemSessaoAberta)); OnPropertyChanged(nameof(EstadoSessaoTexto)); } } }
+    public SessaoCaixaDto? SessaoAtual { get => _sessaoAtual; private set { if (SetProperty(ref _sessaoAtual, value)) { OnPropertyChanged(nameof(TemSessaoAberta)); OnPropertyChanged(nameof(EstadoSessaoTexto)); CommandManager.InvalidateRequerySuggested(); } } }
     public bool TemSessaoAberta => SessaoAtual?.Aberta == true;
     public string EstadoSessaoTexto => TemSessaoAberta ? "Aberto" : "Fechado";
     public string SaldoAberturaTexto { get => _saldoAberturaTexto; set => SetProperty(ref _saldoAberturaTexto, value); }
@@ -81,7 +90,7 @@ public sealed class CaixaViewModel : ViewModelBase
     private async Task InicializarAsync()
     {
         await CarregarAsync();
-        await CarregarSessaoAsync();
+        if (CaixaSelecionada is not null) await CarregarSessaoAsync();
     }
 
     private async Task CarregarAsync()
@@ -92,8 +101,16 @@ public sealed class CaixaViewModel : ViewModelBase
 
     private async Task CarregarSessaoAsync()
     {
-        SessaoAtual = await _service.ObterSessaoAbertaAsync(_empresaId);
-        if (SessaoAtual is not null) SaldoContadoTexto = SessaoAtual.SaldoAtual.ToString("0.00");
+        var caixaId = CaixaSelecionada?.Id;
+        var sessao = caixaId.HasValue
+            ? await _service.ObterSessaoAbertaAsync(_empresaId, caixaId.Value)
+            : null;
+        if (CaixaSelecionada?.Id != caixaId) return;
+        SessaoAtual = sessao;
+        if (SessaoAtual is not null)
+            SaldoContadoTexto = SessaoAtual.SaldoAtual.ToString("0.00");
+        else
+            SaldoContadoTexto = "0";
     }
 
     private void AplicarFiltro()
@@ -104,6 +121,8 @@ public sealed class CaixaViewModel : ViewModelBase
             : _todasAsCaixas.Where(c => c.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase)).ToList();
         Caixas.Clear();
         foreach (var caixa in filtradas) Caixas.Add(caixa);
+        if (CaixaSelecionada is null || !Caixas.Contains(CaixaSelecionada))
+            CaixaSelecionada = Caixas.FirstOrDefault(c => c.Ativo);
     }
 
     private async Task AbrirCaixaAsync()
@@ -111,6 +130,8 @@ public sealed class CaixaViewModel : ViewModelBase
         MensagemErro = string.Empty;
         MensagemInfo = string.Empty;
         if (CaixaSelecionada is null) { MensagemErro = "Selecione a caixa que pretende abrir."; return; }
+        if (!CaixaSelecionada.Ativo) { MensagemErro = "A caixa selecionada está inativa."; return; }
+        if (_utilizadorId <= 0) { MensagemErro = "A sessão do utilizador expirou. Termine a sessão e entre novamente."; return; }
         if (!decimal.TryParse(SaldoAberturaTexto, out var saldo) || saldo < 0) { MensagemErro = "Indique um saldo inicial válido."; return; }
         AGuardar = true;
         try

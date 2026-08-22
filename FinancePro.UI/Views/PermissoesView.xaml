@@ -1,16 +1,16 @@
 <UserControl x:Class="FinancePro.UI.Views.PermissoesView"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- Background="{StaticResource FP.Page}">
+ Background="{DynamicResource FP.Page}">
  <ScrollViewer VerticalScrollBarVisibility="Auto">
   <Grid Margin="26,22,26,28" MaxWidth="1500" HorizontalAlignment="Center">
    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="18"/><RowDefinition Height="Auto"/><RowDefinition Height="18"/><RowDefinition Height="*"/></Grid.RowDefinitions>
    <Grid Grid.Row="0">
     <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
     <StackPanel>
-     <TextBlock Text="Administração  ›  Segurança  ›  Permissões" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/>
-     <TextBlock Text="Permissões por perfil" Foreground="{StaticResource FP.Text}" FontSize="25" FontWeight="SemiBold" Margin="0,8,0,0"/>
-     <TextBlock Text="Defina o que cada perfil pode consultar e executar em cada módulo." Foreground="{StaticResource FP.TextMuted}" FontSize="12" Margin="0,5,0,0"/>
+     <TextBlock Text="Administração  ›  Segurança  ›  Permissões" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/>
+     <TextBlock Text="Permissões por perfil" Foreground="{DynamicResource FP.Text}" FontSize="25" FontWeight="SemiBold" Margin="0,8,0,0"/>
+     <TextBlock Text="Defina o que cada perfil pode consultar e executar em cada módulo." Foreground="{DynamicResource FP.TextMuted}" FontSize="12" Margin="0,5,0,0"/>
     </StackPanel>
     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
      <Button Content="Marcar tudo" Command="{Binding MarcarTudoCommand}" Style="{StaticResource FP.SecondaryButton}" Margin="0,0,10,0"/>
@@ -22,27 +22,27 @@
    <Border Grid.Row="2" Style="{StaticResource FP.Card}">
     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="360"/><ColumnDefinition Width="18"/><ColumnDefinition/></Grid.ColumnDefinitions>
      <StackPanel>
-      <TextBlock Text="Perfil de acesso" Foreground="{StaticResource FP.TextMuted}" FontSize="11"/>
+      <TextBlock Text="Perfil de acesso" Foreground="{DynamicResource FP.TextMuted}" FontSize="11"/>
       <ComboBox ItemsSource="{Binding Perfis}" SelectedItem="{Binding PerfilSelecionado}" DisplayMemberPath="Nome" Style="{StaticResource FP.FilterComboBox}" Margin="0,7,0,0"/>
      </StackPanel>
      <StackPanel Grid.Column="2" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Mensagem}" Foreground="{StaticResource FP.Accent}" FontSize="12" TextWrapping="Wrap"/>
-      <TextBlock Text="Nota: o perfil Administrador possui acesso total por definição." Foreground="{StaticResource FP.TextMuted}" FontSize="11" Margin="0,5,0,0"/>
+      <TextBlock Text="{Binding Mensagem}" Foreground="{DynamicResource FP.Accent}" FontSize="12" TextWrapping="Wrap"/>
+      <TextBlock Text="Nota: o perfil Administrador possui acesso total por definição." Foreground="{DynamicResource FP.TextMuted}" FontSize="11" Margin="0,5,0,0"/>
      </StackPanel>
     </Grid>
    </Border>
 
    <Border Grid.Row="4" Style="{StaticResource FP.Card}">
-    <DataGrid ItemsSource="{Binding Permissoes}" Style="{StaticResource FP.DataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" FrozenColumnCount="1">
+    <DataGrid ItemsSource="{Binding Permissoes}" Style="{StaticResource FP.DataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" FrozenColumnCount="1" IsReadOnly="False" ScrollViewer.HorizontalScrollBarVisibility="Auto">
      <DataGrid.Columns>
-      <DataGridTextColumn Header="Módulo" Binding="{Binding DescricaoModulo}" Width="240" IsReadOnly="True"/>
-      <DataGridCheckBoxColumn Header="Consultar" Binding="{Binding Consultar, UpdateSourceTrigger=PropertyChanged}" Width="95"/>
-      <DataGridCheckBoxColumn Header="Criar" Binding="{Binding Criar, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
-      <DataGridCheckBoxColumn Header="Editar" Binding="{Binding Editar, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
-      <DataGridCheckBoxColumn Header="Desativar" Binding="{Binding Desativar, UpdateSourceTrigger=PropertyChanged}" Width="90"/>
-      <DataGridCheckBoxColumn Header="Aprovar" Binding="{Binding Aprovar, UpdateSourceTrigger=PropertyChanged}" Width="85"/>
-      <DataGridCheckBoxColumn Header="Exportar" Binding="{Binding Exportar, UpdateSourceTrigger=PropertyChanged}" Width="90"/>
-      <DataGridCheckBoxColumn Header="Administrar" Binding="{Binding Administrar, UpdateSourceTrigger=PropertyChanged}" Width="105"/>
+      <DataGridTextColumn Header="Módulo" Binding="{Binding DescricaoModulo}" Width="2*" MinWidth="240" IsReadOnly="True"/>
+      <DataGridCheckBoxColumn ElementStyle="{StaticResource FP.DataGridCheckBox}" EditingElementStyle="{StaticResource FP.DataGridCheckBox}" Header="Consultar" Binding="{Binding Consultar, UpdateSourceTrigger=PropertyChanged}" Width="*" MinWidth="90"/>
+      <DataGridCheckBoxColumn ElementStyle="{StaticResource FP.DataGridCheckBox}" EditingElementStyle="{StaticResource FP.DataGridCheckBox}" Header="Criar" Binding="{Binding Criar, UpdateSourceTrigger=PropertyChanged}" Width="*" MinWidth="90"/>
+      <DataGridCheckBoxColumn ElementStyle="{StaticResource FP.DataGridCheckBox}" EditingElementStyle="{StaticResource FP.DataGridCheckBox}" Header="Editar" Binding="{Binding Editar, UpdateSourceTrigger=PropertyChanged}" Width="*" MinWidth="90"/>
+      <DataGridCheckBoxColumn ElementStyle="{StaticResource FP.DataGridCheckBox}" EditingElementStyle="{StaticResource FP.DataGridCheckBox}" Header="Desativar" Binding="{Binding Desativar, UpdateSourceTrigger=PropertyChanged}" Width="*" MinWidth="90"/>
+      <DataGridCheckBoxColumn ElementStyle="{StaticResource FP.DataGridCheckBox}" EditingElementStyle="{StaticResource FP.DataGridCheckBox}" Header="Aprovar" Binding="{Binding Aprovar, UpdateSourceTrigger=PropertyChanged}" Width="*" MinWidth="90"/>
+      <DataGridCheckBoxColumn ElementStyle="{StaticResource FP.DataGridCheckBox}" EditingElementStyle="{StaticResource FP.DataGridCheckBox}" Header="Exportar" Binding="{Binding Exportar, UpdateSourceTrigger=PropertyChanged}" Width="*" MinWidth="90"/>
+      <DataGridCheckBoxColumn ElementStyle="{StaticResource FP.DataGridCheckBox}" EditingElementStyle="{StaticResource FP.DataGridCheckBox}" Header="Administrar" Binding="{Binding Administrar, UpdateSourceTrigger=PropertyChanged}" Width="*" MinWidth="90"/>
      </DataGrid.Columns>
     </DataGrid>
    </Border>

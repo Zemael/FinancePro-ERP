@@ -88,6 +88,7 @@ public sealed class AssetApplicationService
         if (dto.DataAquisicao == default) erros.Add("A data de aquisição é obrigatória.");
         if (dto.DataAquisicao.Date > DateTime.Today) erros.Add("A data de aquisição não pode estar no futuro.");
         if (dto.ValorAquisicao < 0) erros.Add("O valor de aquisição não pode ser negativo.");
+        if (dto.ValorResidual < 0 || dto.ValorResidual > dto.ValorAquisicao) erros.Add("O valor residual deve estar entre zero e o valor de aquisição.");
         if (dto.VidaUtilAnos < 0) erros.Add("A vida útil não pode ser negativa.");
 
         return erros;

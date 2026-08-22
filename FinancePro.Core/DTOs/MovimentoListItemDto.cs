@@ -14,4 +14,5 @@ public class MovimentoListItemDto
     public string? CategoriaNome { get; set; }
     public string? FormaPagamento { get; set; }
     public string? CentroCusto { get; set; }
+    public override string ToString() => Descricao;
 }

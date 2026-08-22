@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:common="clr-namespace:FinancePro.UI.Common">
 
     <!-- A paleta de cores (TealDarkBrush, TealBrush, etc.) vem de
          Theme.Light.xaml ou Theme.Dark.xaml — fundida em App.xaml ANTES
@@ -12,7 +13,7 @@
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="12,6"/>
-        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Height" Value="40"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
@@ -42,6 +43,109 @@
     <!-- Aplicado automaticamente a qualquer <Button> sem Style explícito -->
     <Style TargetType="Button" BasedOn="{StaticResource BaseButton}"/>
 
+    <!-- ==================== CheckBox global ==================== -->
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource FP.Text}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="22"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid x:Name="BoxHost" Width="22" Height="22" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Grid.RenderTransform>
+                            <Border x:Name="EmptyBox" Background="Transparent"
+                                    BorderBrush="{DynamicResource FP.TextMuted}" BorderThickness="1.5"
+                                    CornerRadius="5"/>
+                            <Border x:Name="CheckedBox" Background="{DynamicResource FP.CheckBoxAccent}"
+                                    BorderThickness="0" CornerRadius="5" Opacity="0">
+                                <Path Data="M 5.5,11.5 L 9.5,15.2 L 16.8,7.6" Stroke="White" StrokeThickness="2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                            </Border>
+                            <Border x:Name="IndeterminateBox" Background="{DynamicResource FP.CheckBoxAccent}"
+                                    BorderThickness="0" CornerRadius="5" Opacity="0">
+                                <Border Width="10" Height="2" Background="White" CornerRadius="1"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ContentPresenter Grid.Column="1" Margin="8,0,0,0"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          RecognizesAccessKey="True"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="CheckedBox" Storyboard.TargetProperty="Opacity"
+                                                         To="1" Duration="0:0:0.12"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="CheckedBox" Storyboard.TargetProperty="Opacity"
+                                                         To="0" Duration="0:0:0.12"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="IndeterminateBox" Property="Opacity" Value="1"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="BoxHost" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                         To="1.06" Duration="0:0:0.12"/>
+                                        <DoubleAnimation Storyboard.TargetName="BoxHost" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                         To="1.06" Duration="0:0:0.12"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="BoxHost" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                         To="1" Duration="0:0:0.12"/>
+                                        <DoubleAnimation Storyboard.TargetName="BoxHost" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                         To="1" Duration="0:0:0.12"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="EmptyBox" Property="BorderBrush" Value="{DynamicResource FP.Accent}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="BoxHost" Property="Opacity" Value="0.78"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Cursor" Value="Arrow"/>
+                            <Setter TargetName="BoxHost" Property="Opacity" Value="0.45"/>
+                            <Setter TargetName="BoxHost" Property="IsHitTestVisible" Value="False"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Força o mesmo desenho nas caixas geradas por DataGridCheckBoxColumn. -->
+    <Style x:Key="FP.DataGridCheckBox" TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0"/>
+    </Style>
+
     <!-- ==================== TextBox / PasswordBox ==================== -->
     <Style x:Key="BaseCampoTexto" TargetType="Control">
         <Setter Property="Background" Value="{DynamicResource TealPaleBrush}"/>
@@ -49,7 +153,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="8,6"/>
         <Setter Property="FontSize" Value="11"/>
-        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Height" Value="40"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     </Style>
 
@@ -163,25 +267,103 @@
     </Style>
 
     <!-- ==================== DatePicker ==================== -->
-    <!-- Altura alinhada aos restantes campos; fundo removido conforme o padrão visual FinancePro. -->
+    <Style x:Key="FP.DatePickerButton" TargetType="Button">
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="38"/>
+        <Setter Property="Padding" Value="0,0,6,0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource FP.Accent}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="CalendarButtonBackground" Background="{TemplateBinding Background}" CornerRadius="0,8,8,0">
+                        <ContentPresenter HorizontalAlignment="Right" VerticalAlignment="Center"
+                                          Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="CalendarButtonBackground" Property="Background" Value="{DynamicResource FP.AccentSoft}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="CalendarButtonBackground" Property="Opacity" Value="0.70"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="DatePicker">
         <Setter Property="Height" Value="40"/>
-        <Setter Property="MinHeight" Value="40"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="#D1DCE8"/>
+        <Setter Property="Background" Value="{DynamicResource FP.Surface}"/>
+        <Setter Property="Foreground" Value="{DynamicResource FP.Text}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource FP.Border}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontSize" Value="11"/>
         <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DatePicker">
+                    <Grid>
+                        <Border x:Name="DatePickerBorder" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <DatePickerTextBox x:Name="PART_TextBox" Grid.Column="0"
+                                                   Background="Transparent" BorderThickness="0"
+                                                   Padding="8,0" TextAlignment="Center"
+                                                   HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                                   Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
+                                <Border Grid.Column="1" Width="1" Background="{DynamicResource FP.Border}" HorizontalAlignment="Left" Margin="0,7"/>
+                                <Button x:Name="PART_Button" Grid.Column="1" HorizontalAlignment="Right"
+                                        Style="{StaticResource FP.DatePickerButton}">
+                                    <TextBlock Text="&#xE787;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+                        <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True"
+                               IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                               StaysOpen="False" PopupAnimation="Fade">
+                            <Border Background="{DynamicResource FP.Surface}" BorderBrush="{DynamicResource FP.Border}"
+                                    BorderThickness="1" CornerRadius="8" Padding="4">
+                                <Calendar x:Name="PART_Calendar" BorderThickness="0"/>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="DatePickerBorder" Property="BorderBrush" Value="{DynamicResource FP.Accent}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="DatePickerBorder" Property="Opacity" Value="0.50"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
-    <!-- Campo de texto interno do DatePicker: sem fundo para integrar no mesmo padrão. -->
+    <!-- Campo interno do DatePicker: transparente, centralizado e apenas para seleção pelo calendário. -->
     <Style TargetType="DatePickerTextBox">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="TextAlignment" Value="Center"/>
     </Style>
 
     <!-- ==================== DataGrid ==================== -->
@@ -196,7 +378,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="DataGridColumnHeader">
                     <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
-                            BorderBrush="#0E4C5E" BorderThickness="0,0,1,0" CornerRadius="4" Margin="0,0,1,0">
+                            BorderThickness="0" CornerRadius="6,6,0,0" Margin="0">
                         <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
                     </Border>
                 </ControlTemplate>
@@ -212,34 +394,232 @@
             <Setter.Value>
                 <ControlTemplate TargetType="DataGridCell">
                     <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-                        <ContentPresenter VerticalAlignment="Center"/>
+                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left"/>
                     </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource FP.AccentSoft}"/>
+                <Setter Property="Foreground" Value="{DynamicResource FP.Text}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <ControlTemplate x:Key="FP.DataGridWithFooter" TargetType="DataGrid">
+        <Border Background="{TemplateBinding Background}" BorderBrush="{DynamicResource FP.Border}"
+                BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="44"/>
+                </Grid.RowDefinitions>
+
+                <ScrollViewer x:Name="DG_ScrollViewer" Grid.Row="0" Focusable="False"
+                              HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                              VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                    <ScrollViewer.Template>
+                        <ControlTemplate TargetType="ScrollViewer">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <!-- O recorte acompanha a largura visível do cabeçalho em cada
+                                     alteração do layout, independentemente da última coluna. -->
+                                <common:RoundedClipBorder Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                                                          Background="{DynamicResource TealBrush}"
+                                                          CornerRadius="8,8,0,0"
+                                                          SnapsToDevicePixels="True">
+                                    <DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter"/>
+                                </common:RoundedClipBorder>
+                                <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+                                    Grid.Row="1" Grid.Column="0"
+                                    CanContentScroll="{TemplateBinding CanContentScroll}"/>
+                                <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Row="1" Grid.Column="1"
+                                    Orientation="Vertical" Maximum="{TemplateBinding ScrollableHeight}"
+                                    ViewportSize="{TemplateBinding ViewportHeight}"
+                                    Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
+                                <ScrollBar x:Name="PART_HorizontalScrollBar" Grid.Row="2" Grid.Column="0"
+                                    Orientation="Horizontal" Maximum="{TemplateBinding ScrollableWidth}"
+                                    ViewportSize="{TemplateBinding ViewportWidth}"
+                                    Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </ScrollViewer.Template>
+                    <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                </ScrollViewer>
+
+                <Border Grid.Row="1" Background="{DynamicResource FP.Surface}"
+                        BorderBrush="{DynamicResource FP.Border}" BorderThickness="0,1,0,0"
+                        CornerRadius="0,0,8,8" Padding="14,5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" FontSize="10" Foreground="{DynamicResource FP.TextMuted}"
+                                   Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(common:DataGridPager.StatusText)}"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Width="36" Height="36" Margin="0,0,4,0" Padding="0" FontSize="20"
+                                    Content="‹" Background="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}"
+                                    Foreground="{DynamicResource FP.TextMuted}" Cursor="Hand"
+                                    Command="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(common:DataGridPager.PreviousCommand)}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></ControlTemplate></Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.30"/><Setter Property="Cursor" Value="Arrow"/></Trigger></Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Border Width="30" Height="30" CornerRadius="4" Background="{DynamicResource FP.Accent}">
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" FontWeight="SemiBold" Foreground="White"
+                                           Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(common:DataGridPager.PageNumber)}"/>
+                            </Border>
+                            <Button Width="36" Height="36" Margin="4,0,0,0" Padding="0" FontSize="20"
+                                    Content="›" Background="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}"
+                                    Foreground="{DynamicResource FP.TextMuted}" Cursor="Hand"
+                                    Command="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(common:DataGridPager.NextCommand)}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></ControlTemplate></Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.30"/><Setter Property="Cursor" Value="Arrow"/></Trigger></Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </ControlTemplate>
+
+    <Style TargetType="DataGrid">
+        <Setter Property="Background" Value="{DynamicResource FundoCartaoBrush}"/>
+        <Setter Property="RowBackground" Value="{DynamicResource FundoCartaoBrush}"/>
+        <Setter Property="AlternatingRowBackground" Value="{DynamicResource FundoCartaoBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="RowHeaderWidth" Value="0"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="RowHeight" Value="52"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource TealPaleBrush}"/>
+        <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserResizeRows" Value="False"/>
+        <Setter Property="CanUserReorderColumns" Value="False"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="SelectionUnit" Value="FullRow"/>
+    </Style>
+
+    <Style TargetType="DataGridRow">
+        <Setter Property="Background" Value="{DynamicResource FundoCartaoBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource FP.Text}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource TealPaleBrush}"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource FP.AccentSoft}"/>
+                <Setter Property="Foreground" Value="{DynamicResource FP.Text}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ==================== ScrollViewer (overlay) ====================
+         Barra de deslocamento invisível em repouso, que aparece com transição suave
+         (0,15s a mostrar / 0,25s a esconder) quando o rato está sobre a área de trabalho.
+         Fina (8px), sem setas, estilo overlay. Aplica-se automaticamente a todos os
+         ScrollViewer do sistema (não têm x:Key), exceto onde exista Style explícito. -->
+    <Style x:Key="OverlayScrollThumb" TargetType="Thumb">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border Background="{DynamicResource GrayTextBrush}" CornerRadius="3" Margin="1,0" Opacity="0.55"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <Style TargetType="DataGrid">
-        <Setter Property="Background" Value="White"/>
-        <Setter Property="RowBackground" Value="White"/>
-        <Setter Property="AlternatingRowBackground" Value="White"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="RowHeaderWidth" Value="0"/>
-        <Setter Property="FontSize" Value="11"/>
-        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource TealPaleBrush}"/>
-        <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
-        <Setter Property="CanUserAddRows" Value="False"/>
-        <Setter Property="CanUserResizeRows" Value="False"/>
-        <Setter Property="CanUserReorderColumns" Value="False"/>
+    <Style x:Key="OverlayScrollBar" TargetType="ScrollBar">
+        <Setter Property="Width" Value="8"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid Background="Transparent">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource OverlayScrollThumb}"/>
+                            </Track.Thumb>
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Background="Transparent" BorderThickness="0"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Background="Transparent" BorderThickness="0"/>
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
-    <Style TargetType="DataGridRow">
-        <Setter Property="Background" Value="White"/>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{DynamicResource TealPaleBrush}"/>
-            </Trigger>
-        </Style.Triggers>
+    <Style TargetType="ScrollViewer">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollViewer">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ScrollContentPresenter Grid.Column="0" Margin="{TemplateBinding Padding}"/>
+                        <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Column="1" Opacity="0"
+                                   Style="{StaticResource OverlayScrollBar}"
+                                   Value="{TemplateBinding VerticalOffset}"
+                                   Maximum="{TemplateBinding ScrollableHeight}"
+                                   ViewportSize="{TemplateBinding ViewportHeight}"
+                                   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PART_VerticalScrollBar" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PART_VerticalScrollBar" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ==================== TabControl / TabItem ==================== -->

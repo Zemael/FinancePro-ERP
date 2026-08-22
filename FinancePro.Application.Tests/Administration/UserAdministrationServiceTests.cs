@@ -24,6 +24,20 @@ public sealed class UserAdministrationServiceTests
         Assert.Equal("teste@exemplo.com", gateway.LastRequest?.Email);
     }
 
+    [Fact]
+    public async Task SaveAsync_PreservesProfilePhoto()
+    {
+        var photo = new byte[] { 1, 2, 3, 4 };
+        var gateway = new FakeGateway();
+        var service = new UserAdministrationService(gateway);
+
+        var result = await service.SaveAsync(new UserSaveRequest(
+            7, "Utilizador Teste", "teste@exemplo.com", 1, 1, true, null, photo));
+
+        Assert.True(result.IsSuccess);
+        Assert.Same(photo, gateway.LastRequest?.ProfilePhoto);
+    }
+
     private sealed class FakeGateway : IUserAdministrationGateway
     {
         public UserSaveRequest? LastRequest { get; private set; }

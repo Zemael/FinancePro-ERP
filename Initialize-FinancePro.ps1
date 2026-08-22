@@ -6,7 +6,7 @@
 )
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
-if (-not $AdminPassword) { $AdminPassword = Read-Host "Senha inicial do administrador (mÃ­n. 8 caracteres)" -AsSecureString }
+if (-not $AdminPassword) { $AdminPassword = Read-Host "Senha inicial do administrador (mín. 8 caracteres)" -AsSecureString }
 $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($AdminPassword)
 try { $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr) } finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr) }
 if ($plain.Length -lt 8) { throw "A senha deve ter pelo menos 8 caracteres." }

@@ -14,6 +14,7 @@ public class NovoBemDto
     public string? Responsavel { get; set; }
     public DateTime DataAquisicao { get; set; } = DateTime.Today;
     public decimal ValorAquisicao { get; set; }
+    public decimal ValorResidual { get; set; }
     public int VidaUtilAnos { get; set; }
     public MetodoDepreciacao MetodoDepreciacao { get; set; } = MetodoDepreciacao.Linear;
     public int EmpresaId { get; set; }

@@ -22,4 +22,5 @@ public class CompraListItemDto
     public bool PodeEmitirOrdem { get; set; }
     public bool PodeReceber { get; set; }
     public bool PodeFaturar { get; set; }
+    public override string ToString() => string.IsNullOrWhiteSpace(FornecedorNome) ? NumeroPedido : $"{NumeroPedido} · {FornecedorNome}";
 }

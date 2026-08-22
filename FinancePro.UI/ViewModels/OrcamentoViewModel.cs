@@ -27,6 +27,7 @@ public class OrcamentoViewModel : ViewModelBase
     public DateTime NovaDataInicio { get => _novaDataInicio; set => SetProperty(ref _novaDataInicio, value); }
     public DateTime NovaDataFim { get => _novaDataFim; set => SetProperty(ref _novaDataFim, value); }
     public string NovaMoeda { get => _novaMoeda; set => SetProperty(ref _novaMoeda, value); }
+    public IReadOnlyList<string> MoedasDisponiveis { get; } = new[] { "FCFA", "XOF", "EUR", "USD" };
     public string MensagemErroOrcamento { get => _mensagemErroOrcamento; set => SetProperty(ref _mensagemErroOrcamento, value); }
     public bool AGuardarOrcamento { get => _aGuardarOrcamento; set => SetProperty(ref _aGuardarOrcamento, value); }
     public ObservableCollection<OrcamentoListItemDto> Orcamentos { get; } = new();
@@ -105,6 +106,11 @@ public class OrcamentoViewModel : ViewModelBase
     private decimal _totalRealizadoDespesas;
     private decimal _resultadoPrevisto;
     private decimal _resultadoRealizado;
+    private decimal _totalComprometidoDespesas;
+    private decimal _saldoDisponivelDespesas;
+    private decimal _execucaoDespesasPercentual;
+    private decimal _utilizacaoDespesasPercentual;
+    private string _alertaOrcamental = string.Empty;
 
     public decimal TotalPrevistoReceitas { get => _totalPrevistoReceitas; set => SetProperty(ref _totalPrevistoReceitas, value); }
     public decimal TotalRealizadoReceitas { get => _totalRealizadoReceitas; set => SetProperty(ref _totalRealizadoReceitas, value); }
@@ -112,6 +118,11 @@ public class OrcamentoViewModel : ViewModelBase
     public decimal TotalRealizadoDespesas { get => _totalRealizadoDespesas; set => SetProperty(ref _totalRealizadoDespesas, value); }
     public decimal ResultadoPrevisto { get => _resultadoPrevisto; set => SetProperty(ref _resultadoPrevisto, value); }
     public decimal ResultadoRealizado { get => _resultadoRealizado; set => SetProperty(ref _resultadoRealizado, value); }
+    public decimal TotalComprometidoDespesas { get => _totalComprometidoDespesas; set => SetProperty(ref _totalComprometidoDespesas, value); }
+    public decimal SaldoDisponivelDespesas { get => _saldoDisponivelDespesas; set => SetProperty(ref _saldoDisponivelDespesas, value); }
+    public decimal ExecucaoDespesasPercentual { get => _execucaoDespesasPercentual; set => SetProperty(ref _execucaoDespesasPercentual, value); }
+    public decimal UtilizacaoDespesasPercentual { get => _utilizacaoDespesasPercentual; set => SetProperty(ref _utilizacaoDespesasPercentual, value); }
+    public string AlertaOrcamental { get => _alertaOrcamental; set => SetProperty(ref _alertaOrcamental, value); }
 
     public OrcamentoViewModel(BudgetApplicationService service, int empresaId)
     {
@@ -199,6 +210,11 @@ public class OrcamentoViewModel : ViewModelBase
         TotalRealizadoDespesas = relatorio.Value.TotalRealizadoDespesas;
         ResultadoPrevisto = relatorio.Value.ResultadoPrevisto;
         ResultadoRealizado = relatorio.Value.ResultadoRealizado;
+        TotalComprometidoDespesas = relatorio.Value.TotalComprometidoDespesas;
+        SaldoDisponivelDespesas = relatorio.Value.SaldoDisponivelDespesas;
+        ExecucaoDespesasPercentual = relatorio.Value.ExecucaoDespesasPercentual;
+        UtilizacaoDespesasPercentual = relatorio.Value.UtilizacaoDespesasPercentual;
+        AlertaOrcamental = relatorio.Value.AlertaOrcamental;
     }
 
     private async Task AdicionarLinhaAsync(TipoCategoria tipo)

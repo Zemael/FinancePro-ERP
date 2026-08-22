@@ -2,45 +2,18 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <UserControl.Resources>
-        <Style x:Key="Cartao" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="18,16"/>
-            <Setter Property="BorderBrush" Value="#DCEAF0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <Style x:Key="Rotulo" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#595959"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-        <Style x:Key="BotaoPrimario" TargetType="Button" BasedOn="{StaticResource BaseButton}">
-            <Setter Property="Width" Value="150"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="Margin" Value="0,16,0,0"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-        <Style x:Key="BotaoLink" TargetType="Button" BasedOn="{StaticResource BaseButton}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="4,2"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="4,0"/>
-        </Style>
-    </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
         <StackPanel>
 
+            <TextBlock Text="Financeiro / Despesas" FontSize="11" Foreground="{DynamicResource GrayTextBrush}" Margin="0,0,0,2"/>
             <Grid Margin="0,0,0,4">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Despesas" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Content="Atualizar" Command="{Binding AtualizarCommand}" Padding="12,6" MinWidth="90"/>
+                <TextBlock Grid.Column="0" Text="Despesas" Style="{StaticResource TituloModulo}" Margin="0"/>
+                <Button Grid.Column="1" Content="Atualizar" Style="{StaticResource FP.SecondaryButton}" Command="{Binding AtualizarCommand}" VerticalAlignment="Center"/>
             </Grid>
             <TextBlock Text="Contas a pagar a fornecedores — ao registar o pagamento, gera automaticamente um movimento de Tesouraria"
-                       FontSize="10.5" Foreground="#595959" Margin="0,0,0,16" TextWrapping="Wrap"/>
+                       Style="{StaticResource TextoSecundario}" Margin="0,0,0,16" TextWrapping="Wrap"/>
 
             <Border Style="{StaticResource Cartao}">
                 <StackPanel>
@@ -98,10 +71,10 @@
                         </StackPanel>
                     </Grid>
 
-                    <TextBlock Text="{Binding MensagemErro}" Foreground="#C00000" FontSize="10.5"
+                    <TextBlock Text="{Binding MensagemErro}" Foreground="{DynamicResource PerigoBrush}" FontSize="10.5"
                                Margin="0,12,0,0" TextWrapping="Wrap"
                                Visibility="{Binding MensagemErro, Converter={StaticResource TextoParaVisibilidade}}"/>
-                    <TextBlock Text="{Binding MensagemSucesso}" Foreground="#0F6E56" FontSize="10.5"
+                    <TextBlock Text="{Binding MensagemSucesso}" Foreground="{DynamicResource SucessoBrush}" FontSize="10.5"
                                Margin="0,8,0,0" TextWrapping="Wrap"
                                Visibility="{Binding MensagemSucesso, Converter={StaticResource TextoParaVisibilidade}}"/>
 
@@ -119,7 +92,7 @@
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="150"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Contas a Pagar" FontSize="13" FontWeight="Bold" Foreground="#0E4C5E" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="0" Text="Contas a Pagar" Style="{StaticResource FP.SectionTitle}" VerticalAlignment="Center"/>
                 <StackPanel Grid.Column="1">
                     <TextBlock Text="Pagar a partir de:" Style="{StaticResource Rotulo}"/>
                     <ComboBox ItemsSource="{Binding Origens}" SelectedItem="{Binding OrigemPagamentoSelecionada}" DisplayMemberPath="Nome"/>
@@ -132,17 +105,16 @@
             </Grid>
 
             <Border Style="{StaticResource Cartao}" Padding="0">
-                <DataGrid ItemsSource="{Binding Contas}" AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="34" BorderThickness="0">
+                <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Contas}" AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Código" Binding="{Binding Codigo}" Width="80"/>
+                        <DataGridTextColumn Header="Código" Binding="{Binding Codigo}" Width="Auto"/>
                         <DataGridTextColumn Header="Descrição" Binding="{Binding Descricao}" Width="*"/>
-                        <DataGridTextColumn Header="Fornecedor" Binding="{Binding FornecedorNome}" Width="110"/>
-                        <DataGridTextColumn Header="Vencimento" Binding="{Binding DataVencimento, StringFormat=dd/MM/yyyy}" Width="90"/>
-                        <DataGridTextColumn Header="Valor" Binding="{Binding Valor, Converter={StaticResource ValorMoeda}}" Width="105"/>
-                        <DataGridTextColumn Header="Liquidado" Binding="{Binding ValorLiquidado, Converter={StaticResource ValorMoeda}}" Width="105"/>
-                        <DataGridTextColumn Header="Saldo" Binding="{Binding SaldoAberto, Converter={StaticResource ValorMoeda}}" Width="105"/>
-                        <DataGridTextColumn Header="Atraso" Binding="{Binding DiasAtraso, StringFormat={}{0} d}" Width="65"/>
+                        <DataGridTextColumn Header="Fornecedor" Binding="{Binding FornecedorNome}" Width="Auto"/>
+                        <DataGridTextColumn Header="Vencimento" Binding="{Binding DataVencimento, StringFormat=dd/MM/yyyy}" Width="Auto"/>
+                        <DataGridTextColumn Header="Valor" Binding="{Binding Valor, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                        <DataGridTextColumn Header="Liquidado" Binding="{Binding ValorLiquidado, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                        <DataGridTextColumn Header="Saldo" Binding="{Binding SaldoAberto, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                        <DataGridTextColumn Header="Atraso" Binding="{Binding DiasAtraso, StringFormat={}{0} d}" Width="Auto"/>
                         <DataGridTemplateColumn Header="Estado" Width="80">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -155,11 +127,11 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button Content="Pagar" Style="{StaticResource BotaoLink}" Foreground="#0F6E56"
+                                        <Button Content="Pagar" Style="{StaticResource BotaoLink}" Foreground="{DynamicResource SucessoBrush}"
                                                 Visibility="{Binding PodePagar, Converter={StaticResource BoolParaVisibilidade}}"
                                                 Command="{Binding DataContext.PagarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Content="Cancelar" Style="{StaticResource BotaoLink}" Foreground="#C00000"
+                                        <Button Content="Cancelar" Style="{StaticResource BotaoLink}" Foreground="{DynamicResource PerigoBrush}"
                                                 Visibility="{Binding PodeCancelar, Converter={StaticResource BoolParaVisibilidade}}"
                                                 Command="{Binding DataContext.CancelarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>

@@ -30,6 +30,7 @@ public sealed class TreasuryForecastItemDto
     public decimal Entrada { get; set; }
     public decimal Saida { get; set; }
     public bool Atrasado { get; set; }
+    public override string ToString() => Descricao;
 }
 
 public sealed class TreasuryAgingDto
@@ -38,4 +39,5 @@ public sealed class TreasuryAgingDto
     public decimal AReceber { get; set; }
     public decimal APagar { get; set; }
     public decimal Liquido => AReceber - APagar;
+    public override string ToString() => Faixa;
 }

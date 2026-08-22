@@ -6,8 +6,8 @@
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel>
-                    <TextBlock Text="Central de Relatórios" FontSize="22" FontWeight="SemiBold" Foreground="#0E4C5E"/>
-                    <TextBlock Text="Relatórios financeiros, contabilísticos, fiscais e operacionais numa única área." Foreground="#667085" Margin="0,4,0,0"/>
+                    <TextBlock Text="Central de Relatórios" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}"/>
+                    <TextBlock Text="Relatórios financeiros, contabilísticos, fiscais e operacionais numa única área." Foreground="{DynamicResource FP.TextMuted}" Margin="0,4,0,0"/>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Imprimir" Command="{Binding PrintCommand}" Style="{StaticResource BaseButton}" Padding="16,8"/>
                 <Button Grid.Column="3" Content="Exportar PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource BaseButton}" Padding="16,8"/>
@@ -21,7 +21,7 @@
                     <StackPanel>
                         <TextBlock Text="Relatório" FontWeight="SemiBold"/>
                         <ComboBox ItemsSource="{Binding Reports}" SelectedItem="{Binding SelectedReport}" DisplayMemberPath="Name" Margin="0,6,0,0"/>
-                        <TextBlock Text="{Binding SelectedReportDescription}" Foreground="#667085" FontSize="11" Margin="2,5,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding SelectedReportDescription}" Foreground="{DynamicResource FP.TextMuted}" FontSize="11" Margin="2,5,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2"><TextBlock Text="Data inicial" FontWeight="SemiBold"/><DatePicker SelectedDate="{Binding From}" Margin="0,6,0,0"/></StackPanel>
                     <StackPanel Grid.Column="4"><TextBlock Text="Data final" FontWeight="SemiBold"/><DatePicker SelectedDate="{Binding To}" Margin="0,6,0,0"/></StackPanel>
@@ -30,21 +30,21 @@
             </Border>
 
             <UniformGrid Columns="2" Margin="0,0,0,16">
-                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Relatório" Foreground="#667085"/><TextBlock Text="{Binding ReportTitle}" FontSize="18" FontWeight="SemiBold" Foreground="#0E4C5E" TextWrapping="Wrap"/></StackPanel></Border>
-                <Border Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Registos" Foreground="#667085"/><TextBlock Text="{Binding RowCount}" FontSize="26" FontWeight="Bold" Foreground="#0E4C5E"/></StackPanel></Border>
+                <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Relatório" Foreground="{DynamicResource FP.TextMuted}"/><TextBlock Text="{Binding ReportTitle}" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}" TextWrapping="Wrap"/></StackPanel></Border>
+                <Border Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Registos" Foreground="{DynamicResource FP.TextMuted}"/><TextBlock Text="{Binding RowCount}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource TealDarkBrush}"/></StackPanel></Border>
             </UniformGrid>
 
             <Border Style="{StaticResource FP.Card}">
                 <StackPanel>
                     <Grid Margin="0,0,0,10">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBlock Text="Pré-visualização" FontSize="16" FontWeight="SemiBold" Foreground="#0E4C5E"/>
-                        <TextBlock Grid.Column="1" Text="Máximo de 250 linhas no ecrã" Foreground="#98A2B3" FontSize="11" VerticalAlignment="Center"/>
+                        <TextBlock Text="Pré-visualização" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}"/>
+                        <TextBlock Grid.Column="1" Text="Máximo de 250 linhas no ecrã" Foreground="{DynamicResource FP.TextMuted}" FontSize="11" VerticalAlignment="Center"/>
                     </Grid>
-                    <DataGrid ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="420">
+                    <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="420">
                         <DataGrid.Columns><DataGridTextColumn Header="Dados" Binding="{Binding Summary}" Width="*"/></DataGrid.Columns>
                     </DataGrid>
-                    <TextBlock Text="{Binding Message}" Margin="0,12,0,0" Foreground="#0E6B4F" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding Message}" Margin="0,12,0,0" Foreground="{DynamicResource SucessoBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
         </StackPanel>

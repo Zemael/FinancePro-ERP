@@ -13,7 +13,11 @@ public class BancosViewModel : ViewModelBase
     private readonly int _empresaId;
 
     private string _nomeBanco = string.Empty;
+    private string _siglaBanco = string.Empty;
     private string _swiftBanco = string.Empty;
+    private string _enderecoBanco = string.Empty;
+    private string _contactoBanco = string.Empty;
+    private int _bancoIdEdicao;
     private string _mensagemErroBanco = string.Empty;
     private bool _aGuardarBanco;
     private BancoListItemDto? _bancoSelecionado;
@@ -23,13 +27,22 @@ public class BancosViewModel : ViewModelBase
     private string _saldoInicialTexto = string.Empty;
     private string _mensagemErroConta = string.Empty;
     private bool _aGuardarConta;
+    private int _contaIdEdicao;
+    private string _moedaContaEdicao = "FCFA";
 
     public string NomeBanco { get => _nomeBanco; set => SetProperty(ref _nomeBanco, value); }
+    public string SiglaBanco { get => _siglaBanco; set => SetProperty(ref _siglaBanco, value); }
     public string SwiftBanco { get => _swiftBanco; set => SetProperty(ref _swiftBanco, value); }
+    public string EnderecoBanco { get => _enderecoBanco; set => SetProperty(ref _enderecoBanco, value); }
+    public string ContactoBanco { get => _contactoBanco; set => SetProperty(ref _contactoBanco, value); }
+    public bool EmEdicaoBanco => _bancoIdEdicao > 0;
+    public string TextoAcaoBanco => EmEdicaoBanco ? "Guardar alterações" : "Adicionar banco";
     public string MensagemErroBanco { get => _mensagemErroBanco; set => SetProperty(ref _mensagemErroBanco, value); }
     public bool AGuardarBanco { get => _aGuardarBanco; set => SetProperty(ref _aGuardarBanco, value); }
     public ObservableCollection<BancoListItemDto> Bancos { get; } = new();
     public ICommand CriarBancoCommand { get; }
+    public ICommand EditarBancoCommand { get; }
+    public ICommand NovoBancoCommand { get; }
     public BancoListItemDto? BancoSelecionado { get => _bancoSelecionado; set => SetProperty(ref _bancoSelecionado, value); }
     public string NumeroConta { get => _numeroConta; set => SetProperty(ref _numeroConta, value); }
     public string IBAN { get => _iban; set => SetProperty(ref _iban, value); }
@@ -39,6 +52,7 @@ public class BancosViewModel : ViewModelBase
     public bool AGuardarConta { get => _aGuardarConta; set => SetProperty(ref _aGuardarConta, value); }
     public ObservableCollection<ContaBancariaListItemDto> Contas { get; } = new();
     public ICommand CriarContaCommand { get; }
+    public ICommand EditarContaCommand { get; }
     public ICommand AlternarAtivoContaCommand { get; }
     public ICommand AtualizarCommand { get; }
 
@@ -47,7 +61,10 @@ public class BancosViewModel : ViewModelBase
         _service = service;
         _empresaId = empresaId;
         CriarBancoCommand = new AsyncRelayCommand(_ => CriarBancoAsync(), _ => !AGuardarBanco);
+        EditarBancoCommand = new RelayCommand(EditarBanco);
+        NovoBancoCommand = new RelayCommand(_ => LimparBanco());
         CriarContaCommand = new AsyncRelayCommand(_ => CriarContaAsync(), _ => !AGuardarConta);
+        EditarContaCommand = new RelayCommand(EditarConta);
         AlternarAtivoContaCommand = new AsyncRelayCommand(AlternarAtivoContaAsync);
         AtualizarCommand = new AsyncRelayCommand(_ => CarregarAsync());
         _ = CarregarAsync();
@@ -84,14 +101,38 @@ public class BancosViewModel : ViewModelBase
         AGuardarBanco = true;
         try
         {
-            var result = await _service.CreateBankAsync(NomeBanco, SwiftBanco);
+            var result = EmEdicaoBanco
+                ? await _service.UpdateBankAsync(_bancoIdEdicao, NomeBanco, SiglaBanco, SwiftBanco, EnderecoBanco, ContactoBanco)
+                : await _service.CreateBankAsync(NomeBanco, SiglaBanco, SwiftBanco, EnderecoBanco, ContactoBanco);
             if (result.IsFailure) { MensagemErroBanco = string.Join(Environment.NewLine, result.Errors); return; }
-            NomeBanco = string.Empty;
-            SwiftBanco = string.Empty;
+            LimparBanco();
             MensagemErroBanco = result.Message ?? string.Empty;
             await CarregarBancosAsync();
         }
         finally { AGuardarBanco = false; }
+    }
+
+    private void EditarBanco(object? parametro)
+    {
+        if (parametro is not BancoListItemDto banco) return;
+        _bancoIdEdicao = banco.Id;
+        NomeBanco = banco.Nome;
+        SiglaBanco = banco.Sigla ?? string.Empty;
+        SwiftBanco = banco.CodigoSwift ?? string.Empty;
+        EnderecoBanco = banco.Endereco ?? string.Empty;
+        ContactoBanco = banco.Contacto ?? string.Empty;
+        MensagemErroBanco = "A editar o banco selecionado.";
+        OnPropertyChanged(nameof(EmEdicaoBanco));
+        OnPropertyChanged(nameof(TextoAcaoBanco));
+    }
+
+    private void LimparBanco()
+    {
+        _bancoIdEdicao = 0;
+        NomeBanco = SiglaBanco = SwiftBanco = EnderecoBanco = ContactoBanco = string.Empty;
+        MensagemErroBanco = string.Empty;
+        OnPropertyChanged(nameof(EmEdicaoBanco));
+        OnPropertyChanged(nameof(TextoAcaoBanco));
     }
 
     private async Task CriarContaAsync()
@@ -101,21 +142,40 @@ public class BancosViewModel : ViewModelBase
         AGuardarConta = true;
         try
         {
-            var result = await _service.CreateAccountAsync(new NovaContaBancariaDto
+            var request = new NovaContaBancariaDto
             {
                 BancoId = BancoSelecionado?.Id ?? 0,
                 NumeroConta = NumeroConta,
                 IBAN = IBAN,
                 Titular = Titular,
                 SaldoInicial = saldoInicial,
+                Moeda = _moedaContaEdicao,
                 EmpresaId = _empresaId
-            });
+            };
+            var result = _contaIdEdicao > 0
+                ? await _service.UpdateAccountAsync(_contaIdEdicao, request)
+                : await _service.CreateAccountAsync(request);
             if (result.IsFailure) { MensagemErroConta = string.Join(Environment.NewLine, result.Errors); return; }
+            _contaIdEdicao = 0;
+            _moedaContaEdicao = "FCFA";
             NumeroConta = IBAN = Titular = SaldoInicialTexto = string.Empty;
             MensagemErroConta = result.Message ?? string.Empty;
             await CarregarContasAsync();
         }
         finally { AGuardarConta = false; }
+    }
+
+    private void EditarConta(object? parametro)
+    {
+        if (parametro is not ContaBancariaListItemDto conta) return;
+        _contaIdEdicao = conta.Id;
+        BancoSelecionado = Bancos.FirstOrDefault(b => b.Nome == conta.BancoNome) ?? BancoSelecionado;
+        NumeroConta = conta.NumeroConta;
+        IBAN = conta.IBAN ?? string.Empty;
+        Titular = conta.Titular;
+        SaldoInicialTexto = conta.SaldoInicial.ToString("0.##");
+        _moedaContaEdicao = conta.Moeda;
+        MensagemErroConta = "Conta bancária carregada para edição.";
     }
 
     private async Task AlternarAtivoContaAsync(object? parametro)

@@ -10,4 +10,5 @@ public class ContaBancariaListItemDto
     public string Moeda { get; set; } = string.Empty;
     public string BancoNome { get; set; } = string.Empty;
     public bool Ativo { get; set; }
+    public override string ToString() => string.IsNullOrWhiteSpace(BancoNome) ? NumeroConta : $"{BancoNome} · {NumeroConta}";
 }

@@ -1,11 +1,91 @@
-<UserControl x:Class="FinancePro.UI.Views.StockView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24"><StackPanel>
-<Grid Margin="0,0,0,16"><TextBlock Text="Stocks e Produtos" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E"/><Button Content="Atualizar" Command="{Binding AtualizarCommand}" HorizontalAlignment="Right" Width="110" Height="40"/></Grid>
-<Grid Margin="0,0,0,16"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/></Grid.ColumnDefinitions>
-<Border Grid.Column="0" Background="White" CornerRadius="10" BorderBrush="#DCEAF0" BorderThickness="1" Padding="18"><StackPanel><TextBlock Text="Novo produto" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,12"/><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Código"/><TextBox Text="{Binding Codigo}"/><TextBlock Text="Categoria" Margin="0,10,0,0"/><TextBox Text="{Binding Categoria}"/><TextBlock Text="Stock mínimo" Margin="0,10,0,0"/><TextBox Text="{Binding Minimo}"/></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="Nome"/><TextBox Text="{Binding Nome}"/><TextBlock Text="Unidade" Margin="0,10,0,0"/><TextBox Text="{Binding Unidade}"/><TextBlock Text="Localização" Margin="0,10,0,0"/><TextBox Text="{Binding Localizacao}"/></StackPanel></Grid><Button Content="Criar produto" Command="{Binding CriarProdutoCommand}" Width="130" Height="40" HorizontalAlignment="Left" Margin="0,14,0,0"/></StackPanel></Border>
-<Border Grid.Column="2" Background="White" CornerRadius="10" BorderBrush="#DCEAF0" BorderThickness="1" Padding="18"><StackPanel><TextBlock Text="Movimentar stock" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,12"/><TextBlock Text="Produto"/><ComboBox ItemsSource="{Binding Produtos}" SelectedItem="{Binding ProdutoSelecionado}" DisplayMemberPath="Nome"/><TextBlock Text="Tipo" Margin="0,10,0,0"/><ComboBox ItemsSource="{Binding Tipos}" SelectedItem="{Binding Tipo}"/><Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Quantidade"/><TextBox Text="{Binding Quantidade}"/></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="Custo unitário"/><TextBox Text="{Binding Custo}"/></StackPanel></Grid><TextBlock Text="Documento / referência" Margin="0,10,0,0"/><TextBox Text="{Binding Documento}"/><Button Content="Registar movimento" Command="{Binding MovimentarCommand}" Width="150" Height="40" HorizontalAlignment="Left" Margin="0,14,0,0"/></StackPanel></Border></Grid>
-<TextBlock Text="{Binding Mensagem}" Margin="0,0,0,12" Foreground="#156082"/>
-<Grid Margin="0,0,0,12"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/></Grid.ColumnDefinitions><Border Background="White" CornerRadius="10" BorderBrush="#DCEAF0" BorderThickness="1" Padding="16"><StackPanel><TextBlock Text="Valor do stock" Foreground="#595959"/><TextBlock Text="{Binding ValorTotalStock, StringFormat={}{0:N2}}" FontSize="20" FontWeight="Bold" Foreground="#0E4C5E"/></StackPanel></Border><Border Grid.Column="2" Background="White" CornerRadius="10" BorderBrush="#DCEAF0" BorderThickness="1" Padding="16"><StackPanel><TextBlock Text="Alertas de stock mínimo" Foreground="#595959"/><TextBlock Text="{Binding Alertas}" FontSize="20" FontWeight="Bold" Foreground="#C00000"/></StackPanel></Border></Grid>
-<Border Background="White" CornerRadius="10" BorderBrush="#DCEAF0" BorderThickness="1" Padding="0" Margin="0,0,0,14"><DataGrid ItemsSource="{Binding Produtos}" AutoGenerateColumns="False" IsReadOnly="True" RowHeight="34" BorderThickness="0"><DataGrid.Columns><DataGridTextColumn Header="Código" Binding="{Binding Codigo}" Width="90"/><DataGridTextColumn Header="Produto" Binding="{Binding Nome}" Width="*"/><DataGridTextColumn Header="Categoria" Binding="{Binding Categoria}" Width="130"/><DataGridTextColumn Header="Un." Binding="{Binding Unidade}" Width="55"/><DataGridTextColumn Header="Stock" Binding="{Binding StockAtual}" Width="80"/><DataGridTextColumn Header="Mínimo" Binding="{Binding StockMinimo}" Width="80"/><DataGridTextColumn Header="Custo médio" Binding="{Binding CustoMedio, StringFormat=N2}" Width="100"/><DataGridTextColumn Header="Valor" Binding="{Binding ValorStock, StringFormat=N2}" Width="110"/><DataGridTextColumn Header="Localização" Binding="{Binding Localizacao}" Width="120"/></DataGrid.Columns></DataGrid></Border>
-<TextBlock Text="Últimos movimentos" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,4,0,8"/><Border Background="White" CornerRadius="10" BorderBrush="#DCEAF0" BorderThickness="1"><DataGrid ItemsSource="{Binding Movimentos}" AutoGenerateColumns="False" IsReadOnly="True" RowHeight="34" BorderThickness="0"><DataGrid.Columns><DataGridTextColumn Header="Data" Binding="{Binding Data, StringFormat=dd/MM/yyyy HH:mm}" Width="130"/><DataGridTextColumn Header="Produto" Binding="{Binding Produto}" Width="*"/><DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="100"/><DataGridTextColumn Header="Quantidade" Binding="{Binding Quantidade}" Width="90"/><DataGridTextColumn Header="Custo" Binding="{Binding CustoUnitario, StringFormat=N2}" Width="90"/><DataGridTextColumn Header="Saldo" Binding="{Binding SaldoApos}" Width="80"/><DataGridTextColumn Header="Documento" Binding="{Binding DocumentoReferencia}" Width="140"/></DataGrid.Columns></DataGrid></Border>
-</StackPanel></ScrollViewer></UserControl>
+<UserControl x:Class="FinancePro.UI.Views.StockView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+  <StackPanel>
+   <Grid Margin="0,0,0,18">
+    <StackPanel>
+     <TextBlock Text="Produtos e Serviços" Style="{StaticResource FP.PageTitle}"/>
+     <TextBlock Text="Catálogo comercial, inventário, preços, movimentos, alertas e rentabilidade" Style="{StaticResource FP.PageSubtitle}"/>
+    </StackPanel>
+    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+     <Button Content="Exportar produtos" Command="{Binding ExportarProdutosCommand}" Style="{StaticResource FP.SecondaryButton}" Margin="0,0,8,0"/>
+     <Button Content="Atualizar" Command="{Binding AtualizarCommand}" Style="{StaticResource FP.SecondaryButton}"/>
+    </StackPanel>
+   </Grid>
+
+   <UniformGrid Columns="4" Margin="0,0,0,16">
+    <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,8,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource FP.AccentSoft}"><TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource FP.Accent}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Produtos Ativos" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="150" HorizontalAlignment="Left"><TextBlock Text="{Binding TotalProdutos}" Style="{StaticResource FP.CompanyKpiValue}" Foreground="{DynamicResource TealDarkBrush}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+    <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,8,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource FP.AccentSoft}"><TextBlock Text="&#xE825;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource FP.Accent}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Valor do Inventário" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="150" HorizontalAlignment="Left"><TextBlock Text="{Binding ValorTotalStock, StringFormat={}{0:N2}}" Style="{StaticResource FP.CompanyKpiValue}" Foreground="{DynamicResource TealDarkBrush}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+    <Border Style="{StaticResource FP.KpiCard}" Margin="0,0,8,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource AvisoSuaveBrush}"><TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AvisoBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Abaixo do Mínimo" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="150" HorizontalAlignment="Left"><TextBlock Text="{Binding Alertas}" Style="{StaticResource FP.CompanyKpiValue}" Foreground="{DynamicResource AvisoBrush}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+    <Border Style="{StaticResource FP.KpiCard}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Style="{StaticResource FP.CompanyKpiIcon}" Background="{DynamicResource PerigoSuaveBrush}"><TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource PerigoBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><Grid Grid.Column="1" Margin="6,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Sem Stock" Style="{StaticResource FP.CompanyKpiLabel}"/><Viewbox Grid.Row="1" VerticalAlignment="Center" StretchDirection="DownOnly" MaxWidth="150" HorizontalAlignment="Left"><TextBlock Text="{Binding SemStock}" Style="{StaticResource FP.CompanyKpiValue}" Foreground="{DynamicResource PerigoBrush}" TextWrapping="NoWrap"/></Viewbox></Grid></Grid></Border>
+   </UniformGrid>
+
+   <Border Style="{StaticResource FP.Card}" Margin="0,0,0,16">
+    <Grid>
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="14"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <StackPanel><TextBlock Text="Pesquisar produto" Style="{StaticResource FP.FieldLabel}"/><TextBox Text="{Binding Pesquisa, UpdateSourceTrigger=PropertyChanged}" ToolTip="Código, nome, categoria ou localização"/></StackPanel>
+     <CheckBox Grid.Column="2" Content="Apenas abaixo do mínimo" IsChecked="{Binding ApenasAlertas}" VerticalAlignment="Bottom" Margin="0,0,0,9"/>
+     <Button Grid.Column="4" Content="Novo item" Command="{Binding NovoProdutoCommand}" Style="{StaticResource FP.PrimaryButton}" VerticalAlignment="Bottom"/>
+    </Grid>
+   </Border>
+
+   <Grid Margin="0,0,0,16">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="3*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="2*"/></Grid.ColumnDefinitions>
+    <Border Style="{StaticResource FP.Card}" Padding="0">
+     <DataGrid ItemsSource="{Binding Produtos}" SelectedItem="{Binding ProdutoSelecionado}" Style="{StaticResource FP.DataGrid}" MinHeight="320">
+      <DataGrid.Columns>
+       <DataGridTextColumn Header="Código" Binding="{Binding Codigo}" Width="Auto"/>
+       <DataGridTextColumn Header="Tipo" Binding="{Binding TipoItem}" Width="75"/>
+       <DataGridTextColumn Header="Produto" Binding="{Binding Nome}" Width="*"/>
+       <DataGridTextColumn Header="Categoria" Binding="{Binding Categoria}" Width="Auto"/>
+       <DataGridTextColumn Header="Un." Binding="{Binding Unidade}" Width="Auto"/>
+       <DataGridTextColumn Header="Stock" Binding="{Binding StockAtual, StringFormat=N3}" Width="Auto"/>
+       <DataGridTextColumn Header="Mínimo" Binding="{Binding StockMinimo, StringFormat=N3}" Width="Auto"/>
+       <DataGridTextColumn Header="Custo médio" Binding="{Binding CustoMedio, StringFormat=N2}" Width="Auto"/>
+       <DataGridTextColumn Header="Preço venda" Binding="{Binding PrecoVenda, StringFormat=N2}" Width="Auto"/>
+       <DataGridTextColumn Header="Valor" Binding="{Binding ValorStock, StringFormat=N2}" Width="Auto"/>
+      </DataGrid.Columns>
+     </DataGrid>
+    </Border>
+
+    <Border Grid.Column="2" Style="{StaticResource FP.Card}">
+     <StackPanel>
+      <Grid Margin="0,0,0,14"><TextBlock Text="{Binding TituloFormulario}" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}"/><StackPanel HorizontalAlignment="Right" Orientation="Horizontal"><Button Content="Editar" Command="{Binding EditarProdutoCommand}" Style="{StaticResource FP.SecondaryButton}" Margin="0,0,8,0"/><Button Content="Arquivar" Command="{Binding ArquivarProdutoCommand}" Style="{StaticResource FP.SecondaryButton}"/></StackPanel></Grid>
+      <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
+       <StackPanel><TextBlock Text="Código *" Style="{StaticResource FP.FieldLabel}"/><TextBox Text="{Binding Codigo, UpdateSourceTrigger=PropertyChanged}"/><TextBlock Text="Categoria" Style="{StaticResource FP.FieldLabel}" Margin="0,10,0,0"/><TextBox Text="{Binding Categoria}"/><TextBlock Text="Stock mínimo" Style="{StaticResource FP.FieldLabel}" Margin="0,10,0,0"/><TextBox Text="{Binding Minimo}"/><CheckBox Content="Controla stock" IsChecked="{Binding ControlaStock}" Margin="0,13,0,0"/></StackPanel>
+       <StackPanel Grid.Column="2"><TextBlock Text="Nome *" Style="{StaticResource FP.FieldLabel}"/><TextBox Text="{Binding Nome, UpdateSourceTrigger=PropertyChanged}"/><TextBlock Text="Unidade" Style="{StaticResource FP.FieldLabel}" Margin="0,10,0,0"/><TextBox Text="{Binding Unidade}"/><TextBlock Text="Preço de venda" Style="{StaticResource FP.FieldLabel}" Margin="0,10,0,0"/><TextBox Text="{Binding PrecoVenda}"/><TextBlock Text="Localização" Style="{StaticResource FP.FieldLabel}" Margin="0,10,0,0"/><TextBox Text="{Binding Localizacao}"/></StackPanel>
+      </Grid>
+      <Button Content="{Binding TextoGuardar}" Command="{Binding GuardarProdutoCommand}" Style="{StaticResource FP.PrimaryButton}" HorizontalAlignment="Stretch" Margin="0,16,0,0"/>
+     </StackPanel>
+    </Border>
+   </Grid>
+
+   <Border Style="{StaticResource FP.Card}" Margin="0,0,0,16">
+    <StackPanel>
+     <TextBlock Text="Registar movimento de stock" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource TealDarkBrush}" Margin="0,0,0,12"/>
+     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="10"/><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <StackPanel><TextBlock Text="Produto *" Style="{StaticResource FP.FieldLabel}"/><ComboBox ItemsSource="{Binding Produtos}" SelectedItem="{Binding ProdutoSelecionado}" DisplayMemberPath="Nome"/></StackPanel>
+      <StackPanel Grid.Column="2"><TextBlock Text="Tipo *" Style="{StaticResource FP.FieldLabel}"/><ComboBox ItemsSource="{Binding Tipos}" SelectedItem="{Binding Tipo}"/></StackPanel>
+      <StackPanel Grid.Column="4"><TextBlock Text="Quantidade *" Style="{StaticResource FP.FieldLabel}"/><TextBox Text="{Binding Quantidade}"/></StackPanel>
+      <StackPanel Grid.Column="6"><TextBlock Text="Custo unitário" Style="{StaticResource FP.FieldLabel}"/><TextBox Text="{Binding Custo}"/></StackPanel>
+      <StackPanel Grid.Column="8"><TextBlock Text="Documento / referência" Style="{StaticResource FP.FieldLabel}"/><TextBox Text="{Binding Documento}"/></StackPanel>
+      <Button Grid.Column="10" Content="Registar" Command="{Binding MovimentarCommand}" Style="{StaticResource FP.PrimaryButton}" VerticalAlignment="Bottom"/>
+     </Grid>
+     <TextBlock Text="Observação" Style="{StaticResource FP.FieldLabel}" Margin="0,10,0,0"/><TextBox Text="{Binding Observacao}"/>
+    </StackPanel>
+   </Border>
+
+   <Border Background="{DynamicResource FP.AccentSoft}" CornerRadius="8" Padding="12" Margin="0,0,0,16"><TextBlock Text="{Binding Mensagem}" Foreground="{DynamicResource TealDarkBrush}" TextWrapping="Wrap"/></Border>
+
+   <TabControl>
+    <TabItem Header="Movimentos">
+     <StackPanel Margin="10"><Button Content="Exportar movimentos" Command="{Binding ExportarMovimentosCommand}" Style="{StaticResource FP.SecondaryButton}" HorizontalAlignment="Right" Margin="0,0,0,10"/><DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Movimentos}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="300"><DataGrid.Columns><DataGridTextColumn Header="Data" Binding="{Binding Data, StringFormat=dd/MM/yyyy HH:mm}" Width="Auto"/><DataGridTextColumn Header="Produto" Binding="{Binding Produto}" Width="*"/><DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="Auto"/><DataGridTextColumn Header="Quantidade" Binding="{Binding Quantidade, StringFormat=N3}" Width="Auto"/><DataGridTextColumn Header="Custo" Binding="{Binding CustoUnitario, StringFormat=N2}" Width="Auto"/><DataGridTextColumn Header="Saldo" Binding="{Binding SaldoApos, StringFormat=N3}" Width="Auto"/><DataGridTextColumn Header="Documento" Binding="{Binding DocumentoReferencia}" Width="Auto"/></DataGrid.Columns></DataGrid></StackPanel>
+    </TabItem>
+    <TabItem Header="Custos e margens">
+     <StackPanel Margin="10"><UniformGrid Columns="4" Margin="0,0,0,12"><Border Style="{StaticResource FP.KpiCard}" Margin="0,0,8,0"><StackPanel><TextBlock Text="Receita líquida"/><TextBlock Text="{Binding ReceitaLiquida, StringFormat={}{0:N2}}" Style="{StaticResource FP.CompanyKpiValue}"/></StackPanel></Border><Border Style="{StaticResource FP.KpiCard}" Margin="0,0,8,0"><StackPanel><TextBlock Text="Custo vendido"/><TextBlock Text="{Binding CustoVendido, StringFormat={}{0:N2}}" Style="{StaticResource FP.CompanyKpiValue}"/></StackPanel></Border><Border Style="{StaticResource FP.KpiCard}" Margin="0,0,8,0"><StackPanel><TextBlock Text="Margem bruta"/><TextBlock Text="{Binding MargemBruta, StringFormat={}{0:N2}}" Style="{StaticResource FP.CompanyKpiValue}"/></StackPanel></Border><Border Style="{StaticResource FP.KpiCard}"><StackPanel><TextBlock Text="Margem %"/><TextBlock Text="{Binding MargemPercentual, StringFormat={}{0:N2}%}" Style="{StaticResource FP.CompanyKpiValue}"/></StackPanel></Border></UniformGrid><DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Rentabilidade}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="280"><DataGrid.Columns><DataGridTextColumn Header="Código" Binding="{Binding Codigo}" Width="Auto"/><DataGridTextColumn Header="Produto" Binding="{Binding Produto}" Width="*"/><DataGridTextColumn Header="Qtd. vendida" Binding="{Binding QuantidadeVendida, StringFormat=N2}" Width="Auto"/><DataGridTextColumn Header="Receita líquida" Binding="{Binding ReceitaLiquida, StringFormat=N2}" Width="Auto"/><DataGridTextColumn Header="Custo estimado" Binding="{Binding CustoEstimado, StringFormat=N2}" Width="Auto"/><DataGridTextColumn Header="Margem" Binding="{Binding MargemBruta, StringFormat=N2}" Width="Auto"/><DataGridTextColumn Header="Margem %" Binding="{Binding MargemPercentual, StringFormat=N2}" Width="Auto"/></DataGrid.Columns></DataGrid></StackPanel>
+    </TabItem>
+   </TabControl>
+  </StackPanel>
+ </ScrollViewer>
+</UserControl>

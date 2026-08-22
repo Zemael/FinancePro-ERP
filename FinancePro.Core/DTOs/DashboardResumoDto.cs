@@ -19,6 +19,18 @@ public class DashboardResumoDto
     public decimal Resultado => TotalReceitas - TotalDespesas;
     public decimal MargemPercentual => TotalReceitas > 0 ? Math.Round(Resultado / TotalReceitas * 100, 1) : 0;
 
+    // BI executivo
+    public decimal ReceitasMesAnterior { get; set; }
+    public decimal DespesasMesAnterior { get; set; }
+    public decimal VariacaoReceitasPercentual => ReceitasMesAnterior != 0 ? Math.Round((TotalReceitas - ReceitasMesAnterior) / ReceitasMesAnterior * 100, 1) : 0;
+    public decimal VariacaoDespesasPercentual => DespesasMesAnterior != 0 ? Math.Round((TotalDespesas - DespesasMesAnterior) / DespesasMesAnterior * 100, 1) : 0;
+    public decimal ContasReceberPendente { get; set; }
+    public decimal ContasPagarPendente { get; set; }
+    public decimal LiquidezImediataPercentual => ContasPagarPendente > 0 ? Math.Round(SaldoTesouraria / ContasPagarPendente * 100, 1) : 100;
+    public int ProjetosAtivos { get; set; }
+    public int ProjetosCriticos { get; set; }
+    public decimal ResultadoProjetos { get; set; }
+
     // Orçamento (dados reais do orçamento aprovado/ativo do exercício)
     public decimal OrcamentoPrevistoDespesas { get; set; }
     public decimal OrcamentoRealizadoDespesas { get; set; }

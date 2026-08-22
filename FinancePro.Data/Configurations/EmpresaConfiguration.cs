@@ -12,6 +12,7 @@ public class EmpresaConfiguration : IEntityTypeConfiguration<Empresa>
         builder.Property(e => e.Nome).IsRequired().HasMaxLength(150);
         builder.Property(e => e.NIF).HasMaxLength(30);
         builder.Property(e => e.Moeda).IsRequired().HasMaxLength(20);
+        builder.Property(e => e.Logotipo).HasColumnType("varbinary(max)");
         builder.HasIndex(e => e.NIF).IsUnique(false);
     }
 }

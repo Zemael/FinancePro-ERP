@@ -125,6 +125,9 @@ public partial class App : System.Windows.Application
         services.AddScoped<IAccountingStore, SqlAccountingStore>();
         services.AddScoped<IAccountingService, AccountingService>();
         services.AddScoped<IAutomaticAccountingRulesService, AutomaticAccountingRulesService>();
+        services.AddScoped<IAnalyticAccountingService, SqlAnalyticAccountingService>();
+        services.AddScoped<FinancePro.Platform.Investments.IInvestmentService, FinancePro.Data.Investments.SqlInvestmentService>();
+        services.AddScoped<FinancePro.Platform.HumanResources.IHumanResourcesService, FinancePro.Data.HumanResources.SqlHumanResourcesService>();
         services.AddScoped<IConsolidationStore, SqlConsolidationStore>();
         services.AddScoped<IConsolidationService, ConsolidationService>();
 
@@ -286,7 +289,7 @@ public partial class App : System.Windows.Application
 
         loginView.LoginBemSucedido += resultado =>
         {
-            SessaoAtual.Definir(resultado.UtilizadorId, resultado.NomeCompleto, resultado.PerfilNome, resultado.EmpresaId, resultado.Permissoes);
+            SessaoAtual.Definir(resultado.UtilizadorId, resultado.NomeCompleto, resultado.PerfilNome, resultado.EmpresaId, resultado.Permissoes, resultado.FotoPerfil);
 
             var mainWindow = new MainWindow(resultado);
             MainWindow = mainWindow;

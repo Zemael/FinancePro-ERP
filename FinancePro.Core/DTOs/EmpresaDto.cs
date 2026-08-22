@@ -9,4 +9,10 @@ public class EmpresaDto
     public string? Telefone { get; set; }
     public string? Email { get; set; }
     public string Moeda { get; set; } = "FCFA";
+    public byte[]? Logotipo { get; set; }
+    public string? BancoNome { get; set; }
+    public string? BancoConta { get; set; }
+    public string? BancoIban { get; set; }
+    public string? BancoTitular { get; set; }
+    public override string ToString() => Nome;
 }

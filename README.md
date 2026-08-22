@@ -230,10 +230,9 @@ dotnet ef database update --project FinancePro.Data --startup-project FinancePro
 
 ## Atualização: Logótipo
 
-Adicionado o logótipo oficial (`FinancePro.UI/Resources/Images/logo.png`,
-+ `logo-240.png` numa resolução menor para uso no ecrã, e `app.ico` gerado
-a partir dele para o ícone do executável/barra de tarefas). Aparece em:
-Login, Configuração Inicial, e na barra superior da janela principal.
+O logótipo oficial está em `FinancePro.UI/Resources/Images/financepro-logo-v4.png`,
+com o símbolo compacto em `financepro-mark-v4.png` e o ícone multirresolução em `app-v4.ico`.
+Aparece no login, na Configuração Inicial, no menu lateral, nas janelas, nos documentos comerciais e no instalador.
 Nenhuma migração necessária — só ficheiros de imagem e XAML.
 
 ## Atualização: Gestão Orçamental

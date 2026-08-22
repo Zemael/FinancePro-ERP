@@ -7,4 +7,5 @@ public sealed record CompanySaveRequest(
     string? Address,
     string? Phone,
     string? Email,
-    string Currency);
+    string Currency,
+    byte[]? Logo = null);

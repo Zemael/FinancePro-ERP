@@ -43,10 +43,13 @@ public sealed class RevenueApplicationServiceTests
     private sealed class FakeGateway : IRevenueGateway
     {
         public Task<IReadOnlyList<ContaReceberListItemDto>> ListarAsync(int empresaId) => Task.FromResult<IReadOnlyList<ContaReceberListItemDto>>(Array.Empty<ContaReceberListItemDto>());
+        public Task<EmpresaDto?> ObterEmpresaAsync(int empresaId) => Task.FromResult<EmpresaDto?>(new EmpresaDto { Id = empresaId, Nome = "Empresa" });
         public Task<IReadOnlyList<ClienteOpcaoDto>> ListarClientesAsync(int empresaId) => Task.FromResult<IReadOnlyList<ClienteOpcaoDto>>(Array.Empty<ClienteOpcaoDto>());
         public Task<IReadOnlyList<CategoriaOpcaoDto>> ListarCategoriasAsync(int empresaId) => Task.FromResult<IReadOnlyList<CategoriaOpcaoDto>>(Array.Empty<CategoriaOpcaoDto>());
         public Task<IReadOnlyList<OpcaoOrigemDto>> ListarOrigensAsync(int empresaId) => Task.FromResult<IReadOnlyList<OpcaoOrigemDto>>(Array.Empty<OpcaoOrigemDto>());
         public Task CriarAsync(NovaContaReceberDto dto) => Task.CompletedTask;
+        public Task AtualizarRascunhoAsync(AtualizarFaturaRascunhoDto dto) => Task.CompletedTask;
+        public Task<int> DuplicarAsync(int contaReceberId, int empresaId) => Task.FromResult(2);
         public Task RegistarRecebimentoAsync(int contaReceberId, string origemTipo, int origemId, DateTime dataRecebimento) => Task.CompletedTask;
         public Task RegistarRecebimentoParcialAsync(int contaReceberId, decimal valor, string origemTipo, int origemId, DateTime dataRecebimento) => Task.CompletedTask;
         public Task AprovarPropostaAsync(int contaReceberId) => Task.CompletedTask;
@@ -60,10 +63,10 @@ public sealed class RevenueApplicationServiceTests
             Task.FromResult<IReadOnlyList<DocumentoItemDto>>(Array.Empty<DocumentoItemDto>());
 
         public Task AdicionarItemAsync(NovoDocumentoItemDto dto) => Task.CompletedTask;
+        public Task AtualizarItemAsync(AtualizarDocumentoItemDto dto) => Task.CompletedTask;
 
         public Task RemoverItemAsync(int itemId) => Task.CompletedTask;
         public Task<IReadOnlyList<DocumentoFiscalDto>> ListarDocumentosAsync(int contaReceberId) => Task.FromResult<IReadOnlyList<DocumentoFiscalDto>>(Array.Empty<DocumentoFiscalDto>());
         public Task EmitirNotaAsync(NovaNotaFiscalDto dto) => Task.CompletedTask;
     }
 }
-

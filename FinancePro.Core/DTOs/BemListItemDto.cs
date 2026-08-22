@@ -14,10 +14,14 @@ public class BemListItemDto
     public string? Responsavel { get; set; }
     public DateTime DataAquisicao { get; set; }
     public decimal ValorAquisicao { get; set; }
+    public decimal ValorResidual { get; set; }
     public int VidaUtilAnos { get; set; }
     public string MetodoDepreciacao { get; set; } = string.Empty;
     public string Estado { get; set; } = string.Empty;
 
     /// <summary>Depreciação linear até à data de hoje, calculada ao vivo (não guardada).</summary>
+    public decimal DepreciacaoAcumulada { get; set; }
+    public decimal DepreciacaoMensal { get; set; }
     public decimal ValorLiquidoAtual { get; set; }
+    public override string ToString() => string.IsNullOrWhiteSpace(Codigo) ? Descricao : $"{Codigo} · {Descricao}";
 }

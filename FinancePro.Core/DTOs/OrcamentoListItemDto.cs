@@ -10,4 +10,5 @@ public class OrcamentoListItemDto
     public string Moeda { get; set; } = string.Empty;
     public string Estado { get; set; } = string.Empty;
     public DateTime? DataAprovacao { get; set; }
+    public override string ToString() => string.IsNullOrWhiteSpace(Nome) ? Ano.ToString() : $"{Ano} · {Nome}";
 }

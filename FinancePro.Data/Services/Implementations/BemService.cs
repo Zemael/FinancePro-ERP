@@ -39,28 +39,43 @@ public class BemService : IBemService
             Responsavel = b.Responsavel,
             DataAquisicao = b.DataAquisicao,
             ValorAquisicao = b.ValorAquisicao,
+            ValorResidual = b.ValorResidual,
             VidaUtilAnos = b.VidaUtilAnos,
             MetodoDepreciacao = b.MetodoDepreciacao.ToString(),
             Estado = b.Estado.ToString(),
+            DepreciacaoAcumulada = CalcularDepreciacaoAcumulada(b),
+            DepreciacaoMensal = CalcularDepreciacaoMensal(b),
             ValorLiquidoAtual = CalcularValorLiquido(b)
         }).ToList();
     }
 
-    /// <summary>Depreciação linear simples até hoje — só para dar uma
-    /// estimativa em ecrã; não substitui um módulo de Contabilidade real.</summary>
-    private static decimal CalcularValorLiquido(Bem bem)
+    private static decimal BaseDepreciavel(Bem bem) => Math.Max(bem.ValorAquisicao - bem.ValorResidual, 0m);
+
+    private static decimal CalcularDepreciacaoMensal(Bem bem)
     {
-        if (bem.MetodoDepreciacao == MetodoDepreciacao.SemDepreciacao || bem.VidaUtilAnos <= 0)
-        {
-            return bem.ValorAquisicao;
-        }
-
-        var anosDecorridos = (decimal)(DateTime.Today - bem.DataAquisicao).TotalDays / 365m;
-        var depreciacaoAnual = bem.ValorAquisicao / bem.VidaUtilAnos;
-        var depreciacaoAcumulada = Math.Min(depreciacaoAnual * anosDecorridos, bem.ValorAquisicao);
-
-        return Math.Max(bem.ValorAquisicao - depreciacaoAcumulada, 0);
+        if (bem.MetodoDepreciacao == MetodoDepreciacao.SemDepreciacao || bem.VidaUtilAnos <= 0) return 0m;
+        return BaseDepreciavel(bem) / (bem.VidaUtilAnos * 12m);
     }
+
+    private static decimal CalcularDepreciacaoAcumulada(Bem bem)
+    {
+        if (bem.MetodoDepreciacao == MetodoDepreciacao.SemDepreciacao || bem.VidaUtilAnos <= 0) return 0m;
+        var inicio = new DateTime(bem.DataAquisicao.Year, bem.DataAquisicao.Month, 1);
+        var fim = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        var meses = Math.Max(0, ((fim.Year - inicio.Year) * 12) + fim.Month - inicio.Month + 1);
+        var baseDep = BaseDepreciavel(bem);
+        if (bem.MetodoDepreciacao == MetodoDepreciacao.Degressivo)
+        {
+            var taxaAnual = 2m / bem.VidaUtilAnos;
+            var anos = meses / 12m;
+            var liquido = bem.ValorResidual + baseDep * (decimal)Math.Pow((double)Math.Max(0m, 1m - taxaAnual), (double)anos);
+            return Math.Min(baseDep, Math.Max(0m, bem.ValorAquisicao - liquido));
+        }
+        return Math.Min(baseDep, CalcularDepreciacaoMensal(bem) * meses);
+    }
+
+    private static decimal CalcularValorLiquido(Bem bem) =>
+        Math.Max(bem.ValorAquisicao - CalcularDepreciacaoAcumulada(bem), bem.ValorResidual);
 
     public async Task<int> CriarAsync(NovoBemDto dto, int utilizadorId, string utilizadorNome)
     {
@@ -87,6 +102,7 @@ public class BemService : IBemService
             Responsavel = dto.Responsavel,
             DataAquisicao = dto.DataAquisicao,
             ValorAquisicao = dto.ValorAquisicao,
+            ValorResidual = dto.ValorResidual,
             VidaUtilAnos = dto.VidaUtilAnos,
             MetodoDepreciacao = dto.MetodoDepreciacao,
             EmpresaId = dto.EmpresaId,
@@ -118,6 +134,7 @@ public class BemService : IBemService
         bem.Responsavel = dto.Responsavel;
         bem.DataAquisicao = dto.DataAquisicao;
         bem.ValorAquisicao = dto.ValorAquisicao;
+        bem.ValorResidual = dto.ValorResidual;
         bem.VidaUtilAnos = dto.VidaUtilAnos;
         bem.MetodoDepreciacao = dto.MetodoDepreciacao;
         bem.DataAtualizacao = DateTime.UtcNow;
@@ -156,6 +173,11 @@ public class BemService : IBemService
         if (dto.ValorAquisicao < 0)
         {
             throw new InvalidOperationException("O valor de aquisição não pode ser negativo.");
+        }
+
+        if (dto.ValorResidual < 0 || dto.ValorResidual > dto.ValorAquisicao)
+        {
+            throw new InvalidOperationException("O valor residual deve estar entre zero e o valor de aquisição.");
         }
 
         if (dto.VidaUtilAnos < 0)

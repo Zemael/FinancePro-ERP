@@ -17,6 +17,7 @@ public class Bem : EntityBase
 
     public DateTime DataAquisicao { get; set; }
     public decimal ValorAquisicao { get; set; }
+    public decimal ValorResidual { get; set; }
     public int VidaUtilAnos { get; set; }
     public MetodoDepreciacao MetodoDepreciacao { get; set; } = MetodoDepreciacao.Linear;
 

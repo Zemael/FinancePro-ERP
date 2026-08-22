@@ -8,4 +8,5 @@ public class CaixaListItemDto
     public decimal? SaldoMinimo { get; set; }
     public bool PermiteSaldoNegativo { get; set; }
     public bool Ativo { get; set; }
+    public override string ToString() => Nome;
 }

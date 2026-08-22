@@ -168,6 +168,19 @@ public class OrcamentoService : IOrcamentoService
             .Include(m => m.Categoria)
             .ToListAsync();
 
+        // Compromissos: compras já aprovadas/cotadas/com ordem emitida/recebidas,
+        // mas ainda não faturadas. Mantêm-se separadas do realizado para evitar
+        // dupla contagem quando a fatura/pagamento entra na execução real.
+        var comprasComprometidas = await _context.Compras
+            .Where(c => c.EmpresaId == orcamento.EmpresaId
+                && c.Data.Year == orcamento.Ano
+                && (c.Estado == EstadoCompra.Aprovado
+                    || c.Estado == EstadoCompra.Cotado
+                    || c.Estado == EstadoCompra.OrdemEmitida
+                    || c.Estado == EstadoCompra.Recebido))
+            .Select(c => new { c.Data, c.ValorTotal })
+            .ToListAsync();
+
         var resultado = new List<ExecucaoMensalDto>();
         for (var mes = 1; mes <= 12; mes++)
         {
@@ -185,6 +198,10 @@ public class OrcamentoService : IOrcamentoService
                 && m.Categoria != null && m.Categoria.PlanoContasId.HasValue && idsContasDespesa.Contains(m.Categoria.PlanoContasId.Value))
                 .Sum(m => m.Valor);
 
+            var comprometidoDespesas = comprasComprometidas
+                .Where(c => c.Data.Month == mes)
+                .Sum(c => c.ValorTotal);
+
             resultado.Add(new ExecucaoMensalDto
             {
                 Mes = mes,
@@ -192,7 +209,8 @@ public class OrcamentoService : IOrcamentoService
                 PrevistoReceitas = previstoReceitas,
                 RealizadoReceitas = realizadoReceitas,
                 PrevistoDespesas = previstoDespesas,
-                RealizadoDespesas = realizadoDespesas
+                RealizadoDespesas = realizadoDespesas,
+                ComprometidoDespesas = comprometidoDespesas
             });
         }
 
@@ -250,7 +268,8 @@ public class OrcamentoService : IOrcamentoService
             TotalPrevistoReceitas = execucao.Sum(e => e.PrevistoReceitas),
             TotalRealizadoReceitas = execucao.Sum(e => e.RealizadoReceitas),
             TotalPrevistoDespesas = execucao.Sum(e => e.PrevistoDespesas),
-            TotalRealizadoDespesas = execucao.Sum(e => e.RealizadoDespesas)
+            TotalRealizadoDespesas = execucao.Sum(e => e.RealizadoDespesas),
+            TotalComprometidoDespesas = execucao.Sum(e => e.ComprometidoDespesas)
         };
     }
 }

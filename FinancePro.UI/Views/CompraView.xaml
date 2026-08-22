@@ -2,28 +2,6 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <UserControl.Resources>
-        <Style x:Key="Cartao" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="18,16"/>
-            <Setter Property="BorderBrush" Value="#DCEAF0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <Style x:Key="Rotulo" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#595959"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-        <Style x:Key="BotaoLink" TargetType="Button" BasedOn="{StaticResource BaseButton}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="4,2"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Margin" Value="2,0"/>
-        </Style>
-    </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
         <StackPanel>
@@ -34,14 +12,13 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Compras" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
+                    <TextBlock Text="Financeiro / Compras" FontSize="11" Foreground="{DynamicResource GrayTextBrush}" Margin="0,0,0,2"/>
+                    <TextBlock Text="Compras" Style="{StaticResource TituloModulo}" Margin="0,0,0,4"/>
                     <TextBlock Text="Pedidos de compra a fornecedores, com fluxo de aprovação"
-                               FontSize="10.5" Foreground="#595959"/>
+                               Style="{StaticResource TextoSecundario}"/>
                 </StackPanel>
                 <Button Grid.Column="1" Content="Atualizar" Command="{Binding AtualizarCommand}"
-                        Height="40" Padding="14,0" VerticalAlignment="Top"
-                        Background="#EAF4F7" Foreground="#156082" BorderBrush="#BFD9E2"
-                        FontWeight="SemiBold"/>
+                        Style="{StaticResource FP.SecondaryButton}" VerticalAlignment="Top"/>
             </Grid>
 
             <Border Style="{StaticResource Cartao}">
@@ -106,60 +83,57 @@
                         </StackPanel>
                     </Grid>
 
-                    <TextBlock Text="{Binding MensagemErro}" Foreground="#C00000" FontSize="10.5"
+                    <TextBlock Text="{Binding MensagemErro}" Foreground="{DynamicResource PerigoBrush}" FontSize="10.5"
                                Margin="0,12,0,0" TextWrapping="Wrap"
                                Visibility="{Binding MensagemErro, Converter={StaticResource TextoParaVisibilidade}}"/>
-                    <TextBlock Text="{Binding MensagemSucesso}" Foreground="#0F6E56" FontSize="10.5"
+                    <TextBlock Text="{Binding MensagemSucesso}" Foreground="{DynamicResource SucessoBrush}" FontSize="10.5"
                                Margin="0,12,0,0" TextWrapping="Wrap"
                                Visibility="{Binding MensagemSucesso, Converter={StaticResource TextoParaVisibilidade}}"/>
 
-                    <Button Content="{Binding AGuardar, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Criar pedido}"
-                            Command="{Binding CriarCommand}"
-                            Width="150" Height="40" HorizontalAlignment="Left" Margin="0,16,0,0"
-                            Background="#156082" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+                    <Button Style="{StaticResource BotaoPrimario}" Content="{Binding AGuardar, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Criar pedido}"
+                            Command="{Binding CriarCommand}" HorizontalAlignment="Left" Margin="0,16,0,0"/>
                 </StackPanel>
             </Border>
 
-            <TextBlock Text="Pedidos de Compra" FontSize="13" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,20,0,10"/>
+            <TextBlock Text="Pedidos de Compra" Style="{StaticResource FP.SectionTitle}" Margin="0,20,0,10"/>
 
             <Border Style="{StaticResource Cartao}" Padding="0">
-                <DataGrid ItemsSource="{Binding Compras}" SelectedItem="{Binding CompraSelecionada}" AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="34" BorderThickness="0">
+                <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Compras}" SelectedItem="{Binding CompraSelecionada}" AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Nº Pedido" Binding="{Binding NumeroPedido}" Width="90"/>
+                        <DataGridTextColumn Header="Nº Pedido" Binding="{Binding NumeroPedido}" Width="Auto"/>
                         <DataGridTextColumn Header="Fornecedor" Binding="{Binding FornecedorNome}" Width="*"/>
-                        <DataGridTextColumn Header="Data" Binding="{Binding Data, StringFormat=dd/MM/yyyy}" Width="85"/>
-                        <DataGridTextColumn Header="Prioridade" Binding="{Binding Prioridade}" Width="80"/>
-                        <DataGridTextColumn Header="Valor" Binding="{Binding ValorTotal, Converter={StaticResource ValorMoeda}}" Width="110"/>
-                        <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="90"/>
-                        <DataGridTextColumn Header="Cotação" Binding="{Binding NumeroCotacao}" Width="90"/>
-                        <DataGridTextColumn Header="Ordem" Binding="{Binding NumeroOrdemCompra}" Width="90"/>
+                        <DataGridTextColumn Header="Data" Binding="{Binding Data, StringFormat=dd/MM/yyyy}" Width="Auto"/>
+                        <DataGridTextColumn Header="Prioridade" Binding="{Binding Prioridade}" Width="Auto"/>
+                        <DataGridTextColumn Header="Valor" Binding="{Binding ValorTotal, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                        <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="Auto"/>
+                        <DataGridTextColumn Header="Cotação" Binding="{Binding NumeroCotacao}" Width="Auto"/>
+                        <DataGridTextColumn Header="Ordem" Binding="{Binding NumeroOrdemCompra}" Width="Auto"/>
                         <DataGridTemplateColumn Header="Fluxo" Width="390">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <WrapPanel>
-                                        <Button Content="Cotar" Style="{StaticResource BotaoLink}" Foreground="#156082"
+                                        <Button Content="Cotar" Style="{StaticResource BotaoLink}" Foreground="{DynamicResource TealBrush}"
                                                 Visibility="{Binding PodeCotar, Converter={StaticResource BoolParaVisibilidade}}"
                                                 Command="{Binding DataContext.CotarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
-                                        <Button Content="Aprovar" Style="{StaticResource BotaoLink}" Foreground="#0F6E56"
+                                        <Button Content="Aprovar" Style="{StaticResource BotaoLink}" Foreground="{DynamicResource SucessoBrush}"
                                                 Visibility="{Binding PodeAprovar, Converter={StaticResource BoolParaVisibilidade}}"
                                                 Command="{Binding DataContext.AprovarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Content="Rejeitar" Style="{StaticResource BotaoLink}" Foreground="#E97132"
+                                        <Button Content="Rejeitar" Style="{StaticResource BotaoLink}" Foreground="{DynamicResource AvisoBrush}"
                                                 Visibility="{Binding PodeRejeitar, Converter={StaticResource BoolParaVisibilidade}}"
                                                 Command="{Binding DataContext.RejeitarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Content="Cancelar" Style="{StaticResource BotaoLink}" Foreground="#C00000"
+                                        <Button Content="Cancelar" Style="{StaticResource BotaoLink}" Foreground="{DynamicResource PerigoBrush}"
                                                 Visibility="{Binding PodeCancelar, Converter={StaticResource BoolParaVisibilidade}}"
                                                 Command="{Binding DataContext.CancelarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                                                            <Button Content="Emitir ordem" Style="{StaticResource BotaoLink}" Foreground="#156082"
+                                                                            <Button Content="Emitir ordem" Style="{StaticResource BotaoLink}" Foreground="{DynamicResource TealBrush}"
                                                 Visibility="{Binding PodeEmitirOrdem, Converter={StaticResource BoolParaVisibilidade}}"
                                                 Command="{Binding DataContext.EmitirOrdemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
-                                        <Button Content="Receber" Style="{StaticResource BotaoLink}" Foreground="#0F6E56"
+                                        <Button Content="Receber" Style="{StaticResource BotaoLink}" Foreground="{DynamicResource SucessoBrush}"
                                                 Visibility="{Binding PodeReceber, Converter={StaticResource BoolParaVisibilidade}}"
                                                 Command="{Binding DataContext.ReceberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
-                                        <Button Content="Faturar" Style="{StaticResource BotaoLink}" Foreground="#7030A0"
+                                        <Button Content="Faturar" Style="{StaticResource BotaoLink}" Foreground="{DynamicResource FP.Accent}"
                                                 Visibility="{Binding PodeFaturar, Converter={StaticResource BoolParaVisibilidade}}"
                                                 Command="{Binding DataContext.FaturarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
                                     </WrapPanel>
@@ -170,14 +144,14 @@
                 </DataGrid>
             </Border>
 
-            <TextBlock Text="Itens do pedido selecionado" FontSize="13" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,20,0,10"/>
+            <TextBlock Text="Itens do pedido selecionado" Style="{StaticResource FP.SectionTitle}" Margin="0,20,0,10"/>
             <Border Style="{StaticResource Cartao}"><StackPanel>
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
                     <ComboBox Grid.Column="0" ItemsSource="{Binding ProdutosItens}" SelectedItem="{Binding ProdutoItemSelecionado}" DisplayMemberPath="Nome"/>
                     <TextBox Grid.Column="2" Text="{Binding QuantidadeItem}" ToolTip="Quantidade"/><TextBox Grid.Column="4" Text="{Binding PrecoItem}" ToolTip="Preço unitário"/><TextBox Grid.Column="6" Text="{Binding DescontoItem}" ToolTip="Desconto %"/><TextBox Grid.Column="8" Text="{Binding IvaItem}" ToolTip="IVA %"/>
                     <Button Grid.Column="10" Content="Adicionar" Style="{StaticResource BotaoPrimario}" Command="{Binding AdicionarItemCommand}"/>
                 </Grid>
-                <DataGrid ItemsSource="{Binding Itens}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,12,0,0" Height="170"><DataGrid.Columns><DataGridTextColumn Header="Produto" Binding="{Binding ProdutoNome}" Width="*"/><DataGridTextColumn Header="Qtd." Binding="{Binding Quantidade}" Width="70"/><DataGridTextColumn Header="Preço" Binding="{Binding PrecoUnitario}" Width="90"/><DataGridTextColumn Header="Desc.%" Binding="{Binding DescontoPercentual}" Width="70"/><DataGridTextColumn Header="IVA%" Binding="{Binding IvaPercentual}" Width="60"/><DataGridTextColumn Header="Total" Binding="{Binding Total}" Width="100"/><DataGridTemplateColumn Header="" Width="80"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Remover" Style="{StaticResource BotaoLink}" Foreground="#C00000" Command="{Binding DataContext.RemoverItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns></DataGrid>
+                <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Itens}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,12,0,0" Height="170"><DataGrid.Columns><DataGridTextColumn Header="Produto" Binding="{Binding ProdutoNome}" Width="*"/><DataGridTextColumn Header="Qtd." Binding="{Binding Quantidade}" Width="Auto"/><DataGridTextColumn Header="Preço" Binding="{Binding PrecoUnitario}" Width="Auto"/><DataGridTextColumn Header="Desc.%" Binding="{Binding DescontoPercentual}" Width="Auto"/><DataGridTextColumn Header="IVA%" Binding="{Binding IvaPercentual}" Width="Auto"/><DataGridTextColumn Header="Total" Binding="{Binding Total}" Width="Auto"/><DataGridTemplateColumn Header="" Width="80"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Remover" Style="{StaticResource BotaoLink}" Foreground="{DynamicResource PerigoBrush}" Command="{Binding DataContext.RemoverItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns></DataGrid>
             </StackPanel></Border>
 
         </StackPanel>

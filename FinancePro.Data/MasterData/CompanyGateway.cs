@@ -25,7 +25,8 @@ public sealed class CompanyGateway : ICompanyGateway
             Morada = request.Address,
             Telefone = request.Phone,
             Email = request.Email,
-            Moeda = request.Currency
+            Moeda = request.Currency,
+            Logotipo = request.Logo
         });
 
     public Task SetActiveAsync(int id, bool active, CancellationToken cancellationToken = default) =>

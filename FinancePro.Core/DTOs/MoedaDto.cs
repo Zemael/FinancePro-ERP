@@ -8,4 +8,5 @@ public sealed class MoedaDto
     public string Simbolo { get; set; } = string.Empty;
     public int CasasDecimais { get; set; }
     public bool Ativo { get; set; } = true;
+    public override string ToString() => string.IsNullOrWhiteSpace(CodigoIso) ? Nome : $"{CodigoIso} · {Nome}";
 }

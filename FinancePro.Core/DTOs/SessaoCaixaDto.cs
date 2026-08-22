@@ -10,4 +10,5 @@ public sealed class SessaoCaixaDto
     public decimal SaldoInicial { get; set; }
     public decimal SaldoAtual { get; set; }
     public bool Aberta { get; set; }
+    public override string ToString() => CaixaNome;
 }

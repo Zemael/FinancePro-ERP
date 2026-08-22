@@ -19,6 +19,7 @@ public class BemConfiguration : IEntityTypeConfiguration<Bem>
         builder.Property(b => b.Localizacao).HasMaxLength(150);
         builder.Property(b => b.Responsavel).HasMaxLength(150);
         builder.Property(b => b.ValorAquisicao).HasColumnType("decimal(18,2)");
+        builder.Property(b => b.ValorResidual).HasColumnType("decimal(18,2)");
         builder.Property(b => b.MetodoDepreciacao).HasConversion<string>().HasMaxLength(20);
         builder.Property(b => b.Estado).HasConversion<string>().HasMaxLength(20);
 

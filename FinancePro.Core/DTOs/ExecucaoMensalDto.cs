@@ -8,4 +8,10 @@ public class ExecucaoMensalDto
     public decimal RealizadoReceitas { get; set; }
     public decimal PrevistoDespesas { get; set; }
     public decimal RealizadoDespesas { get; set; }
+    public decimal ComprometidoDespesas { get; set; }
+    public decimal SaldoDisponivelDespesas => PrevistoDespesas - RealizadoDespesas - ComprometidoDespesas;
+    public decimal ExecucaoDespesasPercentual => PrevistoDespesas > 0 ? Math.Round(RealizadoDespesas / PrevistoDespesas * 100m, 1) : 0m;
+    public decimal UtilizacaoDespesasPercentual => PrevistoDespesas > 0 ? Math.Round((RealizadoDespesas + ComprometidoDespesas) / PrevistoDespesas * 100m, 1) : 0m;
+    public string SituacaoOrcamental => SaldoDisponivelDespesas < 0 ? "Excedido" : UtilizacaoDespesasPercentual >= 90 ? "Atenção" : "Dentro do orçamento";
+    public override string ToString() => MesNome;
 }

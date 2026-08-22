@@ -36,6 +36,8 @@ public class DashboardViewModel : ViewModelBase
     private int _workflowPendentes;
     private int _workflowAtrasados;
     private int _workflowUrgentes;
+    private decimal _variacaoReceitasPercentual, _variacaoDespesasPercentual, _contasReceberPendente, _contasPagarPendente, _liquidezImediataPercentual, _resultadoProjetos;
+    private int _projetosAtivos, _projetosCriticos;
 
     private string _termoPesquisa = string.Empty;
     private bool _resultadosPesquisaVisiveis;
@@ -64,6 +66,14 @@ public class DashboardViewModel : ViewModelBase
     public int WorkflowPendentes { get => _workflowPendentes; set => SetProperty(ref _workflowPendentes, value); }
     public int WorkflowAtrasados { get => _workflowAtrasados; set => SetProperty(ref _workflowAtrasados, value); }
     public int WorkflowUrgentes { get => _workflowUrgentes; set => SetProperty(ref _workflowUrgentes, value); }
+    public decimal VariacaoReceitasPercentual { get => _variacaoReceitasPercentual; set => SetProperty(ref _variacaoReceitasPercentual, value); }
+    public decimal VariacaoDespesasPercentual { get => _variacaoDespesasPercentual; set => SetProperty(ref _variacaoDespesasPercentual, value); }
+    public decimal ContasReceberPendente { get => _contasReceberPendente; set => SetProperty(ref _contasReceberPendente, value); }
+    public decimal ContasPagarPendente { get => _contasPagarPendente; set => SetProperty(ref _contasPagarPendente, value); }
+    public decimal LiquidezImediataPercentual { get => _liquidezImediataPercentual; set => SetProperty(ref _liquidezImediataPercentual, value); }
+    public decimal ResultadoProjetos { get => _resultadoProjetos; set => SetProperty(ref _resultadoProjetos, value); }
+    public int ProjetosAtivos { get => _projetosAtivos; set => SetProperty(ref _projetosAtivos, value); }
+    public int ProjetosCriticos { get => _projetosCriticos; set => SetProperty(ref _projetosCriticos, value); }
 
     public string TermoPesquisa
     {
@@ -145,6 +155,14 @@ public class DashboardViewModel : ViewModelBase
             WorkflowPendentes = resumo.WorkflowPendentes;
             WorkflowAtrasados = resumo.WorkflowAtrasados;
             WorkflowUrgentes = resumo.WorkflowUrgentes;
+            VariacaoReceitasPercentual = resumo.VariacaoReceitasPercentual;
+            VariacaoDespesasPercentual = resumo.VariacaoDespesasPercentual;
+            ContasReceberPendente = resumo.ContasReceberPendente;
+            ContasPagarPendente = resumo.ContasPagarPendente;
+            LiquidezImediataPercentual = resumo.LiquidezImediataPercentual;
+            ProjetosAtivos = resumo.ProjetosAtivos;
+            ProjetosCriticos = resumo.ProjetosCriticos;
+            ResultadoProjetos = resumo.ResultadoProjetos;
             UltimaAtualizacao = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
 
             MovimentosRecentes.Clear();

@@ -20,6 +20,11 @@ public sealed class MoedasViewModel : ViewModelBase
     private bool _aGuardar;
 
     public ObservableCollection<MoedaDto> Moedas { get; } = new();
+    public ObservableCollection<MoedaDto> MoedasPagina { get; } = new();
+    private const int ItensPorPagina = 10;
+    private int _paginaAtual = 1;
+    public int PaginaAtual { get => _paginaAtual; private set => SetProperty(ref _paginaAtual, value); }
+    public int TotalPaginas => Math.Max(1, (int)Math.Ceiling(Moedas.Count / (double)ItensPorPagina));
     public string Pesquisa { get => _pesquisa; set => SetProperty(ref _pesquisa, value); }
     public MoedaDto? Selecionada { get => _selecionada; set => SetProperty(ref _selecionada, value); }
     public string CodigoIso { get => _codigoIso; set => SetProperty(ref _codigoIso, value); }
@@ -34,6 +39,8 @@ public sealed class MoedasViewModel : ViewModelBase
     public ICommand EditarCommand { get; }
     public ICommand GuardarCommand { get; }
     public ICommand AlternarAtivoCommand { get; }
+    public ICommand PaginaAnteriorCommand { get; }
+    public ICommand PaginaSeguinteCommand { get; }
 
     public MoedasViewModel(CurrencyMasterDataService service)
     {
@@ -43,7 +50,23 @@ public sealed class MoedasViewModel : ViewModelBase
         EditarCommand = new RelayCommand(_ => Editar(), _ => Selecionada is not null);
         GuardarCommand = new AsyncRelayCommand(_ => GuardarAsync(), _ => !AGuardar);
         AlternarAtivoCommand = new AsyncRelayCommand(AlternarAtivoAsync);
+        PaginaAnteriorCommand = new RelayCommand(_ => MudarPagina(-1), _ => PaginaAtual > 1);
+        PaginaSeguinteCommand = new RelayCommand(_ => MudarPagina(1), _ => PaginaAtual < TotalPaginas);
         _ = CarregarAsync();
+    }
+
+    private void MudarPagina(int delta)
+    {
+        PaginaAtual += delta;
+        AtualizarPagina();
+    }
+
+    private void AtualizarPagina()
+    {
+        MoedasPagina.Clear();
+        foreach (var item in Moedas.Skip((PaginaAtual - 1) * ItensPorPagina).Take(ItensPorPagina))
+            MoedasPagina.Add(item);
+        OnPropertyChanged(nameof(TotalPaginas));
     }
 
     private async Task CarregarAsync()
@@ -53,6 +76,8 @@ public sealed class MoedasViewModel : ViewModelBase
         if (result.IsFailure) { Mensagem = string.Join(Environment.NewLine, result.Errors); return; }
         Moedas.Clear();
         foreach (var item in result.Value ?? Array.Empty<MoedaDto>()) Moedas.Add(item);
+        PaginaAtual = 1;
+        AtualizarPagina();
     }
 
     private void Editar()

@@ -22,4 +22,5 @@ public class ContaPagarListItemDto
 
     public bool PodePagar { get; set; }
     public bool PodeCancelar { get; set; }
+    public override string ToString() => string.IsNullOrWhiteSpace(Codigo) ? Descricao : $"{Codigo} · {Descricao}";
 }

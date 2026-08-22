@@ -8,4 +8,5 @@ public class RevisaoOrcamentalDto
     public string Motivo { get; set; } = string.Empty;
     public string Responsavel { get; set; } = string.Empty;
     public string Estado { get; set; } = string.Empty;
+    public override string ToString() => $"Versão {Versao} · {Motivo}";
 }

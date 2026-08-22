@@ -7,4 +7,5 @@ public class OpcaoOrigemDto
     public string Nome { get; set; } = string.Empty;
     public bool Disponivel { get; set; } = true;
     public string? MotivoIndisponibilidade { get; set; }
+    public override string ToString() => Nome;
 }

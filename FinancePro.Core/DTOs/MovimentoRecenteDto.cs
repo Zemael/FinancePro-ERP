@@ -7,4 +7,5 @@ public class MovimentoRecenteDto
     public string Descricao { get; set; } = string.Empty;
     public string Tipo { get; set; } = string.Empty; // "Receita" | "Despesa"
     public decimal Valor { get; set; }
+    public override string ToString() => Descricao;
 }

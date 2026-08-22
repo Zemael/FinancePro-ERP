@@ -12,6 +12,7 @@ public class UtilizadorConfiguration : IEntityTypeConfiguration<Utilizador>
         builder.Property(u => u.NomeCompleto).IsRequired().HasMaxLength(150);
         builder.Property(u => u.Email).IsRequired().HasMaxLength(150);
         builder.Property(u => u.PasswordHash).IsRequired();
+        builder.Property(u => u.FotoPerfil).HasColumnType("varbinary(max)");
         builder.HasIndex(u => u.Email).IsUnique();
 
         builder.HasOne(u => u.Perfil)

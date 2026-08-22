@@ -3,31 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <UserControl.Resources>
-        <Style x:Key="Cartao" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="16,14"/>
-            <Setter Property="BorderBrush" Value="#DCEAF0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <Style x:Key="Rotulo" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#595959"/>
-            <Setter Property="Margin" Value="0,0,0,3"/>
-        </Style>
-        <Style x:Key="BotaoPrimario" TargetType="Button" BasedOn="{StaticResource BaseButton}">
-            <Setter Property="Width" Value="150"/>
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="Margin" Value="0,12,0,0"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="11"/>
-        </Style>
         <Style x:Key="RotuloCartao" TargetType="TextBlock">
             <Setter Property="FontSize" Value="9.5"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#595959"/>
+            <Setter Property="Foreground" Value="{DynamicResource GrayTextBrush}"/>
         </Style>
         <Style x:Key="ValorCartao" TargetType="TextBlock">
             <Setter Property="FontSize" Value="15"/>
@@ -39,9 +18,10 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
         <StackPanel>
 
-            <TextBlock Text="Gestão Orçamental" FontSize="16" FontWeight="Bold" Foreground="#0E4C5E" Margin="0,0,0,4"/>
+            <TextBlock Text="Financeiro / Gestão Orçamental" FontSize="11" Foreground="{DynamicResource GrayTextBrush}" Margin="0,0,0,2"/>
+            <TextBlock Text="Gestão Orçamental" Style="{StaticResource TituloModulo}" Margin="0,0,0,4"/>
             <TextBlock Text="Orçamento anual por conta, mês, centro de custo e departamento"
-                       FontSize="10.5" Foreground="#595959" Margin="0,0,0,14"/>
+                       Style="{StaticResource TextoSecundario}" Margin="0,0,0,14"/>
 
             <!-- Criar / escolher orçamento -->
             <Border Style="{StaticResource Cartao}">
@@ -50,13 +30,13 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="260"/>
                             <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="150"/>
                             <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="150"/>
                             <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="120"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="Ano" Style="{StaticResource Rotulo}"/>
@@ -76,33 +56,43 @@
                         </StackPanel>
                         <StackPanel Grid.Column="8">
                             <TextBlock Text="Moeda" Style="{StaticResource Rotulo}"/>
-                            <TextBox Text="{Binding NovaMoeda, UpdateSourceTrigger=PropertyChanged}"/>
+                            <ComboBox ItemsSource="{Binding MoedasDisponiveis}" SelectedItem="{Binding NovaMoeda, Mode=TwoWay}"/>
                         </StackPanel>
                     </Grid>
-                    <TextBlock Text="{Binding MensagemErroOrcamento}" Foreground="#C00000" FontSize="10.5"
+                    <TextBlock Text="{Binding MensagemErroOrcamento}" Foreground="{DynamicResource PerigoBrush}" FontSize="10.5"
                                Margin="0,10,0,0" TextWrapping="Wrap"
                                Visibility="{Binding MensagemErroOrcamento, Converter={StaticResource TextoParaVisibilidade}}"/>
                     <Button Style="{StaticResource BotaoPrimario}" Command="{Binding CriarOrcamentoCommand}"
-                            Content="{Binding AGuardarOrcamento, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Criar orçamento}"/>
+                            Content="{Binding AGuardarOrcamento, Converter={StaticResource OcupadoParaTexto}, ConverterParameter=Criar orçamento}"
+                            Width="150" Height="38" HorizontalAlignment="Right" Margin="0,10,0,0"/>
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource Cartao}" Padding="0" Margin="0,10,0,0">
-                <DataGrid ItemsSource="{Binding Orcamentos}" AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="32" BorderThickness="0"
+                <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Orcamentos}" AutoGenerateColumns="False" IsReadOnly="True" RowHeight="38"
                           SelectedItem="{Binding OrcamentoSelecionado, Mode=TwoWay}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Ano" Binding="{Binding Ano}" Width="60"/>
-                        <DataGridTextColumn Header="Nome" Binding="{Binding Nome}" Width="*"/>
-                        <DataGridTextColumn Header="Início" Binding="{Binding DataInicio, StringFormat=dd/MM/yyyy}" Width="90"/>
-                        <DataGridTextColumn Header="Fim" Binding="{Binding DataFim, StringFormat=dd/MM/yyyy}" Width="90"/>
-                        <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="100"/>
+                        <DataGridTextColumn Header="Ano" Binding="{Binding Ano}" Width="Auto"/>
+                        <DataGridTextColumn Header="Nome" Binding="{Binding Nome}" Width="220" MinWidth="150"/>
+                        <DataGridTextColumn Header="Início" Binding="{Binding DataInicio, StringFormat=dd/MM/yyyy}" Width="Auto"/>
+                        <DataGridTextColumn Header="Fim" Binding="{Binding DataFim, StringFormat=dd/MM/yyyy}" Width="Auto"/>
+                        <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="Auto"/>
+                        <DataGridTemplateColumn Header="Ações" Width="76">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="&#xE8A7;" FontFamily="Segoe MDL2 Assets"
+                                            Command="{Binding DataContext.SelecionarOrcamentoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}" Style="{StaticResource FP.IconButton}"
+                                            Width="36" Height="36" ToolTip="Abrir orçamento"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
 
             <TextBlock Text="Clique numa linha acima para escolher o orçamento em edição."
-                       FontSize="9.5" Foreground="#888780" Margin="0,4,0,0"
+                       FontSize="9.5" Foreground="{DynamicResource GraySubBrush}" Margin="0,4,0,0"
                        Visibility="{Binding OrcamentoSelecionado, Converter={StaticResource ObjetoParaVisibilidade}, ConverterParameter=Inverso}"/>
 
             <!-- Detalhe do orçamento selecionado -->
@@ -114,15 +104,15 @@
                         <StackPanel Margin="0,10,0,0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="240"/>
                                     <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="*" MinWidth="150"/>
                                     <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="*" MinWidth="150"/>
                                     <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="80"/>
                                     <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="120"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Conta do plano" Style="{StaticResource Rotulo}"/>
@@ -145,19 +135,19 @@
                                     <TextBox Text="{Binding ValorPrevistoReceitaTexto, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                             </Grid>
-                            <TextBlock Text="{Binding MensagemErroReceita}" Foreground="#C00000" FontSize="10.5"
+                            <TextBlock Text="{Binding MensagemErroReceita}" Foreground="{DynamicResource PerigoBrush}" FontSize="10.5"
                                        Margin="0,8,0,0" Visibility="{Binding MensagemErroReceita, Converter={StaticResource TextoParaVisibilidade}}"/>
-                            <Button Content="Adicionar linha" Style="{StaticResource BotaoPrimario}" Command="{Binding AdicionarReceitaCommand}"/>
+                            <Button Content="Adicionar linha" Style="{StaticResource BotaoPrimario}" Command="{Binding AdicionarReceitaCommand}"
+                                    Width="140" Height="38" HorizontalAlignment="Right" Margin="0,8,0,0"/>
 
-                            <DataGrid ItemsSource="{Binding ReceitasPrevistas}" AutoGenerateColumns="False" IsReadOnly="True"
-                                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="30" BorderThickness="0" Margin="0,14,0,0">
+                            <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding ReceitasPrevistas}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,14,0,0">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Conta" Binding="{Binding PlanoContasNome}" Width="*"/>
-                                    <DataGridTextColumn Header="C. Custo" Binding="{Binding CentroCusto}" Width="90"/>
-                                    <DataGridTextColumn Header="Depart." Binding="{Binding Departamento}" Width="90"/>
-                                    <DataGridTextColumn Header="Mês" Binding="{Binding MesNome}" Width="80"/>
-                                    <DataGridTextColumn Header="Previsto" Binding="{Binding ValorPrevisto, Converter={StaticResource ValorMoeda}}" Width="110"/>
-                                    <DataGridTextColumn Header="Realizado" Binding="{Binding ValorRealizado, Converter={StaticResource ValorMoeda}}" Width="110"/>
+                                    <DataGridTextColumn Header="C. Custo" Binding="{Binding CentroCusto}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Depart." Binding="{Binding Departamento}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Mês" Binding="{Binding MesNome}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Previsto" Binding="{Binding ValorPrevisto, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Realizado" Binding="{Binding ValorRealizado, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
@@ -167,15 +157,15 @@
                         <StackPanel Margin="0,10,0,0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="240"/>
                                     <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="*" MinWidth="150"/>
                                     <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="*" MinWidth="150"/>
                                     <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="80"/>
                                     <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="120"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Conta do plano" Style="{StaticResource Rotulo}"/>
@@ -198,33 +188,36 @@
                                     <TextBox Text="{Binding ValorPrevistoDespesaTexto, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                             </Grid>
-                            <TextBlock Text="{Binding MensagemErroDespesa}" Foreground="#C00000" FontSize="10.5"
+                            <TextBlock Text="{Binding MensagemErroDespesa}" Foreground="{DynamicResource PerigoBrush}" FontSize="10.5"
                                        Margin="0,8,0,0" Visibility="{Binding MensagemErroDespesa, Converter={StaticResource TextoParaVisibilidade}}"/>
-                            <Button Content="Adicionar linha" Style="{StaticResource BotaoPrimario}" Command="{Binding AdicionarDespesaCommand}"/>
+                            <Button Content="Adicionar linha" Style="{StaticResource BotaoPrimario}" Command="{Binding AdicionarDespesaCommand}"
+                                    Width="140" Height="38" HorizontalAlignment="Right" Margin="0,8,0,0"/>
 
-                            <DataGrid ItemsSource="{Binding DespesasPrevistas}" AutoGenerateColumns="False" IsReadOnly="True"
-                                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="30" BorderThickness="0" Margin="0,14,0,0">
+                            <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding DespesasPrevistas}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,14,0,0">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Conta" Binding="{Binding PlanoContasNome}" Width="*"/>
-                                    <DataGridTextColumn Header="C. Custo" Binding="{Binding CentroCusto}" Width="90"/>
-                                    <DataGridTextColumn Header="Depart." Binding="{Binding Departamento}" Width="90"/>
-                                    <DataGridTextColumn Header="Mês" Binding="{Binding MesNome}" Width="80"/>
-                                    <DataGridTextColumn Header="Previsto" Binding="{Binding ValorPrevisto, Converter={StaticResource ValorMoeda}}" Width="110"/>
-                                    <DataGridTextColumn Header="Realizado" Binding="{Binding ValorRealizado, Converter={StaticResource ValorMoeda}}" Width="110"/>
+                                    <DataGridTextColumn Header="C. Custo" Binding="{Binding CentroCusto}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Depart." Binding="{Binding Departamento}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Mês" Binding="{Binding MesNome}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Previsto" Binding="{Binding ValorPrevisto, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Realizado" Binding="{Binding ValorRealizado, Converter={StaticResource ValorMoeda}}" Width="Auto"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
                     </TabItem>
 
                     <TabItem Header="Execução (Plano Mensal)">
-                        <DataGrid ItemsSource="{Binding Execucao}" AutoGenerateColumns="False" IsReadOnly="True"
-                                  HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="30" BorderThickness="0" Margin="0,10,0,0">
+                        <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Execucao}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,10,0,0">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Mês" Binding="{Binding MesNome}" Width="100"/>
-                                <DataGridTextColumn Header="Receitas previstas" Binding="{Binding PrevistoReceitas, Converter={StaticResource ValorMoeda}}" Width="130"/>
-                                <DataGridTextColumn Header="Receitas realizadas" Binding="{Binding RealizadoReceitas, Converter={StaticResource ValorMoeda}}" Width="130"/>
-                                <DataGridTextColumn Header="Despesas previstas" Binding="{Binding PrevistoDespesas, Converter={StaticResource ValorMoeda}}" Width="130"/>
-                                <DataGridTextColumn Header="Despesas realizadas" Binding="{Binding RealizadoDespesas, Converter={StaticResource ValorMoeda}}" Width="*"/>
+                                <DataGridTextColumn Header="Mês" Binding="{Binding MesNome}" Width="Auto"/>
+                                <DataGridTextColumn Header="Receitas previstas" Binding="{Binding PrevistoReceitas, Converter={StaticResource ValorMoeda}}" Width="*" MinWidth="115"/>
+                                <DataGridTextColumn Header="Receitas realizadas" Binding="{Binding RealizadoReceitas, Converter={StaticResource ValorMoeda}}" Width="*" MinWidth="115"/>
+                                <DataGridTextColumn Header="Despesas previstas" Binding="{Binding PrevistoDespesas, Converter={StaticResource ValorMoeda}}" Width="*" MinWidth="115"/>
+                                <DataGridTextColumn Header="Comprometido" Binding="{Binding ComprometidoDespesas, Converter={StaticResource ValorMoeda}}" Width="*" MinWidth="115"/>
+                                <DataGridTextColumn Header="Realizado" Binding="{Binding RealizadoDespesas, Converter={StaticResource ValorMoeda}}" Width="*" MinWidth="115"/>
+                                <DataGridTextColumn Header="Disponível" Binding="{Binding SaldoDisponivelDespesas, Converter={StaticResource ValorMoeda}}" Width="*" MinWidth="115"/>
+                                <DataGridTextColumn Header="Utilização %" Binding="{Binding UtilizacaoDespesasPercentual, StringFormat={}{0:N1}%}" Width="*" MinWidth="115"/>
+                                <DataGridTextColumn Header="Situação" Binding="{Binding SituacaoOrcamental}" Width="130" MinWidth="110"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </TabItem>
@@ -246,58 +239,71 @@
                                     <TextBox Text="{Binding ResponsavelRevisao, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                             </Grid>
-                            <TextBlock Text="{Binding MensagemErroRevisao}" Foreground="#C00000" FontSize="10.5"
+                            <TextBlock Text="{Binding MensagemErroRevisao}" Foreground="{DynamicResource PerigoBrush}" FontSize="10.5"
                                        Margin="0,8,0,0" Visibility="{Binding MensagemErroRevisao, Converter={StaticResource TextoParaVisibilidade}}"/>
                             <Button Content="Registar revisão" Style="{StaticResource BotaoPrimario}" Command="{Binding AdicionarRevisaoCommand}"/>
 
-                            <DataGrid ItemsSource="{Binding Revisoes}" AutoGenerateColumns="False" IsReadOnly="True"
-                                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="30" BorderThickness="0" Margin="0,14,0,0">
+                            <DataGrid Style="{StaticResource FP.DataGrid}" ItemsSource="{Binding Revisoes}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,14,0,0">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Versão" Binding="{Binding Versao}" Width="60"/>
-                                    <DataGridTextColumn Header="Data" Binding="{Binding Data, StringFormat=dd/MM/yyyy}" Width="90"/>
+                                    <DataGridTextColumn Header="Versão" Binding="{Binding Versao}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Data" Binding="{Binding Data, StringFormat=dd/MM/yyyy}" Width="Auto"/>
                                     <DataGridTextColumn Header="Motivo" Binding="{Binding Motivo}" Width="*"/>
-                                    <DataGridTextColumn Header="Responsável" Binding="{Binding Responsavel}" Width="120"/>
-                                    <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="90"/>
+                                    <DataGridTextColumn Header="Responsável" Binding="{Binding Responsavel}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="Auto"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
                     </TabItem>
 
-                    <TabItem Header="Relatórios">
-                        <UniformGrid Columns="3" Margin="0,10,0,0">
-                            <Border Style="{StaticResource Cartao}" Margin="0,0,8,8">
-                                <StackPanel>
-                                    <TextBlock Text="RECEITAS: PREVISTO VS REALIZADO" Style="{StaticResource RotuloCartao}"/>
-                                    <TextBlock Style="{StaticResource ValorCartao}" Foreground="#0E4C5E">
-                                        <Run Text="{Binding TotalPrevistoReceitas, Converter={StaticResource ValorMoeda}, Mode=OneWay}"/>
-                                    </TextBlock>
-                                    <TextBlock FontSize="10.5" Foreground="#0F6E56" Margin="0,2,0,0">
-                                        <Run Text="Realizado: "/><Run Text="{Binding TotalRealizadoReceitas, Converter={StaticResource ValorMoeda}, Mode=OneWay}"/>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Border>
-                            <Border Style="{StaticResource Cartao}" Margin="0,0,8,8">
-                                <StackPanel>
-                                    <TextBlock Text="DESPESAS: PREVISTO VS REALIZADO" Style="{StaticResource RotuloCartao}"/>
-                                    <TextBlock Style="{StaticResource ValorCartao}" Foreground="#0E4C5E">
-                                        <Run Text="{Binding TotalPrevistoDespesas, Converter={StaticResource ValorMoeda}, Mode=OneWay}"/>
-                                    </TextBlock>
-                                    <TextBlock FontSize="10.5" Foreground="#C00000" Margin="0,2,0,0">
-                                        <Run Text="Realizado: "/><Run Text="{Binding TotalRealizadoDespesas, Converter={StaticResource ValorMoeda}, Mode=OneWay}"/>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Border>
-                            <Border Style="{StaticResource Cartao}">
-                                <StackPanel>
-                                    <TextBlock Text="RESULTADO: PREVISTO VS REALIZADO" Style="{StaticResource RotuloCartao}"/>
-                                    <TextBlock Text="{Binding ResultadoPrevisto, Converter={StaticResource ValorMoeda}}" Style="{StaticResource ValorCartao}"
-                                               Foreground="{Binding ResultadoPrevisto, Converter={StaticResource ValorParaCor}}"/>
-                                    <TextBlock FontSize="10.5" Margin="0,2,0,0" Foreground="{Binding ResultadoRealizado, Converter={StaticResource ValorParaCor}}">
-                                        <Run Text="Realizado: "/><Run Text="{Binding ResultadoRealizado, Converter={StaticResource ValorMoeda}, Mode=OneWay}"/>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Border>
-                        </UniformGrid>
+                    <TabItem Header="Controlo Orçamental">
+                        <StackPanel Margin="0,10,0,0">
+                            <UniformGrid Columns="3">
+                                <Border Style="{StaticResource Cartao}" Margin="0,0,8,8">
+                                    <StackPanel>
+                                        <TextBlock Text="DESPESA PREVISTA" Style="{StaticResource RotuloCartao}"/>
+                                        <TextBlock Text="{Binding TotalPrevistoDespesas, Converter={StaticResource ValorMoeda}}" Style="{StaticResource ValorCartao}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Cartao}" Margin="0,0,8,8">
+                                    <StackPanel>
+                                        <TextBlock Text="COMPROMETIDO" Style="{StaticResource RotuloCartao}"/>
+                                        <TextBlock Text="{Binding TotalComprometidoDespesas, Converter={StaticResource ValorMoeda}}" Style="{StaticResource ValorCartao}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Cartao}" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="REALIZADO" Style="{StaticResource RotuloCartao}"/>
+                                        <TextBlock Text="{Binding TotalRealizadoDespesas, Converter={StaticResource ValorMoeda}}" Style="{StaticResource ValorCartao}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Cartao}" Margin="0,0,8,8">
+                                    <StackPanel>
+                                        <TextBlock Text="SALDO DISPONÍVEL" Style="{StaticResource RotuloCartao}"/>
+                                        <TextBlock Text="{Binding SaldoDisponivelDespesas, Converter={StaticResource ValorMoeda}}" Style="{StaticResource ValorCartao}"
+                                                   Foreground="{Binding SaldoDisponivelDespesas, Converter={StaticResource ValorParaCor}}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Cartao}" Margin="0,0,8,8">
+                                    <StackPanel>
+                                        <TextBlock Text="EXECUÇÃO / UTILIZAÇÃO" Style="{StaticResource RotuloCartao}"/>
+                                        <TextBlock Style="{StaticResource ValorCartao}">
+                                            <Run Text="{Binding ExecucaoDespesasPercentual, Mode=OneWay, StringFormat={}{0:N1}}"/><Run Text="%"/>
+                                        </TextBlock>
+                                        <TextBlock FontSize="10.5" Foreground="{DynamicResource GrayTextBrush}">
+                                            <Run Text="Com compromissos: "/><Run Text="{Binding UtilizacaoDespesasPercentual, Mode=OneWay, StringFormat={}{0:N1}}"/><Run Text="%"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Cartao}" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="ALERTA" Style="{StaticResource RotuloCartao}"/>
+                                        <TextBlock Text="{Binding AlertaOrcamental}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+                            <TextBlock Text="Compromissos consideram compras aprovadas, cotadas, com ordem emitida ou recebidas ainda não faturadas. O realizado continua baseado nos movimentos financeiros efetivos."
+                                       Foreground="{DynamicResource GrayTextBrush}" FontSize="10.5" TextWrapping="Wrap" Margin="2,4,0,0"/>
+                        </StackPanel>
                     </TabItem>
 
                 </TabControl>

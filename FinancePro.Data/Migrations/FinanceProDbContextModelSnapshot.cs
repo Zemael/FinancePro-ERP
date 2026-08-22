@@ -37,16 +37,28 @@ namespace FinancePro.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("Contacto")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTime?>("DataAtualizacao")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataCriacao")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Endereco")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("Sigla")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -1476,6 +1488,9 @@ namespace FinancePro.Data.Migrations
 
                     b.Property<int>("EmpresaId")
                         .HasColumnType("int");
+
+                    b.Property<byte[]>("FotoPerfil")
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("NomeCompleto")
                         .IsRequired()

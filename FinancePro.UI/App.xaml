@@ -27,6 +27,7 @@
             <conv:ContagemParaVisibilidadeConverter x:Key="ContagemParaVisibilidade"/>
             <conv:ObjetoParaVisibilidadeConverter x:Key="ObjetoParaVisibilidade"/>
             <conv:ConciliadoParaTextoConverter x:Key="ConciliadoParaTexto"/>
+            <conv:FotoPerfilConverter x:Key="FotoPerfilConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
